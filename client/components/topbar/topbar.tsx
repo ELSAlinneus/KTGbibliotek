@@ -1,6 +1,4 @@
-import './tailwind.css'
-
-function Navbar() {
+export default function Topbar(){
     return (
         <div>
             <h1 className="text-white text-5xl font-bold pb-4">KTG Bibliotek</h1>
@@ -16,6 +14,5 @@ function Navbar() {
                 </div>
             </nav>
         </div>
-    )
+    );
 }
-export default Navbar;
