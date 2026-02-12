@@ -1,3 +1,4 @@
+'use client';
 import { getAllBooks } from "../../lib/controllers/books.controller";
 
 export default function AllBooksPage() {
