@@ -1,12 +1,64 @@
 'use client';
+import { useEffect, useState } from 'react';
 import { getAllBooks } from "../../lib/controllers/books.controller";
+import BookInfo from "../../components/bookinfo/bookinfo";
+
+export type Book = {
+    id: string;
+    Title: string;
+    Author: string;
+    Borrowed: boolean;
+    Current_custody: string;
+    ImageURL: string;
+    Language: string;
+    Owner: string;
+    USBN: string;
+    Year_of_publication: number;
+}
 
 export default function AllBooksPage() {
-   
+    const [allbooks, setBooks] = useState<Book[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [selectedBookId, setSelectedBookId] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchBooks = async () => {
+            console.log("fetching books...");
+            setIsLoading(true);
+            const fetchedBooks = await getAllBooks();
+            setBooks(fetchedBooks);
+            setIsLoading(false);
+            console.log("books fetched:", fetchedBooks);
+        };
+
+        fetchBooks();
+
+    }, []);
+
+    if (isLoading) {
+        return <div>Loading...</div>;
+    }
+
     return (
-        <div>
-            all books
-            <button onClick={getAllBooks} >Get all books</button>
+        <div className="w-full">
+            <div className="p-4 mb-4 w-full bg-gray-200 rounded-lg">
+                <h1 className="text-2xl font-bold text-gray-800">
+                    All Books
+                </h1>
+            </div>
+            <ul>
+                {allbooks.map((book: Book) => (
+                    <div key={book.id} className="flex flex-col items-center justify-center fg-gray-100 p-4 m-4 rounded-lg">
+                        {/* <li onClick={() => <BookInfo book={book} />} className="text-gray-700 hover:text-gray-900"> */}
+                        <li className="text-gray-700 hover:text-gray-900" onClick={() => setSelectedBookId(book.id)}>
+                            {book.Title} 
+                        </li>
+                        {selectedBookId === book.id && (
+                            <BookInfo book={book} />
+                        )}
+                    </div>
+                ))}
+            </ul>
         </div>
     );
 }

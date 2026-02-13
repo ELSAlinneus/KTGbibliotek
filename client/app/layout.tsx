@@ -33,7 +33,12 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Topbar />
-        {children}
+        <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
+          <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between bg-white dark:bg-black">
+              
+              {children}
+            </main>
+        </div>
       </body>
     </html>
   );

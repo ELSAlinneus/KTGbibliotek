@@ -1,5 +1,6 @@
 import { db } from "@/lib/firebase/firebase";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, onSnapshot } from "firebase/firestore";
+import { Book } from "@/app/allbooks/page";
 
 function addBook() {
     console.log("add book");
@@ -12,17 +13,10 @@ function deleteBook() {
 function editBook() {
     console.log("edit book");
 }
-function getAllBooks() { 
-    console.log("get all books");
 
-    const books: any[] = [];
-    getDocs(collection(db, "Books")).then((querySnapshot: any) => { 
-        querySnapshot.forEach((doc: any) => { 
-            console.log(doc.id, " => ", doc.data()); 
-            books.push({ id: doc.id, ...doc.data() });
-        }); 
-    });
-    
+async function getAllBooks(): Promise<Book[]> { 
+    const snapshot = await getDocs(collection(db, "Books"));
+    return snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() } as Book));
 }
 
 function borrowBook() {
@@ -33,4 +27,12 @@ function returnBook() {
     console.log("return book");
 }
 
-export { addBook, deleteBook, editBook, getAllBooks, borrowBook, returnBook };
+function subscribeBooks(onUpdate: (books: Book[]) => void) {
+    const unsubscribe = onSnapshot(collection(db, "Books"), (querySnapshot: any) => {
+        const books = querySnapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() } as Book));
+        onUpdate(books);
+    });
+    return unsubscribe;
+}
+
+export { addBook, deleteBook, editBook, getAllBooks, borrowBook, returnBook, subscribeBooks };
