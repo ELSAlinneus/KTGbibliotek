@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { getAllBooks } from "../../lib/controllers/books.controller";
 import BookInfo from "../../components/bookinfo/bookinfo";
+import BookListItem from "../../components/bookinfo/bookListItem";
 
 export type Book = {
     id: string;
@@ -42,17 +43,15 @@ export default function AllBooksPage() {
     return (
         <div className="w-full">
             <div className="p-4 mb-4 w-full bg-gray-200 rounded-lg">
-                <h1 className="text-2xl font-bold text-gray-800">
+                <h1 className="text-2xl font-bold text-gray-800 text-center">
                     All Books
                 </h1>
             </div>
             <ul>
                 {allbooks.map((book: Book) => (
-                    <div key={book.id} className="flex flex-col items-center justify-center fg-gray-100 p-4 m-4 rounded-lg">
-                        {/* <li onClick={() => <BookInfo book={book} />} className="text-gray-700 hover:text-gray-900"> */}
-                        <li className="text-gray-700 hover:text-gray-900" onClick={() => setSelectedBookId(book.id)}>
-                            {book.Title} 
-                        </li>
+                    <div key={book.id} className="flex flex-col items-center justify-center bg-gray-100 p-4 m-4 rounded-lg">
+                        <BookListItem book={book} onClick={() => setSelectedBookId(book.id)}/>
+
                         {selectedBookId === book.id && (
                             <BookInfo book={book} />
                         )}
