@@ -4,6 +4,7 @@ import { onAuthStateChanged, User } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { auth } from "@/lib/firebase/firebase";
 import { handleUserProfileChange, Profile } from "@/lib/controllers/user.controller";
+import NewBookForm  from "./newBookForm";
 
 export default function ProfilePage() {
     const [user, setUser] = useState<User | null>(null);
@@ -12,6 +13,7 @@ export default function ProfilePage() {
         username: "",
         email: "",
     });
+    const [showNewBookForm, setShowNewBookForm] = useState<boolean>(false);
 
     useEffect(() => {
         const unsub = onAuthStateChanged(auth, (u) => {
@@ -42,8 +44,11 @@ export default function ProfilePage() {
                     {profile.username}
                 </h1>
             </div>
-            <div className="p-4 mb-4 ml-10 w-full bg-gray-100 rounded-lg">
-                <i className="fa fa-pen-to-square" onClick={() => setIsEditing(!isEditing)}></i>
+            <div className="p-4 mb-4 ml-10 mr-10 bg-gray-100 rounded-lg">
+                <div className="flex row justify-between items-center mb-4">
+                    <p className="font-bold">Användaruppgifter</p>
+                    <i className="fa fa-pen-to-square" onClick={() => setIsEditing(!isEditing)}></i>
+                </div>
                 <div className="flex row">
                     <label className="text-gray-700 mr-2">Användarnamn:</label>
                     <input
@@ -69,6 +74,14 @@ export default function ProfilePage() {
                         Uppdatera användaruppgifter
                     </button>
                 )}
+            </div>
+
+            <div >
+                <button className="ml-10 p-2 bg-gray-500 text-white rounded hover:bg-gray-700 transition duration-300 shadow"
+                    onClick={() => setShowNewBookForm(!showNewBookForm)}>
+                    Ladda upp ny bok till biblioteket
+                </button>
+                {showNewBookForm && <NewBookForm user={user} onClose={() => setShowNewBookForm(false)} />}
             </div>
         </div>
     );
