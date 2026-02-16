@@ -1,6 +1,7 @@
 import { db, auth } from "@/lib/firebase/firebase";
 import { updateProfile } from "firebase/auth"; 
-
+import { Book } from "../types/Book";
+import { collection, getDocs } from "@firebase/firestore";
 export interface Profile {
     username: string;
     email: string;
@@ -29,9 +30,23 @@ function handleUserProfileChange(profile: Profile) {
     
     const user = auth.currentUser;
     if (user) {
+        //TODO: Implement email change functionality
         console.log("Email change functionality not implemented yet.");
     }
 }
 
+async function getUserBooks() {
+    console.log("get user books");
+    const books: Book[] = [];
+    const querySnapshot = await getDocs(collection(db, "Books"));
 
-export { handleUsernameChange, handleUserProfileChange };
+    querySnapshot.forEach((doc: any) => {
+        const bookData = doc.data();
+        if (bookData.Owner === auth.currentUser?.uid) {
+            books.push({ id: doc.id, ...bookData } as Book);
+        }
+    });
+    return books;
+}
+
+export { handleUsernameChange, handleUserProfileChange, getUserBooks };

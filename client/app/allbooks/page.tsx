@@ -4,19 +4,7 @@ import { getAllBooks } from "../../lib/controllers/books.controller";
 import BookInfo from "../../components/bookinfo/bookinfo";
 import BookListItem from "../../components/bookinfo/bookListItem";
 import Searchbar from "../../components/bookinfo/search";
-
-export type Book = {
-    id: string;
-    Title: string;
-    Author: string;
-    Borrowed: boolean;
-    Current_custody: string;
-    ImageURL: string;
-    Language: string;
-    Owner: string;
-    USBN: string;
-    Year_of_publication: number;
-}
+import { Book } from "../../lib/types/Book";
 
 export default function AllBooksPage() {
     const [allbooks, setBooks] = useState<Book[]>([]);

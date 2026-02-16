@@ -1,6 +1,6 @@
 import { db } from "@/lib/firebase/firebase";
 import { collection, getDocs, onSnapshot, addDoc } from "firebase/firestore";
-import { Book } from "@/app/allbooks/page";
+import { Book } from "../../lib/types/Book";
 import { User } from "firebase/auth";
 
 async function addBook(event: React.FormEvent<HTMLFormElement>, user: User | null) {

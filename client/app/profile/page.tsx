@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { auth } from "@/lib/firebase/firebase";
 import { handleUserProfileChange, Profile } from "@/lib/controllers/user.controller";
 import NewBookForm  from "./newBookForm";
+import { getUserBooks } from "@/lib/controllers/user.controller";
 
 export default function ProfilePage() {
     const [user, setUser] = useState<User | null>(null);
@@ -14,6 +15,7 @@ export default function ProfilePage() {
         email: "",
     });
     const [showNewBookForm, setShowNewBookForm] = useState<boolean>(false);
+    const [userBooks, setUserBooks] = useState<any[]>([]);
 
     useEffect(() => {
         const unsub = onAuthStateChanged(auth, (u) => {
@@ -23,6 +25,11 @@ export default function ProfilePage() {
                     username: u.displayName || "",
                     email: u.email || "",
                 });    
+                const fetchUserBooks = async () => {
+                    const books = await getUserBooks();
+                    setUserBooks(books);
+                };
+                fetchUserBooks();
             }
         });
         return () => unsub();
@@ -30,7 +37,7 @@ export default function ProfilePage() {
 
     const handleUserProfileUpdate = () => {
         if (user) {
-            const confirmChange = window.confirm("Are you sure you want to change your profile information?");
+            const confirmChange = window.confirm("Är du säker på att du vill ändra dina användaruppgifter?");
             if (confirmChange) {
                 handleUserProfileChange(profile);
             }
@@ -83,6 +90,24 @@ export default function ProfilePage() {
                 </button>
                 {showNewBookForm && <NewBookForm user={user} onClose={() => setShowNewBookForm(false)} />}
             </div>
+            {userBooks.length > 0 && (
+                <div className="p-4 mb-4 ml-10 mr-10 mt-4 bg-gray-100 rounded-lg">
+                    <p className="font-bold"> Mina böcker:</p>
+                    {userBooks.map((book: any) => (
+                        <div key={book.id} className="mt-2 flex row justify-between items-center mb-2">
+                            <p>{book.Title}</p>
+                            <div>
+                                <button className="mr-2 p-1 bg-gray-500 text-white rounded hover:bg-yellow-700 transition duration-300 shadow">
+                                    Redigera
+                                </button>
+                                <button className="p-1 bg-gray-600 text-white rounded hover:bg-red-700 transition duration-300 shadow">
+                                    Ta bort
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
         </div>
     );
 }
