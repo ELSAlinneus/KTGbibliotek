@@ -6,6 +6,8 @@ import { auth } from "@/lib/firebase/firebase";
 import { handleUserProfileChange, Profile } from "@/lib/controllers/user.controller";
 import NewBookForm  from "./newBookForm";
 import { getUserBooks } from "@/lib/controllers/user.controller";
+import BookInfo from "../../components/bookinfo/bookinfo";
+import { Book } from "@/lib/types/Book";
 
 export default function ProfilePage() {
     const [user, setUser] = useState<User | null>(null);
@@ -15,7 +17,8 @@ export default function ProfilePage() {
         email: "",
     });
     const [showNewBookForm, setShowNewBookForm] = useState<boolean>(false);
-    const [userBooks, setUserBooks] = useState<any[]>([]);
+    const [userBooks, setUserBooks] = useState<Book[]>([]);
+    const [selectedBookId, setSelectedBookId] = useState<string | null>(null);
 
     useEffect(() => {
         const unsub = onAuthStateChanged(auth, (u) => {
@@ -93,17 +96,20 @@ export default function ProfilePage() {
             {userBooks.length > 0 && (
                 <div className="p-4 mb-4 ml-10 mr-10 mt-4 bg-gray-100 rounded-lg">
                     <p className="font-bold"> Mina böcker:</p>
-                    {userBooks.map((book: any) => (
-                        <div key={book.id} className="mt-2 flex row justify-between items-center mb-2">
+                    {userBooks.map((book: Book) => (
+                        <div key={book.id} onClick={() => setSelectedBookId(book.id)} className="mt-2 flex row justify-between items-center mb-2">
                             <p>{book.Title}</p>
                             <div>
-                                <button className="mr-2 p-1 bg-gray-500 text-white rounded hover:bg-yellow-700 transition duration-300 shadow">
+                                <button className="mr-2 p-1 bg-gray-500 text-white rounded hover:bg-gray-700 transition duration-300 shadow">
                                     Redigera
                                 </button>
                                 <button className="p-1 bg-gray-600 text-white rounded hover:bg-red-700 transition duration-300 shadow">
                                     Ta bort
                                 </button>
                             </div>
+                            {selectedBookId === book.id && (
+                                <BookInfo book={book} onClose={() => setSelectedBookId(null)} /> 
+                            )}
                         </div>
                     ))}
                 </div>

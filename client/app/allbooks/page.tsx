@@ -43,7 +43,7 @@ export default function AllBooksPage() {
                         <BookListItem book={book} onClick={() => setSelectedBookId(book.id)}/>
 
                         {selectedBookId === book.id && (
-                            <BookInfo book={book} />
+                            <BookInfo book={book} onClose={() => setSelectedBookId(null)} />
                         )}
                     </div>
                 ))}

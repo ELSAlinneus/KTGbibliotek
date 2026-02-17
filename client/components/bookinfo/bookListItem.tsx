@@ -1,4 +1,6 @@
-export default function BookListItem({ book, onClick }: { book: any, onClick: () => void }) {
+import { Book } from "@/lib/types/Book";
+
+export default function BookListItem({ book, onClick }: { book: Book, onClick: () => void }) {
     return (
         <li className="text-gray-700 hover:text-gray-900 cursor-pointer m-2 bg-white p-2 rounded-lg flex items-center" onClick={onClick}>
             {book.ImageURL && (
