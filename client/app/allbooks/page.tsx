@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { getAllBooks } from "../../lib/controllers/books.controller";
+import { getAllBooks, deleteBook } from "../../lib/controllers/books.controller";
 import BookInfo from "../../components/bookinfo/bookinfo";
 import BookListItem from "../../components/bookinfo/bookListItem";
 import Searchbar from "../../components/bookinfo/search";
@@ -43,7 +43,12 @@ export default function AllBooksPage() {
                         <BookListItem book={book} onClick={() => setSelectedBookId(book.id)}/>
 
                         {selectedBookId === book.id && (
-                            <BookInfo book={book} onClose={() => setSelectedBookId(null)} />
+                            <BookInfo book={book} onClose={() => setSelectedBookId(null)} onDelete={async (bookId) => {
+                                const deleted = await deleteBook(bookId);
+                                if (deleted) {
+                                    setBooks(allbooks.filter(b => b.id !== bookId));
+                                }
+                            }} />
                         )}
                     </div>
                 ))}

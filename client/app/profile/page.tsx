@@ -8,6 +8,7 @@ import NewBookForm  from "./newBookForm";
 import { getUserBooks } from "@/lib/controllers/user.controller";
 import BookInfo from "../../components/bookinfo/bookinfo";
 import { Book } from "@/lib/types/Book";
+import { deleteBook } from "@/lib/controllers/books.controller";
 
 export default function ProfilePage() {
     const [user, setUser] = useState<User | null>(null);
@@ -37,15 +38,6 @@ export default function ProfilePage() {
         });
         return () => unsub();
     }, []);
-
-    const handleUserProfileUpdate = () => {
-        if (user) {
-            const confirmChange = window.confirm("Är du säker på att du vill ändra dina användaruppgifter?");
-            if (confirmChange) {
-                handleUserProfileChange(profile);
-            }
-        }
-    };
 
     return (
         <div className="w-full">
@@ -80,7 +72,7 @@ export default function ProfilePage() {
                     />
                 </div>
                 {isEditing && (
-                    <button onClick={handleUserProfileUpdate} className="ml-2 p-2 bg-blue-500 text-white rounded">
+                    <button onClick={() => handleUserProfileChange(profile)} className="mt-2 ml-2 p-2 bg-blue-500 text-white rounded">
                         Uppdatera användaruppgifter
                     </button>
                 )}
@@ -91,7 +83,15 @@ export default function ProfilePage() {
                     onClick={() => setShowNewBookForm(!showNewBookForm)}>
                     Ladda upp ny bok till biblioteket
                 </button>
-                {showNewBookForm && <NewBookForm user={user} onClose={() => setShowNewBookForm(false)} />}
+                {showNewBookForm && (
+                    <NewBookForm 
+                        user={user} 
+                        onClose={() => setShowNewBookForm(false)}
+                        onBookAdded={(newBook) => {
+                            setUserBooks([...userBooks, newBook]);
+                        }}
+                    />
+                )}
             </div>
             {userBooks.length > 0 && (
                 <div className="p-4 mb-4 ml-10 mr-10 mt-4 bg-gray-100 rounded-lg">
@@ -103,12 +103,33 @@ export default function ProfilePage() {
                                 <button className="mr-2 p-1 bg-gray-500 text-white rounded hover:bg-gray-700 transition duration-300 shadow">
                                     Redigera
                                 </button>
-                                <button className="p-1 bg-gray-600 text-white rounded hover:bg-red-700 transition duration-300 shadow">
+                                <button className="p-1 bg-gray-600 text-white rounded hover:bg-red-700 transition duration-300 shadow"
+                                onClick={async (e) => {
+                                    e.stopPropagation();
+                                    const deleted = await deleteBook(book.id);
+                                    if (deleted) {
+                                        setUserBooks(userBooks.filter(b => b.id !== book.id));
+                                        if (selectedBookId === book.id) {
+                                            setSelectedBookId(null);
+                                        }
+                                    }
+                                }}> 
                                     Ta bort
                                 </button>
                             </div>
                             {selectedBookId === book.id && (
-                                <BookInfo book={book} onClose={() => setSelectedBookId(null)} /> 
+                                <BookInfo 
+                                book={book} 
+                                onClose={() => setSelectedBookId(null)} 
+                                onDelete={async (bookId) => {
+                                    const deleted = await deleteBook(bookId);
+                                    if (deleted) {
+                                        setUserBooks(userBooks.filter(b => b.id !== bookId));
+                                        if (selectedBookId === bookId) {
+                                            setSelectedBookId(null);
+                                        }
+                                    }
+                                }} /> 
                             )}
                         </div>
                     ))}

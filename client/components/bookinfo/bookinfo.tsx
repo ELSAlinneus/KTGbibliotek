@@ -1,7 +1,18 @@
 import { Book } from "@/lib/types/Book";
 import { borrowBook } from "../../lib/controllers/books.controller";
+import { auth } from "@/lib/firebase/firebase";
+import { useEffect, useState } from "react";
 
-export default function BookInfo({ book, onClose }: { book: Book, onClose: () => void }) {
+export default function BookInfo({ book, onClose, onDelete }: { book: Book, onClose: () => void, onDelete: (bookId: string) => void }) {
+    const [userId, setUserId] = useState<string | null>(null);
+
+    useEffect(() => {
+        const unsubscribe = auth.onAuthStateChanged((currentUser) => {
+            setUserId(currentUser?.uid || null);
+        });
+        return unsubscribe;
+    }, []);
+
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
             <div className="w-full max-w-xl rounded-lg bg-white p-6 shadow-lg">
@@ -39,16 +50,32 @@ export default function BookInfo({ book, onClose }: { book: Book, onClose: () =>
                         {book.Year_of_publication && <p className="text-sm">Utgiven: {book.Year_of_publication}</p>}
                         {book.Language && <p className="text-sm">Språk: {book.Language}</p>}
                         {book.Owner && <p className="text-sm">Boken ägs av {book.Owner}</p>}
-                        {!book.Borrowed && (
+                        {userId === book.Owner ? (
+                            <div>
+                                <p className="mt-4 text-sm text-red-600 font-bold">Detta är din bok</p>
+                                <button
+                                    className="mt-5 inline-flex items-center justify-center rounded-md bg-gray-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black-600  cursor-pointer"
+                                >
+                                    Redigera
+                                </button>
+                                <button
+                                    onClick={() => onDelete(book.id)}
+                                    className="mt-5 inline-flex items-center justify-center rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600  cursor-pointer ml-2"
+                                >
+                                    Ta bort
+                                </button>
+                            </div>
+                        ) : !book.Borrowed ? (
                             <button
                                 onClick={borrowBook}
                                 className="mt-5 inline-flex items-center justify-center rounded-md bg-gray-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black-600  cursor-pointer"
                             >
                                 Låna
                             </button>
+                        ) : (
+                            <p className="mt-4 text-sm text-red-600 font-bold">Boken är redan utlånad</p>
                         )}
                     </div>
-                            {/* //TODO kolla om user är owner, isåfall ändra till redigera & ta bort btns */}
                 </div>
             </div>
         </div>

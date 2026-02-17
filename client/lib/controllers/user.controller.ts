@@ -7,31 +7,29 @@ export interface Profile {
     email: string;
 }
 
-function handleUsernameChange(newUsername: string) {
-    const user = auth.currentUser;
-    if (user) {
-        updateProfile(user, { displayName: newUsername })
-            .then(() => {
-                console.log("Username updated successfully");
-            })
-            .catch((error) => {
-                console.error("Error updating username:", error);
-            });
-    } else {
-        console.error("No user is currently signed in.");
-    }
-    console.log("displayname ", user?.displayName);
+function handleUsernameChange(user: any, newUsername: string) {
+
+    updateProfile(user, { displayName: newUsername })
+        .then(() => {
+            console.log("Username updated successfully");
+        })
+        .catch((error) => {
+            console.error("Error updating username:", error);
+        });
 }
 
 function handleUserProfileChange(profile: Profile) {
-    console.log("handle profile change", profile);
-
-    handleUsernameChange(profile.username);
-    
     const user = auth.currentUser;
     if (user) {
-        //TODO: Implement email change functionality
-        console.log("Email change functionality not implemented yet.");
+        const confirmChange = window.confirm("Är du säker på att du vill ändra dina användaruppgifter?");
+        if (confirmChange) {
+            console.log("handle profile change", profile);
+
+            handleUsernameChange(user, profile.username);
+            //TODO: Implement email change functionality
+        }
+    } else {
+        console.error("No user is currently signed in.");
     }
 }
 

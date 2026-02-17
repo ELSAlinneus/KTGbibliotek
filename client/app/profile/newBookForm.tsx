@@ -1,12 +1,14 @@
 import { addBook } from "@/lib/controllers/books.controller";
+import { Book } from "@/lib/types/Book";
 import { User } from "firebase/auth";
 
 type NewBookFormProps = {
     onClose: () => void;
-    user: User | null; 
+    user: User | null;
+    onBookAdded: (book: Book) => void;
 };
 
-export default function NewBookForm({ onClose, user }: NewBookFormProps) {
+export default function NewBookForm({ onClose, user, onBookAdded }: NewBookFormProps) {
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
             <div className="w-full max-w-xl rounded-lg bg-white p-6 shadow-lg">
@@ -23,9 +25,12 @@ export default function NewBookForm({ onClose, user }: NewBookFormProps) {
                         ✕
                     </button>
                 </div>
-                <form className="p-4 bg-gray-100 rounded-lg" onSubmit={(e) => {
+                <form className="p-4 bg-gray-100 rounded-lg" onSubmit={async (e) => {
                     e.preventDefault();
-                    addBook(e, user);
+                    const newBook = await addBook(e, user);
+                    if (newBook) {
+                        onBookAdded(newBook);
+                    }
                     onClose();
                 }}>
                     <div className="mb-4">
@@ -50,7 +55,7 @@ export default function NewBookForm({ onClose, user }: NewBookFormProps) {
                     </div>
                     <div className="mb-4">
                         <label className="block text-gray-700 mb-2">Omslagsbild URL:</label>           
-                        <input type="text" name="coverImageUrl" className="w-full p-2 border rounded" />
+                        <input type="text" name="imageUrl" className="w-full p-2 border rounded" />
                     </div>
                     <button type="submit" className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700 transition duration-300 shadow">
                         Lägg till bok

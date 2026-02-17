@@ -7,6 +7,6 @@ export type Book = {
     ImageURL: string;
     Language: string;
     Owner: string;
-    USBN: string;
+    ISBN: string;
     Year_of_publication: number;
 }

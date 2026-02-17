@@ -1,9 +1,9 @@
 import { db } from "@/lib/firebase/firebase";
-import { collection, getDocs, onSnapshot, addDoc } from "firebase/firestore";
+import { collection, getDocs, onSnapshot, addDoc, doc, deleteDoc } from "firebase/firestore";
 import { Book } from "../../lib/types/Book";
 import { User } from "firebase/auth";
 
-async function addBook(event: React.FormEvent<HTMLFormElement>, user: User | null) {
+async function addBook(event: React.FormEvent<HTMLFormElement>, user: User | null): Promise<Book | null> {
     const form = event.currentTarget;
     const formData = new FormData(form);
     const title = String(formData.get("title") ?? "");
@@ -11,38 +11,63 @@ async function addBook(event: React.FormEvent<HTMLFormElement>, user: User | nul
     const isbn = String(formData.get("isbn") ?? "");
     const language = String(formData.get("language") ?? "");
     const publicationYear = String(formData.get("publicationYear") ?? "");
-    const coverImageUrl = String(formData.get("coverImageUrl") ?? "");
+    const imageUrl = String(formData.get("imageUrl") ?? "");
 
     if (!title || !author || !isbn) {        
         alert("Please fill in all required fields (title, author, isbn).");
-        return;
+        return null;
     }
     if (user) {
-        await addDoc(collection(db, "Books"), {
-            Title: title,
-            Author: author,
-            ISBN: isbn,
-            Language: language,
-            PublicationYear: publicationYear,
-            CoverImageUrl: coverImageUrl,
-            Owner: user.uid, 
-            Borrowed: false,
-            Current_custody: user.uid
-        })
-        .then(() => {
-            alert("Book added successfully");
-        })
-        .catch((error) => {
+        try {
+            const docRef = await addDoc(collection(db, "Books"), {
+                Title: title,
+                Author: author,
+                ISBN: isbn,
+                Language: language,
+                Year_of_publication: publicationYear,
+                ImageURL: imageUrl,
+                Owner: user.uid, 
+                Borrowed: false,
+                Current_custody: user.uid
+            });
+            alert("Boken har lagts till i biblioteket!");
+            return {
+                id: docRef.id,
+                Title: title,
+                Author: author,
+                ISBN: isbn,
+                Language: language,
+                Year_of_publication: publicationYear,
+                ImageURL: imageUrl,
+                Owner: user.uid,
+                Borrowed: false,
+                Current_custody: user.uid
+            };
+        } catch (error: any) {
             alert("Error adding book: " + error.message);
-        });
-
+            return null;
+        }
     } else {
         console.error("User is not authenticated. Cannot add book.");
+        return null;
     }
 }
 
-function deleteBook() {
-    console.log("delete book");
+async function deleteBook(bookId: string): Promise<boolean> {
+    const confirmDelete = window.confirm("Är du säker på att du vill ta bort denna bok? Du kan inte ångra dig.");
+    if (confirmDelete) {
+        console.log("delete book with id:", bookId);
+        const bookRef = doc(db, "Books", bookId);
+        try {
+            await deleteDoc(bookRef);
+            console.log("Book deleted successfully");
+            return true;
+        } catch (error) {
+            console.error("Error deleting book: ", error);
+            return false;
+        }
+    }
+    return false;
 }
 
 function editBook() {
