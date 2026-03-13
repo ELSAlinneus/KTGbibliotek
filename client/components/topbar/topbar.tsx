@@ -21,7 +21,9 @@ export default function Topbar(){
 
     return (
         <div>
-            <h1 className="text-white text-5xl font-bold pb-4">KTG Bibliotek</h1>
+            <div className="w-full bg-blue-950 p-4 flex items-center justify-center">
+                <h1 className="text-white text-5xl font-bold pb-4">KTG Bibliotek</h1>
+            </div>
             <nav className="flex justify-between items-center bg-gray-800 p-4">
                 <div className="flex space-x-4">
                     <NavbarItem title="Hem" href="/"></NavbarItem>

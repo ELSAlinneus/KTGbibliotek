@@ -2,10 +2,7 @@ import { db, auth } from "@/lib/firebase/firebase";
 import { updateProfile } from "firebase/auth"; 
 import { Book } from "../types/Book";
 import { collection, getDocs } from "@firebase/firestore";
-export interface Profile {
-    username: string;
-    email: string;
-}
+import { Profile } from "../types/Profile";
 
 function handleUsernameChange(user: any, newUsername: string) {
 
