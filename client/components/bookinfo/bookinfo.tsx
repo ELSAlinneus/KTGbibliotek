@@ -10,6 +10,7 @@ import { PublicUserProfile } from "@/lib/types/Profile";
 export default function BookInfo({ book, onClose, onDelete }: { book: Book, onClose: () => void, onDelete: (bookId: string) => void }) {
     const [userId, setUserId] = useState<string | null>(null);
     const [ownerProfile, setOwnerProfile] = useState<PublicUserProfile | null>(null);
+    const [ownerDisplayName, setOwnerDisplayName] = useState<string>("");
 
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged((currentUser) => {
@@ -17,6 +18,27 @@ export default function BookInfo({ book, onClose, onDelete }: { book: Book, onCl
         });
         return unsubscribe;
     }, []);
+
+    useEffect(() => {
+        let isEffectActive = true;
+
+        async function loadOwnerDisplayName() {
+            if (!book.Owner) {
+                setOwnerDisplayName("");
+                return;
+            }
+
+            const ownerData = await getUserByUid(book.Owner);
+            if (isEffectActive) {
+                setOwnerDisplayName(ownerData?.displayName || book.Owner);
+            }
+        }
+        loadOwnerDisplayName();
+
+        return () => {
+            isEffectActive = false;
+        };
+    }, [book.Owner]);
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
@@ -71,7 +93,7 @@ export default function BookInfo({ book, onClose, onDelete }: { book: Book, onCl
                                     }}
                                     className="cursor-pointer text-blue-500 hover:text-blue-700"
                                 >
-                                    {book.Owner}
+                                    {ownerDisplayName}
                                 </button>
                             </p>
                         )}
