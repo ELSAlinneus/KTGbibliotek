@@ -3,13 +3,14 @@
 import { onAuthStateChanged, User } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { auth } from "@/lib/firebase/firebase";
-import { handleUserProfileChange } from "@/lib/controllers/user.controller";
+import { handleUserProfileChange, handleUserProfilePictureChange, getUserProfilePicture } from "@/lib/controllers/user.controller";
 import NewBookForm  from "./newBookForm";
 import { getUserBooks } from "@/lib/controllers/user.controller";
 import BookInfo from "../../components/bookinfo/bookinfo";
 import { Book } from "@/lib/types/Book";
 import { Profile } from "@/lib/types/Profile";
 import { deleteBook } from "@/lib/controllers/books.controller";
+import ImgUploader from "@/components/imgUploader";
 
 export default function ProfilePage() {
     const [user, setUser] = useState<User | null>(null);
@@ -27,16 +28,21 @@ export default function ProfilePage() {
         const unsub = onAuthStateChanged(auth, (u) => {
             setUser(u);
             if (u) {
-                setProfile({
-                    username: u.displayName || "",
-                    email: u.email || "",
-                    picture: u.photoURL || ""
-                });
                 const fetchUserBooks = async () => {
                     const books = await getUserBooks();
                     setUserBooks(books);
                 };
                 fetchUserBooks();
+
+                const fetchUserProfilePicture = async () => {
+                    const picture = await getUserProfilePicture(u.uid);
+                    setProfile({
+                        username: u.displayName || "",
+                        email: u.email || "",
+                        picture: picture || ""
+                    });
+                };
+                fetchUserProfilePicture();
             }
         });
         return () => unsub();
@@ -45,15 +51,22 @@ export default function ProfilePage() {
     return (
         <div className="w-full">
             <div className="p-4 mb-4 w-full bg-gray-200 rounded-lg flex flex-col items-center justify-center">
-                {profile.picture ? (
-                    <img src={profile.picture} alt="Profile Picture" className="w-30 h-30 rounded-full mb-4" />
-                ) : (
-                    //TODO: Lägg till möjlighet att ladda upp profilbild
-                    <div className="w-30 h-30 bg-gray-300 mb-4 flex justify-center items-center rounded-full">
-                        <span className=" text-gray-500">Lägg till bild <i className="fa fa-pen-to-square" ></i></span> 
-                    </div>
-                )
-                }
+                <ImgUploader
+                    value={profile.picture}
+                    onChange={(result) => {
+                        if (result) {
+                            const updatedProfile = { ...profile, picture: result.previewUrl };
+                            setProfile(updatedProfile);
+                            handleUserProfilePictureChange(updatedProfile, result.blob);
+                        } else {
+                            const updatedProfile = { ...profile, picture: "" };
+                            setProfile(updatedProfile);
+                            handleUserProfilePictureChange(updatedProfile);
+                        }
+                    }}
+                    round={true}
+                    className="w-48 h-48 cursor-pointer rounded-full border-2 border-dashed border-gray-300 p-13 text-center hover:border-gray-400"
+                />
                 <h1 className="text-2xl font-bold text-gray-800 text-center">
                     {profile.username}
                 </h1>
