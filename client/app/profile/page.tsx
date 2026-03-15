@@ -9,7 +9,7 @@ import BookInfo from "../../components/bookinfo/bookinfo";
 import { Book } from "@/lib/types/Book";
 import { Profile } from "@/lib/types/Profile";
 import { deleteBook } from "@/lib/controllers/books.controller";
-import ImgUploader from "@/components/imgUploader";
+import ImgUploader from "@/components/imgUploader/imgUploader";
 import UploadBookForm from "./uploadBookForm";
 
 export default function ProfilePage() {

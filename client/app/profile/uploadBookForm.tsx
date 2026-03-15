@@ -2,6 +2,7 @@ import { addBook, getInformationFromISBN } from "@/lib/controllers/books.control
 import { Book } from "@/lib/types/Book";
 import { useState } from "react";
 import { User } from "firebase/auth";
+import ImgUploader from "@/components/imgUploader/imgUploader";
 
 type NewBookFormProps = {
     onClose: () => void;
@@ -13,6 +14,8 @@ export default function UploadBookForm({ onClose, user, onBookAdded }: NewBookFo
 
     const [bookInfo, setBookInfo] = useState<Book | null>(null);
     const [infoFetched, setInfoFetched] = useState<boolean>(false);
+    const [coverImageBlob, setCoverImageBlob] = useState<Blob | null>(null);
+    const [coverImagePreview, setCoverImagePreview] = useState<string>("");
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
@@ -32,11 +35,13 @@ export default function UploadBookForm({ onClose, user, onBookAdded }: NewBookFo
                 </div>
                 <form className="p-4 bg-gray-100 rounded-lg" onSubmit={async (e) => {
                     e.preventDefault();
-                    const newBook = await addBook(e, user);
+                    const newBook = await addBook(e, user, coverImageBlob ?? undefined);
                     if (newBook) {
                         onBookAdded(newBook);
+                        setCoverImageBlob(null);
+                        setCoverImagePreview("");
+                        onClose();
                     }
-                    onClose();
                 }}>
                     <div>
                         <label className="block font-bold text-gray-700 mb-2">ISBN:</label>
@@ -63,6 +68,8 @@ export default function UploadBookForm({ onClose, user, onBookAdded }: NewBookFo
                         <button type="button" onClick={() => {
                             setBookInfo(null);
                             setInfoFetched(false);
+                            setCoverImageBlob(null);
+                            setCoverImagePreview("");
                             const isbnInput = document.getElementById("isbn") as HTMLInputElement;
                             if (isbnInput) {
                                 isbnInput.value = "";
@@ -89,6 +96,22 @@ export default function UploadBookForm({ onClose, user, onBookAdded }: NewBookFo
                             <div className="mb-4">
                                 <label className="block font-bold text-gray-700 mb-2">publiceringsår:</label>           
                                 <input readOnly value={bookInfo.publishedYear} type="text" name="publicationYear"/> 
+                            </div>
+                            <div className="mb-4">
+                                <label className="block font-bold text-gray-700 mb-2">Bokomslag:</label>           
+                                <ImgUploader 
+                                    value={coverImagePreview}
+                                    onChange={(result) => {
+                                        if (result) {
+                                            setCoverImageBlob(result.blob);
+                                            setCoverImagePreview(result.previewUrl);
+                                        } else {
+                                            setCoverImageBlob(null);
+                                            setCoverImagePreview("");
+                                        }
+                                    }}
+                                    className="w-36 h-40 cursor-pointer border-2 border-dashed border-gray-300 p-5 pt-10 text-center hover:border-gray-400"
+                                />
                             </div>
                             <button type="submit" className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700 transition duration-300 shadow">
                                 Lägg till bok

@@ -3,7 +3,11 @@ import { collection, getDocs, onSnapshot, addDoc, doc, deleteDoc } from "firebas
 import { Book } from "../../lib/types/Book";
 import { User } from "firebase/auth";
 
-async function addBook(event: React.FormEvent<HTMLFormElement>, user: User | null): Promise<Book | null> {
+async function addBook(
+    event: React.FormEvent<HTMLFormElement>,
+    user: User | null,
+    coverImageBlob?: Blob
+): Promise<Book | null> {
     const form = event.currentTarget;
     const formData = new FormData(form);
     const title = String(formData.get("title") ?? "");
@@ -11,7 +15,6 @@ async function addBook(event: React.FormEvent<HTMLFormElement>, user: User | nul
     const isbn = String(formData.get("isbn") ?? "");
     const language = String(formData.get("language") ?? "");
     const publicationYear = String(formData.get("publicationYear") ?? "");
-    const imageUrl = String(formData.get("imageUrl") ?? "");
 
     if (!title || !author || !isbn) {        
         alert("Please fill in all required fields (title, author, isbn).");
@@ -19,6 +22,22 @@ async function addBook(event: React.FormEvent<HTMLFormElement>, user: User | nul
     }
     if (user) {
         try {
+            let imageUrl = "";
+
+            if (coverImageBlob) {
+                imageUrl = await new Promise<string>((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(String(reader.result || ""));
+                    reader.onerror = () => reject(new Error("Could not read image blob"));
+                    reader.readAsDataURL(coverImageBlob);
+                });
+            }
+
+            if (imageUrl.length > 350000) {
+                alert("Bokomslaget är för stort. Välj en mindre bild.");
+                return null;
+            }
+
             const docRef = await addDoc(collection(db, "Books"), {
                 Title: title,
                 Author: author,
@@ -43,8 +62,9 @@ async function addBook(event: React.FormEvent<HTMLFormElement>, user: User | nul
                 Borrowed: false,
                 Current_custody: user.uid
             };
-        } catch (error: any) {
-            alert("Error adding book: " + error.message);
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : "Unknown error";
+            alert("Error adding book: " + message);
             return null;
         }
     } else {
@@ -76,7 +96,7 @@ function editBook() {
 
 async function getAllBooks(): Promise<Book[]> { 
     const snapshot = await getDocs(collection(db, "Books"));
-    return snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() } as Book));
+    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Book));
 }
 
 function borrowBook() {
@@ -88,8 +108,8 @@ function returnBook() {
 }
 
 function subscribeBooks(onUpdate: (books: Book[]) => void) {
-    const unsubscribe = onSnapshot(collection(db, "Books"), (querySnapshot: any) => {
-        const books = querySnapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() } as Book));
+    const unsubscribe = onSnapshot(collection(db, "Books"), (querySnapshot) => {
+        const books = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Book));
         onUpdate(books);
     });
     return unsubscribe;
