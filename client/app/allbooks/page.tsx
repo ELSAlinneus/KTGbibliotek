@@ -37,9 +37,9 @@ export default function AllBooksPage() {
                 </h1>
             </div>
             <Searchbar onSearch={(query) => console.log(query)} placeholder="Hitta böcker..." />
-            <ul>
+            <ul className="w-full">
                 {allbooks.map((book: Book) => (
-                    <div key={book.id} className="flex flex-col items-center justify-center bg-gray-100 p-4 m-4 rounded-lg">
+                    <div key={book.id} className="flex flex-col items-start justify-start bg-gray-100 p-4 m-4 rounded-lg">
                         <BookListItem book={book} onClick={() => setSelectedBookId(book.id)}/>
 
                         {selectedBookId === book.id && (

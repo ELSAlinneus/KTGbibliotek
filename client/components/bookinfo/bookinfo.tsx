@@ -2,6 +2,7 @@ import { Book } from "@/lib/types/Book";
 import { borrowBook } from "../../lib/controllers/books.controller";
 import { auth } from "@/lib/firebase/firebase";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 export default function BookInfo({ book, onClose, onDelete }: { book: Book, onClose: () => void, onDelete: (bookId: string) => void }) {
     const [userId, setUserId] = useState<string | null>(null);
@@ -15,7 +16,7 @@ export default function BookInfo({ book, onClose, onDelete }: { book: Book, onCl
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-            <div className="w-full max-w-xl rounded-lg bg-white p-6 shadow-lg">
+            <div className="w-full max-w-3xl rounded-lg bg-white p-6 shadow-lg">
                 <div className="flex items-center justify-between mb-4">
                     <h1 className="text-2xl font-bold text-gray-800">
                         {book.Title}
@@ -32,20 +33,23 @@ export default function BookInfo({ book, onClose, onDelete }: { book: Book, onCl
                         ✕
                     </button>
                 </div>
-                <div className="mx-auto w-full max-w-xl rounded-xl border border-slate-200 bg-slate-100 p-6 shadow-sm flex flex-row items-start justify-between ">
-                    <div className="mt-4 overflow-hidden rounded-lg border border-slate-200 ml-8 ">
+                <div className="w-full rounded-xl border border-slate-200 bg-slate-100 p-6 shadow-sm flex items-start gap-6">
+                    <div className="h-72 w-48 shrink-0 overflow-hidden rounded-lg border border-slate-200 bg-gray-200">
                         {book.ImageURL ? (
-                            <img
-                                className="h-64 w-full object-cover"
+                            <Image
+                                className="h-full w-full object-cover"
                                 src={book.ImageURL}
                                 alt={book.Title}
+                                width={192}
+                                height={288}
+                                unoptimized
                             />
                         ) : (
-                            <div className="h-64 w-full bg-gray-200"></div>
+                            <div className="h-full w-full"></div>
                         )}
                     </div>
-                    <div className="mt-10 space-y-1 text-slate-700 mr-25">
-                        <h1 className="text-2xl font-semibold text-slate-900">{book.Title}</h1>
+                    <div className="flex-1 min-w-0 h-72 overflow-y-auto text-left pr-2 space-y-1 text-slate-700">
+                        <h2 className="text-2xl font-semibold text-slate-900 break-words">{book.Title}</h2>
                         {book.Author && <p className="text-sm">Författare: {book.Author}</p>}
                         {book.Year_of_publication && <p className="text-sm">Utgiven: {book.Year_of_publication}</p>}
                         {book.Language && <p className="text-sm">Språk: {book.Language}</p>}
