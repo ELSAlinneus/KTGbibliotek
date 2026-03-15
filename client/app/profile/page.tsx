@@ -4,14 +4,13 @@ import { onAuthStateChanged, User } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { auth } from "@/lib/firebase/firebase";
 import { handleUserProfileChange, handleUserProfilePictureChange, getUserProfilePicture } from "@/lib/controllers/user.controller";
-import NewBookForm  from "./newBookForm";
 import { getUserBooks } from "@/lib/controllers/user.controller";
 import BookInfo from "../../components/bookinfo/bookinfo";
 import { Book } from "@/lib/types/Book";
 import { Profile } from "@/lib/types/Profile";
 import { deleteBook } from "@/lib/controllers/books.controller";
 import ImgUploader from "@/components/imgUploader";
-import UploadBook from "./uploadBook";
+import UploadBookForm from "./uploadBookForm";
 
 export default function ProfilePage() {
     const [user, setUser] = useState<User | null>(null);
@@ -21,7 +20,7 @@ export default function ProfilePage() {
         email: "",
         picture: ""
     });
-    const [showNewBookForm, setShowNewBookForm] = useState<boolean>(false);
+    const [ShowUploadBookForm, setShowUploadBookForm] = useState<boolean>(false);
     const [userBooks, setUserBooks] = useState<Book[]>([]);
     const [selectedBookId, setSelectedBookId] = useState<string | null>(null);
 
@@ -106,20 +105,18 @@ export default function ProfilePage() {
 
             <div >
                 <button className="ml-10 p-2 bg-gray-500 text-white rounded hover:bg-gray-700 transition duration-300 shadow"
-                    onClick={() => setShowNewBookForm(!showNewBookForm)}>
+                    onClick={() => setShowUploadBookForm(!ShowUploadBookForm)}>
                     Ladda upp ny bok till biblioteket
                 </button>
-                {showNewBookForm && (
-                    <NewBookForm 
+                {ShowUploadBookForm && (
+                    <UploadBookForm 
                         user={user} 
-                        onClose={() => setShowNewBookForm(false)}
+                        onClose={() => setShowUploadBookForm(false)}
                         onBookAdded={(newBook) => {
                             setUserBooks([...userBooks, newBook]);
                         }}
                     />
                 )}
-                {/* TODO */}
-                <UploadBook />
             </div>
             {userBooks.length > 0 && (
                 <div className="p-4 mb-4 ml-10 mr-10 mt-4 bg-gray-100 rounded-lg">

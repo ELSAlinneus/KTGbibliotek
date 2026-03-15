@@ -97,6 +97,8 @@ function subscribeBooks(onUpdate: (books: Book[]) => void) {
 
 async function getInformationFromISBN(isbn: string): Promise<Book | null> {
     const cleanIsbn = isbn.replace(/[- ]/g, "");
+    if(cleanIsbn.length < 1) return null;
+
     const url = `https://libris.kb.se/xsearch?query=isbn:${cleanIsbn}&format=json`;
 
     try {
@@ -113,9 +115,8 @@ async function getInformationFromISBN(isbn: string): Promise<Book | null> {
             return {
                 title: bookData.title || "Okänd titel",
                 author: bookData.creator || "Okänd författare",
-                isbn: cleanIsbn,
                 language: bookData.language || "Okänt språk",
-                publishedYear: bookData.date
+                publishedYear: bookData.date || "Okänt publiceringsår",
             };
         }
 
