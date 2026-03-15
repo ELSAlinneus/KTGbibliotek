@@ -15,13 +15,13 @@ function login(event: React.FormEvent<HTMLFormElement>) {
 
     signInWithEmailAndPassword(auth, email, password)
   .then((userCredential) => {
-    var user = userCredential.user;
+    const user = userCredential.user;
     console.log("User signed in:", user.email);
   })
   .catch((error) => {
-    var errorCode = error.code;
-    var errorMessage = error.message;
-    console.error("Sign-in error:", errorMessage);
+    const errorCode = error.code;
+    const errorMessage = error.message;
+    console.error("Sign-in error:", errorMessage, errorCode);
   });
 
 }

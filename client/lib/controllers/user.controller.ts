@@ -6,30 +6,42 @@ import { Profile } from "../types/Profile";
 
 import { User } from "firebase/auth";
 
-function handleUsernameChange(user: User, newUsername: string) {
+async function handleUsernameChange(user: User, newUsername: string) {
+    const sanitizedUsername = newUsername.trim();
+    if (!sanitizedUsername) {
+        throw new Error("Användarnamn kan inte vara tomt.");
+    }
 
-    updateProfile(user, { displayName: newUsername })
-        .then(() => {
-            console.log("Username updated successfully");
-        })
-        .catch((error) => {
-            console.error("Error updating username:", error);
-        });
+    if (sanitizedUsername.length > 50) {
+        throw new Error("Användarnamnet är för långt.");
+    }
+
+    const userDocRef = doc(db, "users", user.uid);
+    await setDoc(userDocRef, { username: sanitizedUsername }, { merge: true });
+
+    await updateProfile(user, { displayName: sanitizedUsername });
+    console.log("Username updated successfully");
 }
 
-function handleUserProfileChange(profile: Profile) {
+async function handleUserProfileChange(profile: Profile) {
     const user = auth.currentUser;
-    if (user) {
-        const confirmChange = window.confirm("Är du säker på att du vill ändra dina användaruppgifter?");
-        if (confirmChange) {
-            console.log("handle profile change", profile);
-
-            handleUsernameChange(user, profile.username);
-            //TODO: Implement email change functionality
-        }
-    } else {
-        console.error("No user is currently signed in.");
+    if (!user) {
+        throw new Error("No user is currently signed in.");
     }
+
+    const confirmChange = window.confirm("Är du säker på att du vill ändra dina användaruppgifter?");
+    if (!confirmChange) {
+        return;
+    }
+
+    console.log("handle profile change", profile);
+
+    if (profile.username.trim() === (user.displayName || "").trim()) {
+        return;
+    }
+
+    await handleUsernameChange(user, profile.username);
+    //TODO: Implement email change functionality
 }
 
 async function handleUserProfilePictureChange(profile: Profile, pictureBlob?: Blob) {

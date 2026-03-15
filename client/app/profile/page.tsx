@@ -97,7 +97,14 @@ export default function ProfilePage() {
                     />
                 </div>
                 {isEditing && (
-                    <button onClick={() => handleUserProfileChange(profile)} className="mt-2 ml-2 p-2 bg-blue-500 text-white rounded">
+                    <button onClick={async () => {
+                        try {
+                            await handleUserProfileChange(profile);
+                        } catch (error) {
+                            const message = error instanceof Error ? error.message : "Ett fel uppstod vid uppdatering.";
+                            alert(message);
+                        }
+                    }} className="mt-2 ml-2 p-2 bg-blue-500 text-white rounded">
                         Uppdatera användaruppgifter
                     </button>
                 )}
