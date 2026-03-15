@@ -11,6 +11,7 @@ import { Book } from "@/lib/types/Book";
 import { Profile } from "@/lib/types/Profile";
 import { deleteBook } from "@/lib/controllers/books.controller";
 import ImgUploader from "@/components/imgUploader";
+import UploadBook from "./uploadBook";
 
 export default function ProfilePage() {
     const [user, setUser] = useState<User | null>(null);
@@ -117,6 +118,8 @@ export default function ProfilePage() {
                         }}
                     />
                 )}
+                {/* TODO */}
+                <UploadBook />
             </div>
             {userBooks.length > 0 && (
                 <div className="p-4 mb-4 ml-10 mr-10 mt-4 bg-gray-100 rounded-lg">

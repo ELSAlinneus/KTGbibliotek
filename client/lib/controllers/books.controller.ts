@@ -95,4 +95,35 @@ function subscribeBooks(onUpdate: (books: Book[]) => void) {
     return unsubscribe;
 }
 
-export { addBook, deleteBook, editBook, getAllBooks, borrowBook, returnBook, subscribeBooks };
+async function getInformationFromISBN(isbn: string): Promise<Book | null> {
+    const cleanIsbn = isbn.replace(/[- ]/g, "");
+    const url = `https://libris.kb.se/xsearch?query=isbn:${cleanIsbn}&format=json`;
+
+    try {
+        const response = await fetch(url);
+        
+        if (!response.ok) {
+            throw new Error(`Libris API error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        if (data.xsearch.list && data.xsearch.list.length > 0) {
+            const bookData = data.xsearch.list[0];
+
+            return {
+                title: bookData.title || "Okänd titel",
+                author: bookData.creator || "Okänd författare",
+                isbn: cleanIsbn,
+                language: bookData.language || "Okänt språk",
+                publishedYear: bookData.date
+            };
+        }
+
+        return null; 
+    } catch (error) {
+        console.error("Kunde inte hämta bokinfo:", error);
+        return null;
+    }
+}
+
+export { addBook, deleteBook, editBook, getAllBooks, borrowBook, returnBook, subscribeBooks, getInformationFromISBN };
