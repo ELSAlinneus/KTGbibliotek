@@ -3,6 +3,8 @@ import { collection, getDocs, onSnapshot, addDoc, doc, deleteDoc } from "firebas
 import { Book } from "../../lib/types/Book";
 import { User } from "firebase/auth";
 
+const MAX_COVER_IMAGE_BYTES = 262500;
+
 async function addBook(
     event: React.FormEvent<HTMLFormElement>,
     user: User | null,
@@ -25,17 +27,17 @@ async function addBook(
             let imageUrl = "";
 
             if (coverImageBlob) {
+                if (coverImageBlob.size > MAX_COVER_IMAGE_BYTES) {
+                    alert("Bokomslaget är för stort. Välj en mindre bild.");
+                    return null;
+                }
+
                 imageUrl = await new Promise<string>((resolve, reject) => {
                     const reader = new FileReader();
                     reader.onload = () => resolve(String(reader.result || ""));
                     reader.onerror = () => reject(new Error("Could not read image blob"));
                     reader.readAsDataURL(coverImageBlob);
                 });
-            }
-
-            if (imageUrl.length > 350000) {
-                alert("Bokomslaget är för stort. Välj en mindre bild.");
-                return null;
             }
 
             const docRef = await addDoc(collection(db, "Books"), {
@@ -45,7 +47,7 @@ async function addBook(
                 Language: language,
                 Year_of_publication: publicationYear,
                 ImageURL: imageUrl,
-                Owner: user.uid, 
+                Owner: user.uid,
                 Borrowed: false,
                 Current_custody: user.uid
             });

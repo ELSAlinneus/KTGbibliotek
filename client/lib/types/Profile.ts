@@ -3,3 +3,9 @@ export interface Profile {
     email: string;
     picture?: string; 
 }
+
+export type PublicUserProfile = {
+    displayName: string;
+    email?: string;
+    photoURL?: string;
+};

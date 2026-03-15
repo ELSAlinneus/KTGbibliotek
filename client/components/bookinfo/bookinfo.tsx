@@ -3,9 +3,13 @@ import { borrowBook } from "../../lib/controllers/books.controller";
 import { auth } from "@/lib/firebase/firebase";
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import UserInfo from "../userinfo/userinfo";
+import { getUserByUid } from "@/lib/controllers/user.controller";
+import { PublicUserProfile } from "@/lib/types/Profile";
 
 export default function BookInfo({ book, onClose, onDelete }: { book: Book, onClose: () => void, onDelete: (bookId: string) => void }) {
     const [userId, setUserId] = useState<string | null>(null);
+    const [ownerProfile, setOwnerProfile] = useState<PublicUserProfile | null>(null);
 
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged((currentUser) => {
@@ -53,7 +57,24 @@ export default function BookInfo({ book, onClose, onDelete }: { book: Book, onCl
                         {book.Author && <p className="text-sm">Författare: {book.Author}</p>}
                         {book.Year_of_publication && <p className="text-sm">Utgiven: {book.Year_of_publication}</p>}
                         {book.Language && <p className="text-sm">Språk: {book.Language}</p>}
-                        {book.Owner && <p className="text-sm">Boken ägs av {book.Owner}</p>}
+                        {book.Owner && (
+                            <p className="text-sm">
+                                Boken ägs av{" "}
+                                <button
+                                    type="button"
+                                    onClick={async (e) => {
+                                        e.stopPropagation();
+                                        const ownerData = await getUserByUid(book.Owner);
+                                        if (ownerData) {
+                                            setOwnerProfile(ownerData);
+                                        }
+                                    }}
+                                    className="cursor-pointer text-blue-500 hover:text-blue-700"
+                                >
+                                    {book.Owner}
+                                </button>
+                            </p>
+                        )}
                         {userId === book.Owner ? (
                             <div>
                                 <p className="mt-4 text-sm text-red-600 font-bold">Detta är din bok</p>
@@ -82,6 +103,7 @@ export default function BookInfo({ book, onClose, onDelete }: { book: Book, onCl
                     </div>
                 </div>
             </div>
+            {ownerProfile && <UserInfo user={ownerProfile} onClose={() => setOwnerProfile(null)} />}
         </div>
     );
 }

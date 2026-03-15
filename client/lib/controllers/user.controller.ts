@@ -2,7 +2,7 @@ import { db, auth } from "@/lib/firebase/firebase";
 import { updateProfile } from "firebase/auth";
 import { Book } from "../types/Book";
 import { collection, getDoc, getDocs, doc, setDoc } from "@firebase/firestore";
-import { Profile } from "../types/Profile";
+import { Profile, PublicUserProfile } from "../types/Profile";
 
 import { User } from "firebase/auth";
 
@@ -100,4 +100,19 @@ async function getUserBooks() {
     return books;
 }
 
-export { handleUsernameChange, handleUserProfileChange, handleUserProfilePictureChange, getUserBooks, getUserProfilePicture };
+async function getUserByUid(uid: string): Promise<PublicUserProfile | null> {
+    const userDocRef = doc(db, "users", uid);
+    const userDoc = await getDoc(userDocRef);
+    if (!userDoc.exists()) {
+        return null;
+    }
+
+    const data = userDoc.data() as { username?: string; email?: string; profilePicture?: string };
+    return {
+        displayName: data.username || "Unknown",
+        email: data.email || "",
+        photoURL: data.profilePicture || ""
+    };
+}
+
+export { handleUsernameChange, handleUserProfileChange, handleUserProfilePictureChange, getUserBooks, getUserProfilePicture, getUserByUid };
