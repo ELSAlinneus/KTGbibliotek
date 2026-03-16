@@ -92,10 +92,6 @@ async function deleteBook(bookId: string): Promise<boolean> {
     return false;
 }
 
-function editBook() {
-    console.log("edit book");
-}
-
 async function getAllBooks(): Promise<Book[]> { 
     const snapshot = await getDocs(collection(db, "Books"));
     return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Book));
@@ -141,4 +137,4 @@ async function getInformationFromISBN(isbn: string): Promise<Book | null> {
     }
 }
 
-export { addBook, deleteBook, editBook, getAllBooks, subscribeBooks, getInformationFromISBN };
+export { addBook, deleteBook, getAllBooks, subscribeBooks, getInformationFromISBN };

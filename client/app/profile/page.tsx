@@ -132,12 +132,14 @@ export default function ProfilePage() {
                     {userBooks.map((book: Book) => (
                         <div key={book.id} onClick={() => setSelectedBookId(book.id)} className="mt-2 flex row justify-between items-center mb-2">
                             <p>{book.Title}</p>
-                            <div>
+                            <div className="flex row justify-end items-center">
+                                {book.Borrowed && (
+                                    <div className="mr-2 p-1 bg-yellow-500 text-white rounded transition duration-300 shadow">
+                                        Utlånad
+                                    </div>
+                                )}
                                 <button className="mr-2 p-1 bg-gray-500 text-white rounded hover:bg-gray-700 transition duration-300 shadow">
-                                    Låna ut
-                                </button>
-                                <button className="mr-2 p-1 bg-gray-500 text-white rounded hover:bg-gray-700 transition duration-300 shadow">
-                                    Redigera
+                                    Hantera
                                 </button>
                                 <button className="p-1 bg-gray-600 text-white rounded hover:bg-red-700 transition duration-300 shadow"
                                 onClick={async (e) => {

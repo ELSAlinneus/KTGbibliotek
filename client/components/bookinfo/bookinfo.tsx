@@ -108,14 +108,9 @@ export default function BookInfo({ book, onClose, onDelete }: { book: Book, onCl
                             <div>
                                 <p className="mt-4 text-sm text-red-600 font-bold">Detta är din bok</p>
                                 <button
-                                    className="mt-5 inline-flex items-center justify-center rounded-md bg-gray-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black-600  cursor-pointer"
-                                >
-                                    Låna ut
-                                </button>
-                                <button
                                     className="mt-5 inline-flex items-center justify-center rounded-md bg-gray-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black-600  cursor-pointer ml-2"
                                 >
-                                    Redigera
+                                    Hantera
                                 </button>
                                 <button
                                     onClick={() => onDelete(book.id)}

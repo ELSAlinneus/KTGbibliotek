@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { getAllBooks, deleteBook } from "../../lib/controllers/books.controller";
 import BookInfo from "../../components/bookinfo/bookinfo";
 import BookListItem from "../../components/bookinfo/bookListItem";
-import Searchbar from "../../components/bookinfo/search";
+import Searchbar from "../../components/bookinfo/searchbar";
 import { Book } from "../../lib/types/Book";
 
 export default function AllBooksPage() {
