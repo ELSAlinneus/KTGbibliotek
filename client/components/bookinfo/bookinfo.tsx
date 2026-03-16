@@ -1,16 +1,17 @@
 import { Book } from "@/lib/types/Book";
-import { borrowBook } from "../../lib/controllers/books.controller";
 import { auth } from "@/lib/firebase/firebase";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import UserInfo from "../userinfo/userinfo";
 import { getUserByUid } from "@/lib/controllers/user.controller";
 import { PublicUserProfile } from "@/lib/types/Profile";
+import UserProfileLink from "./userProfileLink";
 
 export default function BookInfo({ book, onClose, onDelete }: { book: Book, onClose: () => void, onDelete: (bookId: string) => void }) {
     const [userId, setUserId] = useState<string | null>(null);
-    const [ownerProfile, setOwnerProfile] = useState<PublicUserProfile | null>(null);
+    const [userProfile, setUserProfile] = useState<PublicUserProfile | null>(null);
     const [ownerDisplayName, setOwnerDisplayName] = useState<string>("");
+    const [borrowerDisplayName, setBorrowerDisplayName] = useState<string>("");
 
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged((currentUser) => {
@@ -35,10 +36,23 @@ export default function BookInfo({ book, onClose, onDelete }: { book: Book, onCl
         }
         loadOwnerDisplayName();
 
+        async function loadBorrowerDisplayName() {
+            if (!book.Current_custody) {
+                setBorrowerDisplayName("");
+                return;
+            }
+
+            const borrowerData = await getUserByUid(book.Current_custody);
+            if (isEffectActive) {
+                setBorrowerDisplayName(borrowerData?.displayName || book.Current_custody);
+            }
+        }
+        loadBorrowerDisplayName();
+
         return () => {
             isEffectActive = false;
         };
-    }, [book.Owner]);
+    }, [book.Owner, book.Current_custody]);
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
@@ -79,22 +93,15 @@ export default function BookInfo({ book, onClose, onDelete }: { book: Book, onCl
                         {book.Author && <p className="text-sm">Författare: {book.Author}</p>}
                         {book.Year_of_publication && <p className="text-sm">Utgiven: {book.Year_of_publication}</p>}
                         {book.Language && <p className="text-sm">Språk: {book.Language}</p>}
-                        {book.Owner && (
+                        {book.Owner && userId != book.Owner &&(
                             <p className="text-sm">
                                 Boken ägs av{" "}
-                                <button
-                                    type="button"
-                                    onClick={async (e) => {
-                                        e.stopPropagation();
-                                        const ownerData = await getUserByUid(book.Owner);
-                                        if (ownerData) {
-                                            setOwnerProfile(ownerData);
-                                        }
-                                    }}
-                                    className="cursor-pointer text-blue-500 hover:text-blue-700"
+                                <UserProfileLink
+                                    userUid={book.Owner}
+                                    onUserProfileLoaded={setUserProfile}
+                                    displayName={ownerDisplayName}
                                 >
-                                    {ownerDisplayName}
-                                </button>
+                                </UserProfileLink>
                             </p>
                         )}
                         {userId === book.Owner ? (
@@ -113,19 +120,67 @@ export default function BookInfo({ book, onClose, onDelete }: { book: Book, onCl
                                 </button>
                             </div>
                         ) : !book.Borrowed ? (
-                            <button
-                                onClick={borrowBook}
-                                className="mt-5 inline-flex items-center justify-center rounded-md bg-gray-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black-600  cursor-pointer"
+                            <div>
+                                <div
+                                    className="mt-5 inline-flex items-center justify-center rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white transition"
+                                >
+                                    Boken är tillgänglig för utlåning
+                                </div>
+                                <p className="text-sm mt-2">
+                                    Om du vill låna boken, kontakta ägaren 
+                                    {" "}
+                                    <UserProfileLink
+                                        userUid={book.Owner}
+                                        onUserProfileLoaded={setUserProfile}
+                                        displayName={ownerDisplayName}
+                                    >
+                                    </UserProfileLink>
+                                    för att komma överens om utlåning.
+                                </p>
+                            </div>
+                        ) : book.Current_custody === userId ? (
+                            <div
+                                className="mt-5 inline-flex items-center justify-center rounded-md bg-yellow-600 px-4 py-2 text-sm font-medium text-white transition"
                             >
-                                Låna
-                            </button>
+                                Du har lånat denna bok
+                            </div>
                         ) : (
-                            <p className="mt-4 text-sm text-red-600 font-bold">Boken är redan utlånad</p>
+                            <div>
+                                <div
+                                    className="mt-5 inline-flex items-center justify-center rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white transition"
+                                >
+                                    Boken är redan utlånad till 
+                                    <UserProfileLink
+                                        userUid={book.Current_custody}
+                                        onUserProfileLoaded={setUserProfile}
+                                        displayName={borrowerDisplayName}
+                                    >
+                                    </UserProfileLink>
+                                </div>
+                                <p className="text-sm mt-2">
+                                    Du kan kontakta ägaren 
+                                    {" "}
+                                    <UserProfileLink
+                                        userUid={book.Owner}
+                                        onUserProfileLoaded={setUserProfile}
+                                        displayName={ownerDisplayName}
+                                    >
+                                    </UserProfileLink>
+                                    och/eller lånetagaren {" "} 
+                                    <UserProfileLink
+                                        userUid={book.Current_custody}
+                                        onUserProfileLoaded={setUserProfile}
+                                        displayName={borrowerDisplayName}
+                                    >
+                                    </UserProfileLink>
+                                    för att låta dem veta att du är intresserad av att låna boken.
+                                </p>                            
+                            </div>
                         )}
                     </div>
                 </div>
             </div>
-            {ownerProfile && <UserInfo user={ownerProfile} onClose={() => setOwnerProfile(null)} />}
+            {userProfile && <UserInfo user={userProfile} onClose={() => setUserProfile(null)} />}
         </div>
     );
 }
