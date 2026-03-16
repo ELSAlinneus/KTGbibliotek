@@ -101,14 +101,6 @@ async function getAllBooks(): Promise<Book[]> {
     return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Book));
 }
 
-function borrowBook() {
-    console.log("borrow book");
-}
-
-function returnBook() {
-    console.log("return book");
-}
-
 function subscribeBooks(onUpdate: (books: Book[]) => void) {
     const unsubscribe = onSnapshot(collection(db, "Books"), (querySnapshot) => {
         const books = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Book));
@@ -149,4 +141,4 @@ async function getInformationFromISBN(isbn: string): Promise<Book | null> {
     }
 }
 
-export { addBook, deleteBook, editBook, getAllBooks, borrowBook, returnBook, subscribeBooks, getInformationFromISBN };
+export { addBook, deleteBook, editBook, getAllBooks, subscribeBooks, getInformationFromISBN };

@@ -7,7 +7,7 @@ import { handleUserProfileChange, handleUserProfilePictureChange, getUserProfile
 import { getUserBooks } from "@/lib/controllers/user.controller";
 import BookInfo from "../../components/bookinfo/bookinfo";
 import { Book } from "@/lib/types/Book";
-import { Profile } from "@/lib/types/Profile";
+import { PublicUserProfile } from "@/lib/types/Profile";
 import { deleteBook } from "@/lib/controllers/books.controller";
 import ImgUploader from "@/components/imgUploader/imgUploader";
 import UploadBookForm from "./uploadBookForm";
@@ -15,10 +15,10 @@ import UploadBookForm from "./uploadBookForm";
 export default function ProfilePage() {
     const [user, setUser] = useState<User | null>(null);
     const [isEditing, setIsEditing] = useState<boolean>(false); 
-    const [profile, setProfile] = useState<Profile>({
-        username: "",
+    const [profile, setProfile] = useState<PublicUserProfile>({
+        displayName: "",
         email: "",
-        picture: ""
+        photoURL: ""
     });
     const [ShowUploadBookForm, setShowUploadBookForm] = useState<boolean>(false);
     const [userBooks, setUserBooks] = useState<Book[]>([]);
@@ -37,9 +37,9 @@ export default function ProfilePage() {
                 const fetchUserProfilePicture = async () => {
                     const picture = await getUserProfilePicture(u.uid);
                     setProfile({
-                        username: u.displayName || "",
+                        displayName: u.displayName || "",
                         email: u.email || "",
-                        picture: picture || ""
+                        photoURL: picture || ""
                     });
                 };
                 fetchUserProfilePicture();
@@ -52,14 +52,14 @@ export default function ProfilePage() {
         <div className="w-full">
             <div className="p-4 mb-4 w-full bg-gray-200 rounded-lg flex flex-col items-center justify-center">
                 <ImgUploader
-                    value={profile.picture}
+                    value={profile.photoURL}
                     onChange={(result) => {
                         if (result) {
-                            const updatedProfile = { ...profile, picture: result.previewUrl };
+                            const updatedProfile = { ...profile, photoURL: result.previewUrl };
                             setProfile(updatedProfile);
                             handleUserProfilePictureChange(updatedProfile, result.blob);
                         } else {
-                            const updatedProfile = { ...profile, picture: "" };
+                            const updatedProfile = { ...profile, photoURL: "" };
                             setProfile(updatedProfile);
                             handleUserProfilePictureChange(updatedProfile);
                         }
@@ -68,7 +68,7 @@ export default function ProfilePage() {
                     className="w-48 h-48 cursor-pointer rounded-full border-2 border-dashed border-gray-300 p-13 text-center hover:border-gray-400"
                 />
                 <h1 className="text-2xl font-bold text-gray-800 text-center">
-                    {profile.username}
+                    {profile.displayName || "Användarnamn saknas"}
                 </h1>
             </div>
             <div className="p-4 mb-4 ml-10 mr-10 bg-gray-100 rounded-lg">
@@ -80,8 +80,8 @@ export default function ProfilePage() {
                     <label className="text-gray-700 mr-2">Användarnamn:</label>
                     <input
                         type="text"
-                        value={profile.username}
-                        onChange={(e) => setProfile({...profile, username: e.target.value})}
+                        value={profile.displayName}
+                        onChange={(e) => setProfile({...profile, displayName: e.target.value})}
                         readOnly={!isEditing}
                         className="text-gray-700 border rounded p-2"
                     />                  

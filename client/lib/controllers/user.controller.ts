@@ -2,7 +2,7 @@ import { db, auth } from "@/lib/firebase/firebase";
 import { updateProfile } from "firebase/auth";
 import { Book } from "../types/Book";
 import { collection, getDoc, getDocs, doc, setDoc } from "@firebase/firestore";
-import { Profile, PublicUserProfile } from "../types/Profile";
+import { PublicUserProfile } from "../types/Profile";
 
 import { User } from "firebase/auth";
 
@@ -23,7 +23,7 @@ async function handleUsernameChange(user: User, newUsername: string) {
     console.log("Username updated successfully");
 }
 
-async function handleUserProfileChange(profile: Profile) {
+async function handleUserProfileChange(profile: PublicUserProfile) {
     const user = auth.currentUser;
     if (!user) {
         throw new Error("No user is currently signed in.");
@@ -36,22 +36,22 @@ async function handleUserProfileChange(profile: Profile) {
 
     console.log("handle profile change", profile);
 
-    if (profile.username.trim() === (user.displayName || "").trim()) {
+    if (profile.displayName.trim() === (user.displayName || "").trim()) {
         return;
     }
 
-    await handleUsernameChange(user, profile.username);
+    await handleUsernameChange(user, profile.displayName);
     //TODO: Implement email change functionality
 }
 
-async function handleUserProfilePictureChange(profile: Profile, pictureBlob?: Blob) {
+async function handleUserProfilePictureChange(profile: PublicUserProfile, pictureBlob?: Blob) {
     const user = auth.currentUser;
     if (user) {
         const confirmChange = window.confirm("Är du säker på att du vill ändra din profilbild?");
         if (confirmChange) {
             console.log("handle profile picture change", profile);
 
-            let profilePicture = profile.picture || "";
+            let profilePicture = profile.photoURL || "";
 
             if (pictureBlob) {
                 profilePicture = await new Promise<string>((resolve, reject) => {
