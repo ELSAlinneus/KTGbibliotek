@@ -55,8 +55,8 @@ export default function BookInfo({ book, onClose, onDelete }: { book: Book, onCl
     }, [book.Owner, book.Current_custody]);
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-            <div className="w-full max-w-3xl rounded-lg bg-white p-6 shadow-lg">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
+            <div className="w-full max-w-3xl rounded-lg bg-white p-6 shadow-lg" onClick={(e) => e.stopPropagation()}>
                 <div className="flex items-center justify-between mb-4">
                     <h1 className="text-2xl font-bold text-gray-800">
                         {book.Title}
