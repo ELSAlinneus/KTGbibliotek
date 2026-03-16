@@ -23,6 +23,7 @@ export default function ProfilePage() {
     const [ShowUploadBookForm, setShowUploadBookForm] = useState<boolean>(false);
     const [userBooks, setUserBooks] = useState<Book[]>([]);
     const [selectedBookId, setSelectedBookId] = useState<string | null>(null);
+    const selectedBook = userBooks.find((book) => book.id === selectedBookId) || null;
 
     useEffect(() => {
         const unsub = onAuthStateChanged(auth, (u) => {
@@ -133,6 +134,9 @@ export default function ProfilePage() {
                             <p>{book.Title}</p>
                             <div>
                                 <button className="mr-2 p-1 bg-gray-500 text-white rounded hover:bg-gray-700 transition duration-300 shadow">
+                                    Låna ut
+                                </button>
+                                <button className="mr-2 p-1 bg-gray-500 text-white rounded hover:bg-gray-700 transition duration-300 shadow">
                                     Redigera
                                 </button>
                                 <button className="p-1 bg-gray-600 text-white rounded hover:bg-red-700 transition duration-300 shadow"
@@ -149,23 +153,24 @@ export default function ProfilePage() {
                                     Ta bort
                                 </button>
                             </div>
-                            {selectedBookId === book.id && (
-                                <BookInfo 
-                                book={book} 
-                                onClose={() => setSelectedBookId(null)} 
-                                onDelete={async (bookId) => {
-                                    const deleted = await deleteBook(bookId);
-                                    if (deleted) {
-                                        setUserBooks(userBooks.filter(b => b.id !== bookId));
-                                        if (selectedBookId === bookId) {
-                                            setSelectedBookId(null);
-                                        }
-                                    }
-                                }} /> 
-                            )}
                         </div>
                     ))}
                 </div>
+            )}
+            {selectedBook && (
+                <BookInfo 
+                    book={selectedBook} 
+                    onClose={() => setSelectedBookId(null)} 
+                    onDelete={async (bookId) => {
+                        const deleted = await deleteBook(bookId);
+                        if (deleted) {
+                            setUserBooks(userBooks.filter(b => b.id !== bookId));
+                            if (selectedBookId === bookId) {
+                                setSelectedBookId(null);
+                            }
+                        }
+                    }}
+                />
             )}
         </div>
     );
