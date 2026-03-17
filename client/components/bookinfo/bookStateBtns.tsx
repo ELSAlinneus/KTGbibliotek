@@ -1,6 +1,6 @@
 import Book from "@/lib/types/Book";
 
-export default function BookStateBtns({ book, onClose, onGetBookBack, onLendBook }: { book: Book; onClose: () => void;  onGetBookBack: (book: Book) => void; onLendBook: (book: Book) => void }) {
+export default function BookStateBtns({ book, onDelete, onGetBookBack, onLendBook }: { book: Book; onDelete: () => void;  onGetBookBack: (book: Book) => void; onLendBook: (book: Book) => void }) {
     return (
         <div className="flex row justify-end items-center">
             {book.Borrowed ? (
@@ -30,7 +30,7 @@ export default function BookStateBtns({ book, onClose, onGetBookBack, onLendBook
             <button className="p-1 bg-gray-600 text-white rounded hover:bg-red-700 transition duration-300 shadow"
             onClick={async (e) => {
                 e.stopPropagation();
-                onClose();
+                onDelete();
             }}> 
                 Ta bort
             </button>

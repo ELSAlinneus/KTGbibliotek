@@ -52,6 +52,20 @@ export default function ProfilePage() {
         return () => unsub();
     }, []);
 
+    function handleBookDeleted(bookId: string) {
+        setUserBooks(userBooks.filter(b => b.id !== bookId));
+        if (selectedBookId === bookId) {
+            setSelectedBookId(null);
+        }
+    }
+
+    const handleGetBookBack = async (book) => {
+        const updated = await manageBookLoan(book.id, user.uid, false);
+        if (updated) {
+            setUserBooks(userBooks.map(b => b.id === book.id ? { ...b, Borrowed: false } : b));
+        }
+    }
+
     return (
         <div className="w-full">
             <div className="p-4 mb-4 w-full bg-gray-200 rounded-lg flex flex-col items-center justify-center">
@@ -137,21 +151,12 @@ export default function ProfilePage() {
                             <p>{book.Title}</p>
                             <BookStateBtns 
                             book={book} 
-                            onClose={async () => {
+                            onDelete={async () => {
                                 const deleted = await deleteBook(book.id);
-                                if (deleted) {
-                                    setUserBooks(userBooks.filter(b => b.id !== book.id));
-                                    if (selectedBookId === book.id) {
-                                        setSelectedBookId(null);
-                                    }
-                                }
-                            }} 
-                            onGetBookBack={async (book) => {
-                                const updated = await manageBookLoan(book.id, user.uid, false);
-                                if (updated) {
-                                    setUserBooks(userBooks.map(b => b.id === book.id ? { ...b, Borrowed: false } : b));
-                                }
-                            }} onLendBook={async (book) => {
+                                if(deleted) handleBookDeleted(book.id);
+                            } }
+                            onGetBookBack={handleGetBookBack} 
+                            onLendBook={async (book) => {
                                 setShowChangeCustodyForm(book);
                             }} />
                         </div>
@@ -164,22 +169,21 @@ export default function ProfilePage() {
                     onClose={() => setSelectedBookId(null)} 
                     onDelete={async (bookId) => {
                         const deleted = await deleteBook(bookId);
-                        if (deleted) {
-                            setUserBooks(userBooks.filter(b => b.id !== bookId));
-                            if (selectedBookId === bookId) {
-                                setSelectedBookId(null);
-                            }
-                        }
+                        if(deleted) handleBookDeleted(bookId);
+                    }}
+                    onGetBookBack={handleGetBookBack} 
+                    onLendBook={async (book) => {
+                        setShowChangeCustodyForm(book);
                     }}
                 />
             )}
-{showChangeCustodyForm && (
-    <ChangeCustodyForm book={showChangeCustodyForm} onClose={() => setShowChangeCustodyForm(null)} 
-    onSave={() => {
-        setUserBooks(userBooks.map(b => b.id === showChangeCustodyForm.id ? { ...b, Borrowed: true } : b));
-        setShowChangeCustodyForm(null);
-    }} />
-)}
+            {showChangeCustodyForm && (
+                <ChangeCustodyForm book={showChangeCustodyForm} onClose={() => setShowChangeCustodyForm(null)} 
+                onSave={() => {
+                    setUserBooks(userBooks.map(b => b.id === showChangeCustodyForm.id ? { ...b, Borrowed: true } : b));
+                    setShowChangeCustodyForm(null);
+                }} />
+            )}
         </div>
     );
 }

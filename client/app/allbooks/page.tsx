@@ -1,15 +1,18 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { getAllBooks, deleteBook } from "../../lib/controllers/books.controller";
+import { getAllBooks, deleteBook, manageBookLoan } from "../../lib/controllers/books.controller";
 import BookInfo from "../../components/bookinfo/bookinfo";
 import BookListItem from "../../components/bookinfo/bookListItem";
 import Searchbar from "../../components/bookinfo/searchbar";
 import { Book } from "../../lib/types/Book";
+import ChangeCustodyForm from "@/components/bookinfo/changeCustodyForm";
 
 export default function AllBooksPage() {
     const [allbooks, setBooks] = useState<Book[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [selectedBookId, setSelectedBookId] = useState<string | null>(null);
+    const [showChangeCustodyForm, setShowChangeCustodyForm] = useState<Book | null>(null);
+
 
     useEffect(() => {
         const fetchBooks = async () => {
@@ -43,16 +46,33 @@ export default function AllBooksPage() {
                         <BookListItem book={book} onClick={() => setSelectedBookId(book.id)}/>
 
                         {selectedBookId === book.id && (
-                            <BookInfo book={book} onClose={() => setSelectedBookId(null)} onDelete={async (bookId) => {
+                            <BookInfo book={book} onClose={() => setSelectedBookId(null)} 
+                            onDelete={async (bookId) => {
                                 const deleted = await deleteBook(bookId);
                                 if (deleted) {
                                     setBooks(allbooks.filter(b => b.id !== bookId));
                                 }
+                            }}
+                            onGetBookBack={async (book) => {
+                                const updated = await manageBookLoan(book.id, book.Owner, false);
+                                if (updated) {
+                                    setBooks(allbooks.map(b => b.id === book.id ? { ...b, Borrowed: false, Current_custody: book.Owner } : b));
+                                }
+                            }}
+                            onLendBook={async (book) => {
+                                setShowChangeCustodyForm(book);
                             }} />
                         )}
                     </div>
                 ))}
             </ul>
+            {showChangeCustodyForm && (
+                <ChangeCustodyForm book={showChangeCustodyForm} onClose={() => setShowChangeCustodyForm(null)} 
+                onSave={() => {
+                    setBooks(allbooks.map(b => b.id === showChangeCustodyForm.id ? { ...b, Borrowed: true } : b));
+                    setShowChangeCustodyForm(null);
+                }} />
+            )}
         </div>
     );
 }
