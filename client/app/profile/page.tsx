@@ -3,8 +3,7 @@
 import { onAuthStateChanged, User } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { auth } from "@/lib/firebase/firebase";
-import { handleUserProfileChange, handleUserProfilePictureChange, getUserProfilePicture } from "@/lib/controllers/user.controller";
-import { getUserBooks } from "@/lib/controllers/user.controller";
+import { handleUserProfileChange, handleUserProfilePictureChange, getUserProfilePicture, getUserBooks, getUserBorrowedBooks } from "@/lib/controllers/user.controller";
 import BookInfo from "../../components/bookinfo/bookinfo";
 import { Book } from "@/lib/types/Book";
 import { PublicUserProfile } from "@/lib/types/Profile";
@@ -13,6 +12,7 @@ import ImgUploader from "@/components/imgUploader/imgUploader";
 import UploadBookForm from "./uploadBookForm";
 import ChangeCustodyForm from "@/components/bookinfo/changeCustodyForm";
 import BookStateBtns from "@/components/bookinfo/bookStateBtns";
+import BorrowedBookItem from "./borrowedBookItem";
 
 export default function ProfilePage() {
     const [user, setUser] = useState<User | null>(null);
@@ -25,6 +25,7 @@ export default function ProfilePage() {
     const [ShowUploadBookForm, setShowUploadBookForm] = useState<boolean>(false);
     const [showChangeCustodyForm, setShowChangeCustodyForm] = useState<string | null>(null);
     const [userBooks, setUserBooks] = useState<Book[]>([]);
+    const [borrowedBooks, setBorrowedBooks] = useState<Book[]>([]);
     const [selectedBookId, setSelectedBookId] = useState<string | null>(null);
     const selectedBook = userBooks.find((book) => book.id === selectedBookId) || null;
 
@@ -37,6 +38,12 @@ export default function ProfilePage() {
                     setUserBooks(books);
                 };
                 fetchUserBooks();
+
+                const fetchBorrowedBooks = async () => {
+                    const books = await getUserBorrowedBooks();
+                    setBorrowedBooks(books);
+                };
+                fetchBorrowedBooks();
 
                 const fetchUserProfilePicture = async () => {
                     const picture = await getUserProfilePicture(u.uid);
@@ -160,6 +167,14 @@ export default function ProfilePage() {
                                 setShowChangeCustodyForm(book);
                             }} />
                         </div>
+                    ))}
+                </div>
+            )}
+            {borrowedBooks.length > 0 && (
+                <div className="p-4 mb-4 ml-10 mr-10 mt-4 bg-gray-100 rounded-lg">
+                    <p className="font-bold"> Lånade böcker:</p>
+                    {borrowedBooks.map((book: Book) => (
+                        <BorrowedBookItem key={book.id} book={book} />
                     ))}
                 </div>
             )}

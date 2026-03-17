@@ -11,8 +11,8 @@ import BookStateBtns from "@/components/bookinfo/bookStateBtns";
 export default function BookInfo({ book, onClose, onDelete, onGetBookBack, onLendBook }: { book: Book, onClose: () => void, onDelete: (bookId: string) => void, onGetBookBack: (book: Book) => void, onLendBook: (book: Book) => void }) {
     const [userId, setUserId] = useState<string | null>(null);
     const [userProfile, setUserProfile] = useState<PublicUserProfile | null>(null);
-    const [ownerDisplayName, setOwnerDisplayName] = useState<string>("");
-    const [borrowerDisplayName, setBorrowerDisplayName] = useState<string>("");
+    const [ownerProfile, setOwnerProfile] = useState<PublicUserProfile | null>(null);
+    const [borrowerProfile, setBorrowerProfile] = useState<PublicUserProfile | null>(null);
 
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged((currentUser) => {
@@ -24,31 +24,29 @@ export default function BookInfo({ book, onClose, onDelete, onGetBookBack, onLen
     useEffect(() => {
         let isEffectActive = true;
 
-        async function loadOwnerDisplayName() {
+        async function loadOwnerProfile() {
             if (!book.Owner) {
-                setOwnerDisplayName("");
+                setOwnerProfile(null);
                 return;
             }
-
             const ownerData = await getUserByUid(book.Owner);
             if (isEffectActive) {
-                setOwnerDisplayName(ownerData?.displayName || book.Owner);
+                setOwnerProfile(ownerData || null);
             }
         }
-        loadOwnerDisplayName();
+        loadOwnerProfile();
 
-        async function loadBorrowerDisplayName() {
+        async function loadBorrowerProfile() {
             if (!book.Current_custody) {
-                setBorrowerDisplayName("");
+                setBorrowerProfile(null);
                 return;
             }
-
             const borrowerData = await getUserByUid(book.Current_custody);
             if (isEffectActive) {
-                setBorrowerDisplayName(borrowerData?.displayName || book.Current_custody);
+                setBorrowerProfile(borrowerData || null);
             }
         }
-        loadBorrowerDisplayName();
+        loadBorrowerProfile();
 
         return () => {
             isEffectActive = false;
@@ -98,9 +96,8 @@ export default function BookInfo({ book, onClose, onDelete, onGetBookBack, onLen
                             <p className="text-sm">
                                 Boken ägs av{" "}
                                 <UserProfileLink
-                                    userUid={book.Owner}
+                                    user={ownerProfile}
                                     onUserProfileLoaded={setUserProfile}
-                                    displayName={ownerDisplayName}
                                 >
                                 </UserProfileLink>
                             </p>
@@ -124,9 +121,8 @@ export default function BookInfo({ book, onClose, onDelete, onGetBookBack, onLen
                                     Om du vill låna boken, kontakta ägaren 
                                     {" "}
                                     <UserProfileLink
-                                        userUid={book.Owner}
+                                        user={ownerProfile}
                                         onUserProfileLoaded={setUserProfile}
-                                        displayName={ownerDisplayName}
                                     >
                                     </UserProfileLink>
                                     för att komma överens om utlåning.
@@ -145,9 +141,8 @@ export default function BookInfo({ book, onClose, onDelete, onGetBookBack, onLen
                                 >
                                     Boken är redan utlånad till 
                                     <UserProfileLink
-                                        userUid={book.Current_custody}
+                                        user={borrowerProfile}
                                         onUserProfileLoaded={setUserProfile}
-                                        displayName={borrowerDisplayName}
                                     >
                                     </UserProfileLink>
                                 </div>
@@ -155,16 +150,14 @@ export default function BookInfo({ book, onClose, onDelete, onGetBookBack, onLen
                                     Du kan kontakta ägaren 
                                     {" "}
                                     <UserProfileLink
-                                        userUid={book.Owner}
+                                        user={ownerProfile}
                                         onUserProfileLoaded={setUserProfile}
-                                        displayName={ownerDisplayName}
                                     >
                                     </UserProfileLink>
                                     och/eller lånetagaren {" "} 
                                     <UserProfileLink
-                                        userUid={book.Current_custody}
+                                        user={borrowerProfile}
                                         onUserProfileLoaded={setUserProfile}
-                                        displayName={borrowerDisplayName}
                                     >
                                     </UserProfileLink>
                                     för att låta dem veta att du är intresserad av att låna boken.

@@ -100,6 +100,19 @@ async function getUserBooks() {
     return books;
 }
 
+async function getUserBorrowedBooks() {
+    const books: Book[] = [];
+    const querySnapshot = await getDocs(collection(db, "Books"));
+
+    querySnapshot.forEach((doc) => {
+        const bookData = doc.data();
+        if (bookData.Current_custody === auth.currentUser?.uid && bookData.Owner !== auth.currentUser?.uid) {
+            books.push({ id: doc.id, ...bookData } as Book);
+        }
+    });
+    return books;
+}
+
 async function getUserByUid(uid: string): Promise<PublicUserProfile | null> {
     const userDocRef = doc(db, "users", uid);
     const userDoc = await getDoc(userDocRef);
@@ -133,4 +146,4 @@ async function getAllUsers(): Promise<PublicUserProfile[]> {
     return users;
 }
 
-export { handleUsernameChange, handleUserProfileChange, handleUserProfilePictureChange, getUserBooks, getUserProfilePicture, getUserByUid, getAllUsers };
+export { handleUsernameChange, handleUserProfileChange, handleUserProfilePictureChange, getUserBooks, getUserBorrowedBooks, getUserProfilePicture, getUserByUid, getAllUsers };

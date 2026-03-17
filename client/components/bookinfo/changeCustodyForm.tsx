@@ -62,6 +62,7 @@ export default function ChangeCustodyForm({ book, onClose, onSave }: { book: Boo
                                     <Searchbar onSearch={(query) => console.log("searching for user with query:", query)} placeholder="Sök användare..." />
                                     <ul className="max-h-48 overflow-y-auto mt-2 border border-gray-300 rounded">
                                         {users.map((user) => (
+                                        user.userId !== book.Owner && (
                                             <li
                                                 key={user.userId}
                                                 className={`px-4 py-2 cursor-pointer ${selectedUserId === user.userId ? "bg-gray-300" : "hover:bg-gray-100"}`}
@@ -69,6 +70,7 @@ export default function ChangeCustodyForm({ book, onClose, onSave }: { book: Boo
                                             >
                                                 {user.displayName} ({user.email})
                                             </li>
+                                        )
                                         ))}
                                     </ul>
                                 </div>

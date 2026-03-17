@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { PublicUserProfile } from "@/lib/types/Profile";
 
-export default function UsesrInfo({ user, onClose}: { user: PublicUserProfile, onClose: () => void }) {
+export default function UserInfo({ user, onClose}: { user: PublicUserProfile, onClose: () => void }) {
     return (
         <div
             className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50"

@@ -1,28 +1,28 @@
-import { getUserByUid } from "@/lib/controllers/user.controller";
 import { PublicUserProfile } from "@/lib/types/Profile";
 
 type UserProfileLinkProps = {
-    userUid?: string | null;
-    displayName?: string;
+    user?: PublicUserProfile | null;
     onUserProfileLoaded: (user: PublicUserProfile) => void;
     className?: string;
 };
 
 export default function UserProfileLink({
-    userUid,
-    displayName,
+    user,
     onUserProfileLoaded,
     className = "cursor-pointer text-blue-500 hover:text-blue-700",
 }: UserProfileLinkProps) {
+
+    const userUid = user?.userId;
+    const displayName = user?.displayName || "okänd användare";
+
     return (
         <button
             type="button"
             onClick={async (e) => {
                 e.stopPropagation();
                 if (!userUid) return;
-                const userData = await getUserByUid(userUid);
-                if (userData) {
-                    onUserProfileLoaded(userData);
+                if (user) {
+                    onUserProfileLoaded(user);
                 }
             }}
             className={className}
