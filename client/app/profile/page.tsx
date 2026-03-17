@@ -11,6 +11,7 @@ import { PublicUserProfile } from "@/lib/types/Profile";
 import { deleteBook } from "@/lib/controllers/books.controller";
 import ImgUploader from "@/components/imgUploader/imgUploader";
 import UploadBookForm from "./uploadBookForm";
+import ChangeCustodyForm from "@/components/bookinfo/changeCustodyForm";
 
 export default function ProfilePage() {
     const [user, setUser] = useState<User | null>(null);
@@ -21,6 +22,7 @@ export default function ProfilePage() {
         photoURL: ""
     });
     const [ShowUploadBookForm, setShowUploadBookForm] = useState<boolean>(false);
+    const [showChangeCustodyForm, setShowChangeCustodyForm] = useState<string | null>(null);
     const [userBooks, setUserBooks] = useState<Book[]>([]);
     const [selectedBookId, setSelectedBookId] = useState<string | null>(null);
     const selectedBook = userBooks.find((book) => book.id === selectedBookId) || null;
@@ -133,14 +135,25 @@ export default function ProfilePage() {
                         <div key={book.id} onClick={() => setSelectedBookId(book.id)} className="mt-2 flex row justify-between items-center mb-2">
                             <p>{book.Title}</p>
                             <div className="flex row justify-end items-center">
-                                {book.Borrowed && (
-                                    <div className="mr-2 p-1 bg-yellow-500 text-white rounded transition duration-300 shadow">
-                                        Utlånad
+                                {book.Borrowed ? (
+                                    <div className="flex row justify-end items-center">
+                                        <div className="mr-2 p-1 bg-yellow-500 text-white rounded transition duration-300 shadow">
+                                            Utlånad
+                                        </div>
+                                        <button className="mr-2 p-1 bg-gray-500 text-white rounded hover:bg-gray-700 transition duration-300 shadow">
+                                            Fått tillbaka
+                                            {/* TODO anropa function i controller med confirmation window */}
+                                        </button>
                                     </div>
+                                ):(
+                                    <button className="mr-2 p-1 bg-gray-500 text-white rounded hover:bg-gray-700 transition duration-300 shadow"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setShowChangeCustodyForm(book);
+                                    }}>
+                                        Låna ut
+                                    </button>
                                 )}
-                                <button className="mr-2 p-1 bg-gray-500 text-white rounded hover:bg-gray-700 transition duration-300 shadow">
-                                    Hantera
-                                </button>
                                 <button className="p-1 bg-gray-600 text-white rounded hover:bg-red-700 transition duration-300 shadow"
                                 onClick={async (e) => {
                                     e.stopPropagation();
@@ -173,6 +186,9 @@ export default function ProfilePage() {
                         }
                     }}
                 />
+            )}
+            {showChangeCustodyForm && (
+                <ChangeCustodyForm book={showChangeCustodyForm} onClose={() => setShowChangeCustodyForm(false)} />
             )}
         </div>
     );
