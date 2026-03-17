@@ -8,10 +8,11 @@ import { getUserBooks } from "@/lib/controllers/user.controller";
 import BookInfo from "../../components/bookinfo/bookinfo";
 import { Book } from "@/lib/types/Book";
 import { PublicUserProfile } from "@/lib/types/Profile";
-import { deleteBook } from "@/lib/controllers/books.controller";
+import { deleteBook, manageBookLoan } from "@/lib/controllers/books.controller";
 import ImgUploader from "@/components/imgUploader/imgUploader";
 import UploadBookForm from "./uploadBookForm";
 import ChangeCustodyForm from "@/components/bookinfo/changeCustodyForm";
+import BookStateBtns from "@/components/bookinfo/bookStateBtns";
 
 export default function ProfilePage() {
     const [user, setUser] = useState<User | null>(null);
@@ -134,40 +135,25 @@ export default function ProfilePage() {
                     {userBooks.map((book: Book) => (
                         <div key={book.id} onClick={() => setSelectedBookId(book.id)} className="mt-2 flex row justify-between items-center mb-2">
                             <p>{book.Title}</p>
-                            <div className="flex row justify-end items-center">
-                                {book.Borrowed ? (
-                                    <div className="flex row justify-end items-center">
-                                        <div className="mr-2 p-1 bg-yellow-500 text-white rounded transition duration-300 shadow">
-                                            Utlånad
-                                        </div>
-                                        <button className="mr-2 p-1 bg-gray-500 text-white rounded hover:bg-gray-700 transition duration-300 shadow">
-                                            Fått tillbaka
-                                            {/* TODO anropa function i controller med confirmation window */}
-                                        </button>
-                                    </div>
-                                ):(
-                                    <button className="mr-2 p-1 bg-gray-500 text-white rounded hover:bg-gray-700 transition duration-300 shadow"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        setShowChangeCustodyForm(book);
-                                    }}>
-                                        Låna ut
-                                    </button>
-                                )}
-                                <button className="p-1 bg-gray-600 text-white rounded hover:bg-red-700 transition duration-300 shadow"
-                                onClick={async (e) => {
-                                    e.stopPropagation();
-                                    const deleted = await deleteBook(book.id);
-                                    if (deleted) {
-                                        setUserBooks(userBooks.filter(b => b.id !== book.id));
-                                        if (selectedBookId === book.id) {
-                                            setSelectedBookId(null);
-                                        }
+                            <BookStateBtns 
+                            book={book} 
+                            onClose={async () => {
+                                const deleted = await deleteBook(book.id);
+                                if (deleted) {
+                                    setUserBooks(userBooks.filter(b => b.id !== book.id));
+                                    if (selectedBookId === book.id) {
+                                        setSelectedBookId(null);
                                     }
-                                }}> 
-                                    Ta bort
-                                </button>
-                            </div>
+                                }
+                            }} 
+                            onGetBookBack={async (book) => {
+                                const updated = await manageBookLoan(book.id, user.uid, false);
+                                if (updated) {
+                                    setUserBooks(userBooks.map(b => b.id === book.id ? { ...b, Borrowed: false } : b));
+                                }
+                            }} onLendBook={async (book) => {
+                                setShowChangeCustodyForm(book);
+                            }} />
                         </div>
                     ))}
                 </div>

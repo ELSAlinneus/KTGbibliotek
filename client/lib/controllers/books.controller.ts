@@ -1,5 +1,5 @@
 import { db } from "@/lib/firebase/firebase";
-import { collection, getDocs, onSnapshot, addDoc, doc, deleteDoc } from "firebase/firestore";
+import { collection, getDocs, onSnapshot, addDoc, doc, deleteDoc, updateDoc } from "firebase/firestore";
 import { Book } from "../../lib/types/Book";
 import { User } from "firebase/auth";
 
@@ -137,4 +137,19 @@ async function getInformationFromISBN(isbn: string): Promise<Book | null> {
     }
 }
 
-export { addBook, deleteBook, getAllBooks, subscribeBooks, getInformationFromISBN };
+async function manageBookLoan(bookId: string, currentCustodyId: string | null, borrowstate: boolean): Promise<boolean> {
+    const bookRef = doc(db, "Books", bookId);
+    //currently no safety for wrong input
+    try {
+        await updateDoc(bookRef, {
+            Borrowed: borrowstate,
+            Current_custody: currentCustodyId
+        });
+        return true;
+    } catch (error) {
+        console.error("Error updating book loan state: ", error);
+        return false;
+    }
+}
+
+export { addBook, deleteBook, getAllBooks, subscribeBooks, getInformationFromISBN, manageBookLoan };
