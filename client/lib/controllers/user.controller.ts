@@ -107,12 +107,30 @@ async function getUserByUid(uid: string): Promise<PublicUserProfile | null> {
         return null;
     }
 
-    const data = userDoc.data() as { username?: string; email?: string; profilePicture?: string };
+    const data = userDoc.data() as { userId?: string; username?: string; email?: string; profilePicture?: string };
     return {
-        displayName: data.username || "Unknown",
+        userId: data.uid || "",
+        displayName: data.username || "Okänd",
         email: data.email || "",
         photoURL: data.profilePicture || ""
     };
 }
 
-export { handleUsernameChange, handleUserProfileChange, handleUserProfilePictureChange, getUserBooks, getUserProfilePicture, getUserByUid };
+async function getAllUsers(): Promise<PublicUserProfile[]> {
+    const users: PublicUserProfile[] = [];
+    const querySnapshot = await getDocs(collection(db, "users"));
+
+    querySnapshot.forEach((doc) => {
+        const data = doc.data() as { userId?: string; username?: string; email?: string; profilePicture?: string };
+        users.push({
+            userId: data.uid || "",
+            displayName: data.username || "Okänd",
+            email: data.email || "",
+            photoURL: data.profilePicture || ""
+        });
+    });
+
+    return users;
+}
+
+export { handleUsernameChange, handleUserProfileChange, handleUserProfilePictureChange, getUserBooks, getUserProfilePicture, getUserByUid, getAllUsers };

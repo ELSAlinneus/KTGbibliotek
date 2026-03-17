@@ -173,9 +173,13 @@ export default function ProfilePage() {
                     }}
                 />
             )}
-            {showChangeCustodyForm && (
-                <ChangeCustodyForm book={showChangeCustodyForm} onClose={() => setShowChangeCustodyForm(false)} />
-            )}
+{showChangeCustodyForm && (
+    <ChangeCustodyForm book={showChangeCustodyForm} onClose={() => setShowChangeCustodyForm(null)} 
+    onSave={() => {
+        setUserBooks(userBooks.map(b => b.id === showChangeCustodyForm.id ? { ...b, Borrowed: true } : b));
+        setShowChangeCustodyForm(null);
+    }} />
+)}
         </div>
     );
 }
