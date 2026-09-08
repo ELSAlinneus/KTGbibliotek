@@ -105,6 +105,8 @@ export default function BookInfo({ book, onClose, onDelete, onGetBookBack, onLen
                             <div>
                                 <p className="mt-4 text-sm text-red-600 font-bold">Detta är din bok</p>
                                 <BookStateBtns book={book} 
+                                borrowerProfile={borrowerProfile}
+                                onUserProfileLoaded={setUserProfile}
                                 onDelete={() => {onDelete(book.id)}} 
                                 onGetBookBack={() => {onGetBookBack(book)}} 
                                 onLendBook={() => {onLendBook(book)}} />
@@ -117,13 +119,12 @@ export default function BookInfo({ book, onClose, onDelete, onGetBookBack, onLen
                                     Boken är tillgänglig för utlåning
                                 </div>
                                 <p className="text-sm mt-2">
-                                    Om du vill låna boken, kontakta ägaren 
-                                    {" "}
+                                    Om du vill låna boken, kontakta ägaren{" "}
                                     <UserProfileLink
                                         user={ownerProfile}
                                         onUserProfileLoaded={setUserProfile}
                                     />
-                                    för att komma överens om utlåning.
+                                    {" "}för att komma överens om utlåning.
                                 </p>
                             </div>
                         ) : book.Current_custody === userId ? (

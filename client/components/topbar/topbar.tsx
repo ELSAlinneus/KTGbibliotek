@@ -34,7 +34,6 @@ export default function Topbar(){
                     {user ? (
                         <>
                             <NavbarItem title="Profil" href="/profile"></NavbarItem>
-                            <NavbarItem title="Inställningar" href="/settings"></NavbarItem>
                             <button onClick={logout} className="text-white">Logga ut</button>
                         </>
                     ) : (
