@@ -5,7 +5,7 @@ import { PublicUserProfile } from "@/lib/types/Profile";
 import { Book } from "@/lib/types/Book";
 import { useEffect, useState } from "react";
 
-export default function BorrowedBookItem({ book }: { book: Book }) {
+export default function BorrowedBookItem({ book, onClick }: { book: Book; onClick: () => void }) {
     const [userProfile, setUserProfile] = useState<PublicUserProfile | null>(null);
     const [bookOwnerProfile, setBookOwnerProfile] = useState<PublicUserProfile | null>(null);
 
@@ -21,7 +21,7 @@ export default function BorrowedBookItem({ book }: { book: Book }) {
 
     console.log("Rendering BorrowedBookItem for book:", book);
     return (
-        <div className="mt-2 flex row justify-between items-center mb-2">
+        <div className="mt-2 flex row justify-between items-center mb-2" onClick={onClick}>
             <p>{book.Title}</p>
             <p className="text-sm text-gray-600">Lånad från 
                 <UserProfileLink user={bookOwnerProfile} onUserProfileLoaded={setUserProfile} />

@@ -1,4 +1,4 @@
-import Book from "@/lib/types/Book";
+import { Book } from "@/lib/types/Book";
 
 export default function BookStateBtns({ book, onDelete, onGetBookBack, onLendBook }: { book: Book; onDelete: () => void;  onGetBookBack: (book: Book) => void; onLendBook: (book: Book) => void }) {
     return (

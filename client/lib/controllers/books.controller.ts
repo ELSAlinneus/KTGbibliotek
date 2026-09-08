@@ -5,6 +5,13 @@ import { User } from "firebase/auth";
 
 const MAX_COVER_IMAGE_BYTES = 262500;
 
+export type ExternalBookInfo = {
+    title: string;
+    author: string;
+    language: string;
+    publishedYear: string;
+};
+
 async function addBook(
     event: React.FormEvent<HTMLFormElement>,
     user: User | null,
@@ -17,6 +24,7 @@ async function addBook(
     const isbn = String(formData.get("isbn") ?? "");
     const language = String(formData.get("language") ?? "");
     const publicationYear = String(formData.get("publicationYear") ?? "");
+    const yearOfPublication = Number(publicationYear) || 0;
 
     if (!title || !author || !isbn) {        
         alert("Please fill in all required fields (title, author, isbn).");
@@ -45,7 +53,7 @@ async function addBook(
                 Author: author,
                 ISBN: isbn,
                 Language: language,
-                Year_of_publication: publicationYear,
+                Year_of_publication: yearOfPublication,
                 ImageURL: imageUrl,
                 Owner: user.uid,
                 Borrowed: false,
@@ -58,7 +66,7 @@ async function addBook(
                 Author: author,
                 ISBN: isbn,
                 Language: language,
-                Year_of_publication: publicationYear,
+                Year_of_publication: yearOfPublication,
                 ImageURL: imageUrl,
                 Owner: user.uid,
                 Borrowed: false,
@@ -105,7 +113,7 @@ function subscribeBooks(onUpdate: (books: Book[]) => void) {
     return unsubscribe;
 }
 
-async function getInformationFromISBN(isbn: string): Promise<Book | null> {
+async function getInformationFromISBN(isbn: string): Promise<ExternalBookInfo | null> {
     const cleanIsbn = isbn.replace(/[- ]/g, "");
     if(cleanIsbn.length < 1) return null;
 

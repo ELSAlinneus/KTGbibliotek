@@ -18,12 +18,13 @@ export default function ProfilePage() {
     const [user, setUser] = useState<User | null>(null);
     const [isEditing, setIsEditing] = useState<boolean>(false); 
     const [profile, setProfile] = useState<PublicUserProfile>({
+        userId: "",
         displayName: "",
         email: "",
         photoURL: ""
     });
     const [ShowUploadBookForm, setShowUploadBookForm] = useState<boolean>(false);
-    const [showChangeCustodyForm, setShowChangeCustodyForm] = useState<string | null>(null);
+    const [showChangeCustodyForm, setShowChangeCustodyForm] = useState<Book | null>(null);
     const [userBooks, setUserBooks] = useState<Book[]>([]);
     const [borrowedBooks, setBorrowedBooks] = useState<Book[]>([]);
     const [selectedBookId, setSelectedBookId] = useState<string | null>(null);
@@ -48,6 +49,7 @@ export default function ProfilePage() {
                 const fetchUserProfilePicture = async () => {
                     const picture = await getUserProfilePicture(u.uid);
                     setProfile({
+                        userId: u.uid,
                         displayName: u.displayName || "",
                         email: u.email || "",
                         photoURL: picture || ""
@@ -66,7 +68,9 @@ export default function ProfilePage() {
         }
     }
 
-    const handleGetBookBack = async (book) => {
+    const handleGetBookBack = async (book: Book) => {
+        if (!user) return;
+
         const updated = await manageBookLoan(book.id, user.uid, false);
         if (updated) {
             setUserBooks(userBooks.map(b => b.id === book.id ? { ...b, Borrowed: false } : b));
@@ -174,7 +178,7 @@ export default function ProfilePage() {
                 <div className="p-4 mb-4 ml-10 mr-10 mt-4 bg-gray-100 rounded-lg">
                     <p className="font-bold"> Lånade böcker:</p>
                     {borrowedBooks.map((book: Book) => (
-                        <BorrowedBookItem key={book.id} book={book} />
+                        <BorrowedBookItem key={book.id} book={book} onClick={() => setSelectedBookId(book.id)} />
                     ))}
                 </div>
             )}
@@ -187,7 +191,7 @@ export default function ProfilePage() {
                         if(deleted) handleBookDeleted(bookId);
                     }}
                     onGetBookBack={handleGetBookBack} 
-                    onLendBook={async (book) => {
+                    onLendBook={async (book: Book) => {
                         setShowChangeCustodyForm(book);
                     }}
                 />

@@ -120,7 +120,7 @@ async function getUserByUid(uid: string): Promise<PublicUserProfile | null> {
         return null;
     }
 
-    const data = userDoc.data() as { userId?: string; username?: string; email?: string; profilePicture?: string };
+    const data = userDoc.data() as { uid?: string; username?: string; email?: string; profilePicture?: string };
     return {
         userId: data.uid || "",
         displayName: data.username || "Okänd",
@@ -134,7 +134,7 @@ async function getAllUsers(): Promise<PublicUserProfile[]> {
     const querySnapshot = await getDocs(collection(db, "users"));
 
     querySnapshot.forEach((doc) => {
-        const data = doc.data() as { userId?: string; username?: string; email?: string; profilePicture?: string };
+        const data = doc.data() as { uid?: string; username?: string; email?: string; profilePicture?: string };
         users.push({
             userId: data.uid || "",
             displayName: data.username || "Okänd",

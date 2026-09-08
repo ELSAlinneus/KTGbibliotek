@@ -1,4 +1,4 @@
-import { addBook, getInformationFromISBN } from "@/lib/controllers/books.controller";
+import { addBook, ExternalBookInfo, getInformationFromISBN } from "@/lib/controllers/books.controller";
 import { Book } from "@/lib/types/Book";
 import { useState } from "react";
 import { User } from "firebase/auth";
@@ -12,7 +12,7 @@ type NewBookFormProps = {
 
 export default function UploadBookForm({ onClose, user, onBookAdded }: NewBookFormProps)  {
 
-    const [bookInfo, setBookInfo] = useState<Book | null>(null);
+    const [bookInfo, setBookInfo] = useState<ExternalBookInfo | null>(null);
     const [infoFetched, setInfoFetched] = useState<boolean>(false);
     const [coverImageBlob, setCoverImageBlob] = useState<Blob | null>(null);
     const [coverImagePreview, setCoverImagePreview] = useState<string>("");
