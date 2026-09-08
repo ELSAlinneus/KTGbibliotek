@@ -98,8 +98,7 @@ export default function BookInfo({ book, onClose, onDelete, onGetBookBack, onLen
                                 <UserProfileLink
                                     user={ownerProfile}
                                     onUserProfileLoaded={setUserProfile}
-                                >
-                                </UserProfileLink>
+                                />
                             </p>
                         )}
                         {userId === book.Owner ? (
@@ -123,8 +122,7 @@ export default function BookInfo({ book, onClose, onDelete, onGetBookBack, onLen
                                     <UserProfileLink
                                         user={ownerProfile}
                                         onUserProfileLoaded={setUserProfile}
-                                    >
-                                    </UserProfileLink>
+                                    />
                                     för att komma överens om utlåning.
                                 </p>
                             </div>
@@ -136,31 +134,25 @@ export default function BookInfo({ book, onClose, onDelete, onGetBookBack, onLen
                             </div>
                         ) : (
                             <div>
-                                <div
-                                    className="mt-5 inline-flex items-center justify-center rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white transition"
-                                >
-                                    Boken är redan utlånad till 
+                                <div className="mt-5 inline-flex items-center gap-1 rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white transition">
+                                    <span>Boken är redan utlånad till</span>
                                     <UserProfileLink
                                         user={borrowerProfile}
                                         onUserProfileLoaded={setUserProfile}
-                                    >
-                                    </UserProfileLink>
+                                    />
                                 </div>
                                 <p className="text-sm mt-2">
-                                    Du kan kontakta ägaren 
-                                    {" "}
+                                    Du kan kontakta ägaren{" "}
                                     <UserProfileLink
                                         user={ownerProfile}
                                         onUserProfileLoaded={setUserProfile}
-                                    >
-                                    </UserProfileLink>
-                                    och/eller lånetagaren {" "} 
+                                    />
+                                    {" "}och/eller lånetagaren{" "}
                                     <UserProfileLink
                                         user={borrowerProfile}
                                         onUserProfileLoaded={setUserProfile}
-                                    >
-                                    </UserProfileLink>
-                                    för att låta dem veta att du är intresserad av att låna boken.
+                                    />
+                                    {" "}för att låta dem veta att du är intresserad av att låna boken.
                                 </p>                            
                             </div>
                         )}

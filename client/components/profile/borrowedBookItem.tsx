@@ -23,7 +23,8 @@ export default function BorrowedBookItem({ book, onClick }: { book: Book; onClic
     return (
         <div className="mt-2 flex row justify-between items-center mb-2" onClick={onClick}>
             <p>{book.Title}</p>
-            <p className="text-sm text-gray-600">Lånad från 
+            <p className="inline-flex items-center gap-1 text-sm text-gray-600">
+                <span>Lånad från</span>
                 <UserProfileLink user={bookOwnerProfile} onUserProfileLoaded={setUserProfile} />
             </p>
             {userProfile && <UserInfo user={userProfile} onClose={() => setUserProfile(null)} />}
