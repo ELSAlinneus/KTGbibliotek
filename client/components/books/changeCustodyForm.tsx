@@ -1,6 +1,6 @@
 import { Book } from "@/lib/types/Book";
 import Image from "next/image";
-import Searchbar from "../bookinfo/searchbar";
+import Searchbar from "@/components/books/searchbar";
 import { manageBookLoan } from "@/lib/controllers/books.controller";
 import { getAllUsers } from "@/lib/controllers/user.controller";
 import { PublicUserProfile } from "@/lib/types/Profile";

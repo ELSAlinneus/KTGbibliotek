@@ -1,11 +1,11 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { getAllBooks, deleteBook, manageBookLoan } from "../../lib/controllers/books.controller";
-import BookInfo from "../../components/bookinfo/bookinfo";
-import BookListItem from "../../components/bookinfo/bookListItem";
-import Searchbar from "../../components/bookinfo/searchbar";
+import BookInfo from "@/components/books/bookinfo";
+import BookListItem from "@/components/books/bookListItem";
+import Searchbar from "@/components/books/searchbar";
 import { Book } from "../../lib/types/Book";
-import ChangeCustodyForm from "@/components/bookinfo/changeCustodyForm";
+import ChangeCustodyForm from "@/components/books/changeCustodyForm";
 
 export default function AllBooksPage() {
     const [allbooks, setBooks] = useState<Book[]>([]);

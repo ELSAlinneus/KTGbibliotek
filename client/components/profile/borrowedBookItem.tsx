@@ -1,5 +1,5 @@
-import UserProfileLink from "@/components/bookinfo/userProfileLink";
-import UserInfo from "@/components/userinfo/userinfo";
+import UserProfileLink from "@/components/books/userProfileLink";
+import UserInfo from "@/components/profile/userinfo";
 import { getUserByUid } from "@/lib/controllers/user.controller";
 import { PublicUserProfile } from "@/lib/types/Profile";
 import { Book } from "@/lib/types/Book";

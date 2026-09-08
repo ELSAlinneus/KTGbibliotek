@@ -4,15 +4,15 @@ import { onAuthStateChanged, User } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { auth } from "@/lib/firebase/firebase";
 import { handleUserProfileChange, handleUserProfilePictureChange, getUserProfilePicture, getUserBooks, getUserBorrowedBooks } from "@/lib/controllers/user.controller";
-import BookInfo from "../../components/bookinfo/bookinfo";
+import BookInfo from "@/components/books/bookinfo";
 import { Book } from "@/lib/types/Book";
 import { PublicUserProfile } from "@/lib/types/Profile";
 import { deleteBook, manageBookLoan } from "@/lib/controllers/books.controller";
 import ImgUploader from "@/components/imgUploader/imgUploader";
-import UploadBookForm from "./uploadBookForm";
-import ChangeCustodyForm from "@/components/bookinfo/changeCustodyForm";
-import BookStateBtns from "@/components/bookinfo/bookStateBtns";
-import BorrowedBookItem from "./borrowedBookItem";
+import UploadBookForm from "@/components/profile/uploadBookForm";
+import ChangeCustodyForm from "@/components/books/changeCustodyForm";
+import BookStateBtns from "@/components/books/bookStateBtns";
+import BorrowedBookItem from "@/components/profile/borrowedBookItem";
 
 export default function ProfilePage() {
     const [user, setUser] = useState<User | null>(null);

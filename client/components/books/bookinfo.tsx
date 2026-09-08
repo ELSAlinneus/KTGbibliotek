@@ -2,11 +2,11 @@ import { Book } from "@/lib/types/Book";
 import { auth } from "@/lib/firebase/firebase";
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import UserInfo from "../userinfo/userinfo";
+import UserInfo from "@/components/profile/userinfo";
 import { getUserByUid } from "@/lib/controllers/user.controller";
 import { PublicUserProfile } from "@/lib/types/Profile";
 import UserProfileLink from "./userProfileLink";
-import BookStateBtns from "@/components/bookinfo/bookStateBtns";
+import BookStateBtns from "@/components/books/bookStateBtns";
 
 export default function BookInfo({ book, onClose, onDelete, onGetBookBack, onLendBook }: { book: Book, onClose: () => void, onDelete: (bookId: string) => void, onGetBookBack: (book: Book) => void, onLendBook: (book: Book) => void }) {
     const [userId, setUserId] = useState<string | null>(null);
