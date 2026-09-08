@@ -28,7 +28,7 @@ export default function ProfilePage() {
     const [userBooks, setUserBooks] = useState<Book[]>([]);
     const [borrowedBooks, setBorrowedBooks] = useState<Book[]>([]);
     const [selectedBookId, setSelectedBookId] = useState<string | null>(null);
-    const selectedBook = userBooks.find((book) => book.id === selectedBookId) || null;
+    const selectedBook = [...userBooks, ...borrowedBooks].find((book) => book.id === selectedBookId) || null;
 
     useEffect(() => {
         const unsub = onAuthStateChanged(auth, (u) => {
@@ -74,6 +74,8 @@ export default function ProfilePage() {
         const updated = await manageBookLoan(book.id, user.uid, false);
         if (updated) {
             setUserBooks(userBooks.map(b => b.id === book.id ? { ...b, Borrowed: false } : b));
+            setBorrowedBooks(borrowedBooks.filter(b => b.id !== book.id));
+            setSelectedBookId(null);
         }
     }
 
