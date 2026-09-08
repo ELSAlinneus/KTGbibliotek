@@ -13,7 +13,7 @@ export default function UserProfileLink({
 }: UserProfileLinkProps) {
 
     const userUid = user?.userId;
-    const displayName = user?.displayName || "okänd användare";
+    const displayName = user?.displayName;
 
     return (
         <button
@@ -27,7 +27,7 @@ export default function UserProfileLink({
             }}
             className={className}
         >
-            {displayName || "okänd användare"}
+            {displayName}
         </button>
     );
 }

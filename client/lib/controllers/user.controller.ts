@@ -123,7 +123,7 @@ async function getUserByUid(uid: string): Promise<PublicUserProfile | null> {
     const data = userDoc.data() as { uid?: string; username?: string; email?: string; profilePicture?: string };
     return {
         userId: data.uid || "",
-        displayName: data.username || "Okänd",
+        displayName: data.username || data.email || "Okänd",
         email: data.email || "",
         photoURL: data.profilePicture || ""
     };
@@ -137,7 +137,7 @@ async function getAllUsers(): Promise<PublicUserProfile[]> {
         const data = doc.data() as { uid?: string; username?: string; email?: string; profilePicture?: string };
         users.push({
             userId: data.uid || "",
-            displayName: data.username || "Okänd",
+            displayName: data.username || data.email || "Okänd",
             email: data.email || "",
             photoURL: data.profilePicture || ""
         });
