@@ -7,12 +7,13 @@ import { getUserByUid } from "@/lib/controllers/user.controller";
 import { PublicUserProfile } from "@/lib/types/Profile";
 import UserProfileLink from "./userProfileLink";
 import BookStateBtns from "@/components/books/bookStateBtns";
+import BookStatusBadge from "@/components/books/bookStatusBadge";
 
 export default function BookInfo({ book, onClose, onDelete, onGetBookBack, onLendBook }: { book: Book, onClose: () => void, onDelete: (bookId: string) => void, onGetBookBack: (book: Book) => void, onLendBook: (book: Book) => void }) {
     const [userId, setUserId] = useState<string | null>(null);
     const [userProfile, setUserProfile] = useState<PublicUserProfile | null>(null);
     const [ownerProfile, setOwnerProfile] = useState<PublicUserProfile | null>(null);
-    const [borrowerProfile, setBorrowerProfile] = useState<PublicUserProfile | null>(null);
+    const [loanedToProfile, setLoanedToProfile] = useState<PublicUserProfile | null>(null);
 
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged((currentUser) => {
@@ -36,17 +37,17 @@ export default function BookInfo({ book, onClose, onDelete, onGetBookBack, onLen
         }
         loadOwnerProfile();
 
-        async function loadBorrowerProfile() {
+        async function loadLoanedToProfile() {
             if (!book.Current_custody) {
-                setBorrowerProfile(null);
+                setLoanedToProfile(null);
                 return;
             }
-            const borrowerData = await getUserByUid(book.Current_custody);
+            const loanedToUser = await getUserByUid(book.Current_custody);
             if (isEffectActive) {
-                setBorrowerProfile(borrowerData || null);
+                setLoanedToProfile(loanedToUser || null);
             }
         }
-        loadBorrowerProfile();
+        loadLoanedToProfile();
 
         return () => {
             isEffectActive = false;
@@ -105,7 +106,7 @@ export default function BookInfo({ book, onClose, onDelete, onGetBookBack, onLen
                             <div>
                                 <p className="mt-4 text-sm text-red-600 font-bold">Detta är din bok</p>
                                 <BookStateBtns book={book} 
-                                borrowerProfile={borrowerProfile}
+                                loanedToProfile={loanedToProfile}
                                 onUserProfileLoaded={setUserProfile}
                                 onDelete={() => {onDelete(book.id)}} 
                                 onGetBookBack={() => {onGetBookBack(book)}} 
@@ -113,10 +114,8 @@ export default function BookInfo({ book, onClose, onDelete, onGetBookBack, onLen
                             </div>
                         ) : !book.Borrowed ? (
                             <div>
-                                <div
-                                    className="mt-5 inline-flex items-center justify-center rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white transition"
-                                >
-                                    Boken är tillgänglig för utlåning
+                                <div className="mt-5">
+                                    <BookStatusBadge status="available" />
                                 </div>
                                 <p className="text-sm mt-2">
                                     Om du vill låna boken, kontakta ägaren{" "}
@@ -128,17 +127,15 @@ export default function BookInfo({ book, onClose, onDelete, onGetBookBack, onLen
                                 </p>
                             </div>
                         ) : book.Current_custody === userId ? (
-                            <div
-                                className="mt-5 inline-flex items-center justify-center rounded-md bg-yellow-600 px-4 py-2 text-sm font-medium text-white transition"
-                            >
-                                Du har lånat denna bok
+                            <div className="mt-5">
+                                <BookStatusBadge status="borrowed-by-me" />
                             </div>
                         ) : (
                             <div>
-                                <div className="mt-5 inline-flex items-center gap-1 rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white transition">
-                                    <span>Boken är redan utlånad till</span>
-                                    <UserProfileLink
-                                        user={borrowerProfile}
+                                <div className="mt-5">
+                                    <BookStatusBadge
+                                        status="borrowed-by-other"
+                                        loanedToProfile={loanedToProfile}
                                         onUserProfileLoaded={setUserProfile}
                                     />
                                 </div>
@@ -150,7 +147,7 @@ export default function BookInfo({ book, onClose, onDelete, onGetBookBack, onLen
                                     />
                                     {" "}och/eller lånetagaren{" "}
                                     <UserProfileLink
-                                        user={borrowerProfile}
+                                        user={loanedToProfile}
                                         onUserProfileLoaded={setUserProfile}
                                     />
                                     {" "}för att låta dem veta att du är intresserad av att låna boken.

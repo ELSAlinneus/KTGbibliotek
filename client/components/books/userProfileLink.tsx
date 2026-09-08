@@ -13,7 +13,7 @@ export default function UserProfileLink({
 }: UserProfileLinkProps) {
 
     const userUid = user?.userId;
-    const displayName = user?.displayName;
+    const displayName = user?.displayName || "Okänd användare";
 
     return (
         <button
