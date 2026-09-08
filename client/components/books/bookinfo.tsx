@@ -14,6 +14,8 @@ export default function BookInfo({ book, onClose, onDelete, onGetBookBack, onLen
     const [userProfile, setUserProfile] = useState<PublicUserProfile | null>(null);
     const [ownerProfile, setOwnerProfile] = useState<PublicUserProfile | null>(null);
     const [loanedToProfile, setLoanedToProfile] = useState<PublicUserProfile | null>(null);
+    const [isOwnerProfileLoading, setIsOwnerProfileLoading] = useState(false);
+    const [isLoanedToProfileLoading, setIsLoanedToProfileLoading] = useState(false);
 
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged((currentUser) => {
@@ -28,11 +30,14 @@ export default function BookInfo({ book, onClose, onDelete, onGetBookBack, onLen
         async function loadOwnerProfile() {
             if (!book.Owner) {
                 setOwnerProfile(null);
+                setIsOwnerProfileLoading(false);
                 return;
             }
+            setIsOwnerProfileLoading(true);
             const ownerData = await getUserByUid(book.Owner);
             if (isEffectActive) {
                 setOwnerProfile(ownerData || null);
+                setIsOwnerProfileLoading(false);
             }
         }
         loadOwnerProfile();
@@ -40,11 +45,14 @@ export default function BookInfo({ book, onClose, onDelete, onGetBookBack, onLen
         async function loadLoanedToProfile() {
             if (!book.Current_custody) {
                 setLoanedToProfile(null);
+                setIsLoanedToProfileLoading(false);
                 return;
             }
+            setIsLoanedToProfileLoading(true);
             const loanedToUser = await getUserByUid(book.Current_custody);
             if (isEffectActive) {
                 setLoanedToProfile(loanedToUser || null);
+                setIsLoanedToProfileLoading(false);
             }
         }
         loadLoanedToProfile();
@@ -99,6 +107,7 @@ export default function BookInfo({ book, onClose, onDelete, onGetBookBack, onLen
                                 <UserProfileLink
                                     user={ownerProfile}
                                     onUserProfileLoaded={setUserProfile}
+                                    isLoading={isOwnerProfileLoading}
                                 />
                             </p>
                         )}
@@ -108,6 +117,7 @@ export default function BookInfo({ book, onClose, onDelete, onGetBookBack, onLen
                                 <BookStateBtns book={book} 
                                 loanedToProfile={loanedToProfile}
                                 onUserProfileLoaded={setUserProfile}
+                                isLoanedToProfileLoading={isLoanedToProfileLoading}
                                 onDelete={() => {onDelete(book.id)}} 
                                 onGetBookBack={() => {onGetBookBack(book)}} 
                                 onLendBook={() => {onLendBook(book)}} />
@@ -122,6 +132,7 @@ export default function BookInfo({ book, onClose, onDelete, onGetBookBack, onLen
                                     <UserProfileLink
                                         user={ownerProfile}
                                         onUserProfileLoaded={setUserProfile}
+                                        isLoading={isOwnerProfileLoading}
                                     />
                                     {" "}för att komma överens om utlåning.
                                 </p>
@@ -137,6 +148,7 @@ export default function BookInfo({ book, onClose, onDelete, onGetBookBack, onLen
                                         status="borrowed-by-other"
                                         loanedToProfile={loanedToProfile}
                                         onUserProfileLoaded={setUserProfile}
+                                        isLoanedToProfileLoading={isLoanedToProfileLoading}
                                     />
                                 </div>
                                 <p className="text-sm mt-2">
@@ -144,11 +156,13 @@ export default function BookInfo({ book, onClose, onDelete, onGetBookBack, onLen
                                     <UserProfileLink
                                         user={ownerProfile}
                                         onUserProfileLoaded={setUserProfile}
+                                        isLoading={isOwnerProfileLoading}
                                     />
                                     {" "}och/eller lånetagaren{" "}
                                     <UserProfileLink
                                         user={loanedToProfile}
                                         onUserProfileLoaded={setUserProfile}
+                                        isLoading={isLoanedToProfileLoading}
                                     />
                                     {" "}för att låta dem veta att du är intresserad av att låna boken.
                                 </p>                            

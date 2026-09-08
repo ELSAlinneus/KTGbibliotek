@@ -2,7 +2,7 @@ import { Book } from "@/lib/types/Book";
 import { PublicUserProfile } from "@/lib/types/Profile";
 import BookStatusBadge from "@/components/books/bookStatusBadge";
 
-export default function BookStateBtns({ book, onDelete, onGetBookBack, onLendBook, loanedToProfile, onUserProfileLoaded }: { book: Book; onDelete: () => void; onGetBookBack: (book: Book) => void; onLendBook: (book: Book) => void; loanedToProfile?: PublicUserProfile | null; onUserProfileLoaded?: (user: PublicUserProfile) => void }) {
+export default function BookStateBtns({ book, onDelete, onGetBookBack, onLendBook, loanedToProfile, onUserProfileLoaded, isLoanedToProfileLoading = false }: { book: Book; onDelete: () => void; onGetBookBack: (book: Book) => void; onLendBook: (book: Book) => void; loanedToProfile?: PublicUserProfile | null; onUserProfileLoaded?: (user: PublicUserProfile) => void; isLoanedToProfileLoading?: boolean }) {
     return (
         <div className="flex row justify-end items-center">
             {book.Borrowed ? (
@@ -12,6 +12,7 @@ export default function BookStateBtns({ book, onDelete, onGetBookBack, onLendBoo
                             status="i-have-lent-to"
                             loanedToProfile={loanedToProfile}
                             onUserProfileLoaded={onUserProfileLoaded}
+                            isLoanedToProfileLoading={isLoanedToProfileLoading}
                         />
                     </div>
                     <button className="mr-2 p-1 bg-gray-500 text-white rounded hover:bg-gray-700 transition duration-300 shadow"
