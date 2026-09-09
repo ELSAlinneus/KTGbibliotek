@@ -68,11 +68,11 @@ export default function AllBooksPage() {
             <BookFilters books={allbooks} users={users} values={filters} onChange={setFilters} />
             <ul className="w-full">
                 {filteredBooks.length === 0 ? (
-                    <p className="m-4 rounded-lg bg-gray-100 p-6 text-center text-gray-600">
+                    <p className="m-4 rounded-lg border border-slate-700 bg-slate-800 p-6 text-center text-slate-400">
                         Inga böcker matchar dina filter.
                     </p>
                 ) : filteredBooks.map((book: Book) => (
-                    <div key={book.id} className="flex flex-col items-start justify-start bg-gray-100 p-4 m-4 rounded-lg">
+                    <div key={book.id} className="flex flex-col items-start justify-start bg-slate-800 border border-slate-700 p-4 m-4 rounded-lg">
                         <BookListItem book={book} onClick={() => setSelectedBookId(book.id)}/>
 
                         {selectedBookId === book.id && (

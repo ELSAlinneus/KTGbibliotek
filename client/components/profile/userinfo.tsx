@@ -10,8 +10,8 @@ export default function UserInfo({ user, onClose}: { user: PublicUserProfile, on
                 onClose();
             }}
         >
-            <div className="bg-white p-6 rounded-lg w-80 relative" onClick={(e) => e.stopPropagation()}>
-                <button onClick={onClose} className="absolute top-2 right-2 text-gray-500 hover:text-gray-700">
+            <div className="bg-slate-800 border border-slate-700 text-slate-200 p-6 rounded-lg w-80 relative" onClick={(e) => e.stopPropagation()}>
+                <button onClick={onClose} className="absolute top-2 right-2 text-slate-400 hover:text-white">
                     ✕
                 </button>
                 <Image

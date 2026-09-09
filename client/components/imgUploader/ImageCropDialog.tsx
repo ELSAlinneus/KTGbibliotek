@@ -31,7 +31,7 @@ export default function ImageCropDialog({
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4">
-      <div className="w-full max-w-2xl rounded-lg bg-white p-4 shadow-xl">
+      <div className="w-full max-w-2xl rounded-lg border border-slate-700 bg-slate-800 p-4 text-slate-200 shadow-xl">
         <div className="relative h-[420px] w-full overflow-hidden rounded bg-gray-900">
           <Cropper
             image={imageSrc}
@@ -47,7 +47,7 @@ export default function ImageCropDialog({
         </div>
 
         <div className="mt-4 flex items-center gap-3">
-          <label htmlFor="crop-zoom" className="text-sm text-gray-700">
+          <label htmlFor="crop-zoom" className="text-sm text-slate-300">
             Zoom
           </label>
           <input
@@ -66,7 +66,7 @@ export default function ImageCropDialog({
           <button
             type="button"
             onClick={onCancel}
-            className="rounded border border-gray-300 px-3 py-1.5 text-sm text-gray-700"
+            className="rounded border border-slate-600 px-3 py-1.5 text-sm text-slate-300 hover:bg-slate-700"
           >
             Cancel
           </button>

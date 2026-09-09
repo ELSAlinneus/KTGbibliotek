@@ -22,10 +22,10 @@ export default function ChangeCustodyForm({ book, onClose, onSave }: { book: Boo
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
-            <div className="w-full max-w-3xl rounded-lg bg-white p-6 shadow-lg" onClick={(e) => e.stopPropagation()}>
+            <div className="w-full max-w-3xl rounded-lg border border-slate-700 bg-slate-800 p-6 text-slate-200 shadow-lg" onClick={(e) => e.stopPropagation()}>
                 <div>
                     <div className="flex items-center justify-between mb-4">
-                        <h1 className="text-2xl font-bold text-gray-800">
+                        <h1 className="text-2xl font-bold text-slate-100">
                             {book.Title}
                         </h1>
                         <button
@@ -34,7 +34,7 @@ export default function ChangeCustodyForm({ book, onClose, onSave }: { book: Boo
                                 e.stopPropagation();
                                 onClose();
                             }}
-                            className="text-black hover:text-red-800 "
+                            className="text-slate-300 hover:text-red-400"
                             aria-label="Stäng"
                         >
                             ✕
@@ -42,7 +42,7 @@ export default function ChangeCustodyForm({ book, onClose, onSave }: { book: Boo
                     </div>
                     <div className="flex items-start gap-6">
                             {book.ImageURL && (
-                                <div className="h-72 w-48 shrink-0 overflow-hidden rounded-lg border border-slate-200 bg-gray-200">
+                                <div className="h-72 w-48 shrink-0 overflow-hidden rounded-lg border border-slate-700 bg-slate-700">
                                         <Image
                                             className="h-full w-full object-cover"
                                             src={book.ImageURL}
@@ -60,12 +60,12 @@ export default function ChangeCustodyForm({ book, onClose, onSave }: { book: Boo
 
                                     {/* TODO: söka på användare, scrolla bland användare*/}
                                     <Searchbar onSearch={(query) => console.log("searching for user with query:", query)} placeholder="Sök användare..." />
-                                    <ul className="max-h-48 overflow-y-auto mt-2 border border-gray-300 rounded">
+                                    <ul className="max-h-48 overflow-y-auto mt-2 rounded border border-slate-600 bg-slate-900">
                                         {users.map((user) => (
                                         user.userId !== book.Owner && (
                                             <li
                                                 key={user.userId}
-                                                className={`px-4 py-2 cursor-pointer ${selectedUserId === user.userId ? "bg-gray-300" : "hover:bg-gray-100"}`}
+                                                className={`cursor-pointer px-4 py-2 text-slate-200 ${selectedUserId === user.userId ? "bg-slate-700" : "hover:bg-slate-800"}`}
                                                 onClick={() => setSelectedUserId(user.userId)}
                                             >
                                                 {user.displayName} ({user.email})
@@ -76,7 +76,7 @@ export default function ChangeCustodyForm({ book, onClose, onSave }: { book: Boo
                                 </div>
                                 <button
                                     type="submit"
-                                    className="inline-flex items-center justify-center rounded-md bg-gray-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600 cursor-pointer"
+                                    className="inline-flex cursor-pointer items-center justify-center rounded-md bg-gray-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600"
                                     onClick={async (e) => {
                                         e.preventDefault();
                                         const confirmation = window.confirm("Är du säker på att du vill låna ut boken till denna användare?");

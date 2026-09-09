@@ -33,8 +33,8 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Topbar />
-        <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-          <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between bg-white dark:bg-black">
+        <div className="flex min-h-screen items-center justify-center bg-slate-950 font-sans">
+          <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between bg-slate-900 text-slate-100 shadow-2xl">
               
               {children}
             </main>

@@ -19,21 +19,21 @@ export default function UploadBookForm({ onClose, user, onBookAdded }: NewBookFo
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-            <div className="w-full max-w-xl rounded-lg bg-white p-6 shadow-lg">
+            <div className="w-full max-w-xl rounded-lg border border-slate-700 bg-slate-800 p-6 text-slate-200 shadow-lg">
                 <div className="flex items-center justify-between mb-4">
-                    <h1 className="text-2xl font-bold text-gray-800">
+                    <h1 className="text-2xl font-bold text-slate-100">
                         Lägg till en ny bok
                     </h1>
                     <button
                         type="button"
                         onClick={onClose}
-                        className="text-black hover:text-red-800 "
+                        className="text-slate-300 hover:text-red-400"
                         aria-label="Stäng"
                     >
                         ✕
                     </button>
                 </div>
-                <form className="p-4 bg-gray-100 rounded-lg" onSubmit={async (e) => {
+                <form className="p-4 bg-slate-900 rounded-lg" onSubmit={async (e) => {
                     e.preventDefault();
                     const newBook = await addBook(e, user, coverImageBlob ?? undefined);
                     if (newBook) {
@@ -44,8 +44,8 @@ export default function UploadBookForm({ onClose, user, onBookAdded }: NewBookFo
                     }
                 }}>
                     <div>
-                        <label className="block font-bold text-gray-700 mb-2">ISBN:</label>
-                        <input readOnly={bookInfo !== null} type="text" id="isbn" name="isbn" className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" />
+                        <label className="block font-bold text-slate-300 mb-2">ISBN:</label>
+                        <input readOnly={bookInfo !== null} type="text" id="isbn" name="isbn" className="mt-1 block w-full border border-slate-600 bg-slate-800 text-slate-100 rounded-md shadow-sm p-2" />
                     </div>
                     {infoFetched && !bookInfo && (
                         <div>
@@ -74,7 +74,7 @@ export default function UploadBookForm({ onClose, user, onBookAdded }: NewBookFo
                             if (isbnInput) {
                                 isbnInput.value = "";
                             }
-                        }} className="mt-2 px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-500 transition duration-300">
+                        }} className="mt-2 rounded bg-slate-700 px-4 py-2 text-slate-200 transition duration-300 hover:bg-slate-600">
                             Rensa ISBN 
                         </button>
                     )}
@@ -82,23 +82,23 @@ export default function UploadBookForm({ onClose, user, onBookAdded }: NewBookFo
                         <div className="mt-4">
                             <h3 className="text-lg font-bold pb-2">Hämtad bokinformation:</h3>
                             <div className="mb-4">
-                                <label className="block font-bold text-gray-700 mb-2">Titel:</label>
+                                <label className="block font-bold text-slate-300 mb-2">Titel:</label>
                                 <input readOnly value={bookInfo.title} type="text" name="title"  />
                             </div>
                             <div className="mb-4">
-                                <label className="block font-bold text-gray-700 mb-2">Författare:</label>
+                                <label className="block font-bold text-slate-300 mb-2">Författare:</label>
                                 <input required defaultValue={bookInfo.author} type="text" name="author" />
                             </div>
                             <div className="mb-4">
-                                <label className="block font-bold text-gray-700 mb-2">Språk:</label>           
+                                <label className="block font-bold text-slate-300 mb-2">Språk:</label>           
                                 <input readOnly value={bookInfo.language} type="text" name="language" /> 
                             </div>
                             <div className="mb-4">
-                                <label className="block font-bold text-gray-700 mb-2">publiceringsår:</label>           
+                                <label className="block font-bold text-slate-300 mb-2">publiceringsår:</label>           
                                 <input readOnly value={bookInfo.publishedYear} type="text" name="publicationYear"/> 
                             </div>
                             <div className="mb-4">
-                                <label className="block font-bold text-gray-700 mb-2">Bokomslag:</label>           
+                                <label className="block font-bold text-slate-300 mb-2">Bokomslag:</label>           
                                 <ImgUploader 
                                     value={coverImagePreview}
                                     onChange={(result) => {
@@ -110,7 +110,7 @@ export default function UploadBookForm({ onClose, user, onBookAdded }: NewBookFo
                                             setCoverImagePreview("");
                                         }
                                     }}
-                                    className="w-36 h-40 cursor-pointer border-2 border-dashed border-gray-300 p-5 pt-10 text-center hover:border-gray-400"
+                                    className="w-36 h-40 cursor-pointer border-2 border-dashed border-slate-600 p-5 pt-10 text-center hover:border-slate-400"
                                 />
                             </div>
                             <button type="submit" className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700 transition duration-300 shadow">

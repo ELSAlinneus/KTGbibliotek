@@ -64,9 +64,9 @@ export default function BookInfo({ book, onClose, onDelete, onGetBookBack, onLen
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
-            <div className="w-full max-w-3xl rounded-lg bg-white p-6 shadow-lg" onClick={(e) => e.stopPropagation()}>
+            <div className="w-full max-w-3xl rounded-lg border border-slate-700 bg-slate-800 p-6 text-slate-200 shadow-lg" onClick={(e) => e.stopPropagation()}>
                 <div className="flex items-center justify-between mb-4">
-                    <h1 className="text-2xl font-bold text-gray-800">
+                    <h1 className="text-2xl font-bold text-slate-100">
                         {book.Title}
                     </h1>
                     <button
@@ -75,14 +75,14 @@ export default function BookInfo({ book, onClose, onDelete, onGetBookBack, onLen
                             e.stopPropagation();
                             onClose();
                         }}
-                        className="text-black hover:text-red-800 "
+                        className="text-slate-300 hover:text-red-400"
                         aria-label="Stäng"
                     >
                         ✕
                     </button>
                 </div>
-                <div className="w-full rounded-xl border border-slate-200 bg-slate-100 p-6 shadow-sm flex items-start gap-6">
-                    <div className="h-72 w-48 shrink-0 overflow-hidden rounded-lg border border-slate-200 bg-gray-200">
+                <div className="w-full rounded-xl border border-slate-700 bg-slate-900 p-6 shadow-sm flex items-start gap-6">
+                    <div className="h-72 w-48 shrink-0 overflow-hidden rounded-lg border border-slate-700 bg-slate-700">
                         {book.ImageURL ? (
                             <Image
                                 className="h-full w-full object-cover"
@@ -96,8 +96,8 @@ export default function BookInfo({ book, onClose, onDelete, onGetBookBack, onLen
                             <div className="h-full w-full"></div>
                         )}
                     </div>
-                    <div className="flex-1 min-w-0 h-72 overflow-y-auto text-left pr-2 space-y-1 text-slate-700">
-                        <h2 className="text-2xl font-semibold text-slate-900 break-words">{book.Title}</h2>
+                    <div className="flex-1 min-w-0 h-72 overflow-y-auto text-left pr-2 space-y-1 text-slate-300">
+                        <h2 className="text-2xl font-semibold text-slate-100 break-words">{book.Title}</h2>
                         {book.Author && <p className="text-sm">Författare: {book.Author}</p>}
                         {book.Year_of_publication && <p className="text-sm">Utgiven: {book.Year_of_publication}</p>}
                         {book.Language && <p className="text-sm">Språk: {book.Language}</p>}

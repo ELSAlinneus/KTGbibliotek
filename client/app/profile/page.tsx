@@ -81,7 +81,7 @@ export default function ProfilePage() {
 
     return (
         <div className="w-full">
-            <div className="p-4 mb-4 w-full bg-gray-200 rounded-lg flex flex-col items-center justify-center">
+            <div className="p-4 mb-4 w-full bg-slate-800 border border-slate-700 rounded-lg flex flex-col items-center justify-center">
                 <ImgUploader
                     value={profile.photoURL}
                     onChange={(result) => {
@@ -96,35 +96,35 @@ export default function ProfilePage() {
                         }
                     }}
                     round={true}
-                    className="w-48 h-48 cursor-pointer rounded-full border-2 border-dashed border-gray-300 p-13 text-center hover:border-gray-400"
+                    className="w-48 h-48 cursor-pointer rounded-full border-2 border-dashed border-slate-600 p-13 text-center hover:border-slate-400"
                 />
-                <h1 className="text-2xl font-bold text-gray-800 text-center">
+                <h1 className="text-2xl font-bold text-slate-100 text-center">
                     {profile.displayName || "Användarnamn saknas"}
                 </h1>
             </div>
-            <div className="p-4 mb-4 ml-10 mr-10 bg-gray-100 rounded-lg">
+            <div className="p-4 mb-4 ml-10 mr-10 bg-slate-800 border border-slate-700 rounded-lg">
                 <div className="flex row justify-between items-center mb-4">
                     <p className="font-bold">Användaruppgifter</p>
                     <i className="fa fa-pen-to-square" onClick={() => setIsEditing(!isEditing)}></i>
                 </div>
                 <div className="flex row">
-                    <label className="text-gray-700 mr-2">Användarnamn:</label>
+                    <label className="text-slate-300 mr-2">Användarnamn:</label>
                     <input
                         type="text"
                         value={profile.displayName}
                         onChange={(e) => setProfile({...profile, displayName: e.target.value})}
                         readOnly={!isEditing}
-                        className="text-gray-700 border rounded p-2"
+                        className="text-slate-100 bg-slate-900 border border-slate-600 rounded p-2"
                     />                  
                 </div>
                 <div className="flex row">
-                    <label className="text-gray-700 mr-2">E-post:</label>
+                    <label className="text-slate-300 mr-2">E-post:</label>
                     <input
                         type="text"
                         value={profile.email}
                         onChange={(e) => setProfile({ ...profile, email: e.target.value })}
                         readOnly={!isEditing}
-                        className="text-gray-700 border rounded p-2 bg-gray-200"
+                        className="text-slate-400 border border-slate-600 rounded p-2 bg-slate-700"
                     />
                 </div>
                 {isEditing && (
@@ -157,7 +157,7 @@ export default function ProfilePage() {
                 )}
             </div>
             {userBooks.length > 0 && (
-                <div className="p-4 mb-4 ml-10 mr-10 mt-4 bg-gray-100 rounded-lg">
+                <div className="p-4 mb-4 ml-10 mr-10 mt-4 bg-slate-800 border border-slate-700 rounded-lg">
                     <p className="font-bold"> Mina böcker:</p>
                     {userBooks.map((book: Book) => (
                         <div key={book.id} onClick={() => setSelectedBookId(book.id)} className="mt-2 flex row justify-between items-center mb-2">
@@ -177,7 +177,7 @@ export default function ProfilePage() {
                 </div>
             )}
             {borrowedBooks.length > 0 && (
-                <div className="p-4 mb-4 ml-10 mr-10 mt-4 bg-gray-100 rounded-lg">
+                <div className="p-4 mb-4 ml-10 mr-10 mt-4 bg-slate-800 border border-slate-700 rounded-lg">
                     <p className="font-bold"> Lånade böcker:</p>
                     {borrowedBooks.map((book: Book) => (
                         <BorrowedBookItem key={book.id} book={book} onClick={() => setSelectedBookId(book.id)} />

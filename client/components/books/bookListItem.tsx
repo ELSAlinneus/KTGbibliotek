@@ -4,11 +4,11 @@ import Image from "next/image";
 export default function BookListItem({ book, onClick }: { book: Book, onClick: () => void }) {
     return (
         <li
-            className={`text-gray-700 hover:text-gray-900 cursor-pointer m-2 bg-white p-3 rounded-lg flex items-start gap-4 w-full ${book.ImageURL ? "min-h-44 h-44" : ""}`}
+            className={`text-slate-200 hover:text-white cursor-pointer m-2 bg-slate-800 border border-slate-700 p-3 rounded-lg flex items-start gap-4 w-full ${book.ImageURL ? "min-h-44 h-44" : ""}`}
             onClick={onClick}
         >
             {book.ImageURL && (
-                <div className="h-full w-28 shrink-0 overflow-hidden rounded-md bg-gray-200">
+                <div className="h-full w-28 shrink-0 overflow-hidden rounded-md bg-slate-700">
                     <Image
                         className="h-full w-full object-cover"
                         src={book.ImageURL}

@@ -43,7 +43,7 @@ return (
         onClick={() => !disabled && fileInputRef.current?.click()}
         className={className}
     >
-        <p className="text-sm text-gray-600">{label ?? "Klicka eller drag en fil för att ladda upp."}</p>
+        <p className="text-sm text-slate-400">{label ?? "Klicka eller drag en fil för att ladda upp."}</p>
         <input
             ref={fileInputRef}
             className="hidden"
