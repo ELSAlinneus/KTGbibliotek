@@ -8,6 +8,8 @@ import { Book } from "../../lib/types/Book";
 import ChangeCustodyForm from "@/components/books/changeCustodyForm";
 import { getAllUsers } from "@/lib/controllers/user.controller";
 import { PublicUserProfile } from "@/lib/types/Profile";
+import { auth } from "@/lib/firebase/firebase";
+import { onAuthStateChanged } from "firebase/auth";
 
 export default function AllBooksPage() {
     const [allbooks, setBooks] = useState<Book[]>([]);
@@ -22,9 +24,14 @@ export default function AllBooksPage() {
         status: ""
     });
     const [users, setUsers] = useState<PublicUserProfile[]>([]);
+    const [userId, setUserId] = useState<string | null>(null);
 
 
     useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            setUserId(user?.uid || null);
+        });
+
         const fetchBooks = async () => {
             console.log("fetching books...");
             setIsLoading(true);
@@ -43,6 +50,7 @@ export default function AllBooksPage() {
 
         fetchUsers();
 
+        return () => unsubscribe();
     }, []);
 
     const filteredBooks = allbooks.filter((book) => {
@@ -73,7 +81,7 @@ export default function AllBooksPage() {
                     </p>
                 ) : filteredBooks.map((book: Book) => (
                     <div key={book.id} className="flex flex-col items-start justify-start bg-slate-800 border border-slate-700 p-4 m-4 rounded-lg">
-                        <BookListItem book={book} onClick={() => setSelectedBookId(book.id)}/>
+                        <BookListItem book={book} userId={userId} onClick={() => setSelectedBookId(book.id)}/>
 
                         {selectedBookId === book.id && (
                             <BookInfo book={book} onClose={() => setSelectedBookId(null)} 

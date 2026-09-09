@@ -113,7 +113,9 @@ export default function BookInfo({ book, onClose, onDelete, onGetBookBack, onLen
                         )}
                         {userId === book.Owner ? (
                             <div>
-                                <p className="mt-4 text-sm text-red-600 font-bold">Detta är din bok</p>
+                                <div className="mt-2">
+                                    <BookStatusBadge status="my-book" />
+                                </div>
                                 <BookStateBtns book={book} 
                                 loanedToProfile={loanedToProfile}
                                 onUserProfileLoaded={setUserProfile}
