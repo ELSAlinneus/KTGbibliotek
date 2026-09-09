@@ -10,7 +10,7 @@ type UserProfileLinkProps = {
 export default function UserProfileLink({
     user,
     onUserProfileLoaded,
-    className = "cursor-pointer text-blue-500 hover:text-blue-700",
+    className = "cursor-pointer text-current underline underline-offset-2 hover:opacity-80",
     isLoading = false,
 }: UserProfileLinkProps) {
 

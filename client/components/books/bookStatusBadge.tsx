@@ -2,7 +2,7 @@ import { PublicUserProfile } from "@/lib/types/Profile";
 import UserProfileLink from "@/components/books/userProfileLink";
 
 type BookStatusBadgeProps = {
-    status: "available" | "borrowed" | "borrowed-by-me" | "borrowed-by-other" | "i-have-lent-to" | "my-book";
+    status: "available-listItem" | "available" | "borrowed" | "borrowed-by-me" | "borrowed-by-other" | "i-have-lent-to" | "my-book";
     loanedToProfile?: PublicUserProfile | null;
     onUserProfileLoaded?: (user: PublicUserProfile) => void;
     isLoanedToProfileLoading?: boolean;
@@ -39,7 +39,6 @@ export default function BookStatusBadge({ status, loanedToProfile, onUserProfile
                 <UserProfileLink
                     user={loanedToProfile}
                     onUserProfileLoaded={onUserProfileLoaded}
-                    className="text-white underline hover:text-gray-100"
                 />
             )}
         </div>
