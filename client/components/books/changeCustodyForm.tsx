@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 export default function ChangeCustodyForm({ book, onClose, onSave }: { book: Book; onClose: () => void; onSave: () => void }) {
     const [users, setUsers] = useState<PublicUserProfile[]>([]);
     const [selectedUserId, setSelectedUserId] = useState<string>("");
+    const [userSearchQuery, setUserSearchQuery] = useState("");
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -19,6 +20,14 @@ export default function ChangeCustodyForm({ book, onClose, onSave }: { book: Boo
         };
         fetchUsers();
     }, []);
+
+    const availableUsers = users.filter((user) => user.userId !== book.Owner);
+    const normalizedSearchQuery = userSearchQuery.trim().toLocaleLowerCase();
+    const filteredUsers = availableUsers.filter((user) =>
+        [user.displayName, user.email ?? ""].some((value) =>
+            value.toLocaleLowerCase().includes(normalizedSearchQuery)
+        )
+    );
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
@@ -55,24 +64,29 @@ export default function ChangeCustodyForm({ book, onClose, onSave }: { book: Boo
                             )}
                         <div>
                             <form className="space-y-4">
-                                <div>
-                                    <h2 className="text-xl font-bold mb-4">Till vem vill du låna ut boken?</h2>
+                                <div className="grid gap-4 sm:grid-cols-2">
+                                    <div>
+                                        <h2 className="text-xl font-bold mb-4">Till vem vill du låna ut boken?</h2>
 
-                                    {/* TODO: söka på användare, scrolla bland användare*/}
-                                    <Searchbar onSearch={(query) => console.log("searching for user with query:", query)} placeholder="Sök användare..." />
-                                    <ul className="max-h-48 overflow-y-auto mt-2 rounded border border-slate-600 bg-slate-900">
-                                        {users.map((user) => (
-                                        user.userId !== book.Owner && (
-                                            <li
-                                                key={user.userId}
-                                                className={`cursor-pointer px-4 py-2 text-slate-200 ${selectedUserId === user.userId ? "bg-slate-700" : "hover:bg-slate-800"}`}
-                                                onClick={() => setSelectedUserId(user.userId)}
-                                            >
-                                                {user.displayName} ({user.email})
-                                            </li>
-                                        )
-                                        ))}
-                                    </ul>
+                                        <Searchbar onSearch={setUserSearchQuery} placeholder="Sök användare..." />
+                                        <ul className="mt-2 max-h-40 overflow-y-auto rounded border border-slate-600 bg-slate-900">
+                                            {filteredUsers.length > 0 ? filteredUsers.map((user) => (
+                                                <li
+                                                    key={user.userId}
+                                                    className={`cursor-pointer px-4 py-2 text-slate-200 ${selectedUserId === user.userId ? "bg-slate-700" : "hover:bg-slate-800"}`}
+                                                    onClick={() => setSelectedUserId(user.userId)}
+                                                >
+                                                    {user.displayName} {user.email && `(${user.email})`}
+                                                </li>
+                                            )) : (
+                                                <li className="px-4 py-2 text-slate-500">Ingen användare hittades.</li>
+                                            )}
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <h2 className="text-xl font-bold mb-4">Har personen inget konto?</h2>
+                                        <p className="mb-2">Om personen inte har ett konto kan du be dem skapa ett konto först. När de har skapat ett konto kan du låna ut boken till dem.</p>
+                                    </div>
                                 </div>
                                 <button
                                     type="submit"
