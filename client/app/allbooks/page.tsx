@@ -21,7 +21,8 @@ export default function AllBooksPage() {
         language: "",
         owner: "",
         custody: "",
-        status: ""
+        status: "",
+        includeMyBooks: false
     });
     const [users, setUsers] = useState<PublicUserProfile[]>([]);
     const [userId, setUserId] = useState<string | null>(null);
@@ -64,7 +65,9 @@ export default function AllBooksPage() {
             || (filters.status === "available" && !book.Borrowed)
             || (filters.status === "borrowed" && book.Borrowed);
 
-        return matchesQuery && matchesLanguage && matchesOwner && matchesCustody && matchesStatus;
+        const matchesMyBooks = !userId || filters.includeMyBooks || book.Owner !== userId;
+
+        return matchesQuery && matchesLanguage && matchesOwner && matchesCustody && matchesStatus && matchesMyBooks;
     });
 
     if (isLoading) {
