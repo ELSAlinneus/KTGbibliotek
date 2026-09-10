@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { login, createAccount } from "../../lib/controllers/login.controller";
 
 interface FormProps {
@@ -7,10 +7,22 @@ interface FormProps {
 }
 
 export default function AuthForm({ onToggleForms, formType }: FormProps) {
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
+        setErrorMessage(null);
+
         if (formType === 'signin') {
-            login(event);
+            const formData = new FormData(event.currentTarget);
+            const email = String(formData.get('email') ?? '');
+            const password = String(formData.get('password') ?? '');
+
+            try {
+                await login(email, password);
+            } catch (error) {
+                setErrorMessage(error instanceof Error ? error.message : 'Något gick fel. Försök igen.');
+            }
         } else {
             createAccount(event);
         }
@@ -54,11 +66,16 @@ export default function AuthForm({ onToggleForms, formType }: FormProps) {
                             />
                         </div>
                     )}
+                    {errorMessage && (
+                        <p className="rounded-lg border border-red-400/50 bg-red-950/40 px-3 py-2 text-sm text-red-300" role="alert">
+                            {errorMessage}
+                        </p>
+                    )}
                     <button
                         type="submit"
-                        className="w-full rounded-lg bg-slate-900 text-white py-2.5 font-medium hover:bg-slate-800 transition-colors"
+                        className="w-full rounded-lg bg-slate-900 text-slate-300 py-2.5 font-medium hover:bg-slate-700 transition-colors"
                     >
-                        {formType === 'signin' ? 'Login' : 'Skapa konto'}
+                        {formType === 'signin' ? 'Logga in' : 'Skapa konto'}
                     </button>
                 </form>
 

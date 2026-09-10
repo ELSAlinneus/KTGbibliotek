@@ -1,29 +1,26 @@
 import { auth } from "@/lib/firebase/firebase";
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore"; // Add this import
+import { doc, setDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase/firebase";
 
-function login(event: React.FormEvent<HTMLFormElement>) {
-    console.log("login");
+async function login(email: string, password: string) {
+    try {
+        await signInWithEmailAndPassword(auth, email, password);
+    } catch (error) {
+        const errorCode = (error as { code?: string }).code;
+        console.error("Sign-in error:", errorCode);
 
-    event.preventDefault();
+        if (
+            errorCode === "auth/invalid-credential" ||
+            errorCode === "auth/invalid-email" ||
+            errorCode === "auth/user-not-found" ||
+            errorCode === "auth/wrong-password"
+        ) {
+            throw new Error("Fel mejladress eller lösenord. Försök igen.");
+        }
 
-    const form = event.currentTarget;
-    const formData = new FormData(form);
-    const email = String(formData.get("email") ?? "");
-    const password = String(formData.get("password") ?? "");
-
-    signInWithEmailAndPassword(auth, email, password)
-  .then((userCredential) => {
-    const user = userCredential.user;
-    console.log("User signed in:", user.email);
-  })
-  .catch((error) => {
-    const errorCode = error.code;
-    const errorMessage = error.message;
-    console.error("Sign-in error:", errorMessage, errorCode);
-  });
-
+        throw new Error("Det gick inte att logga in just nu. Försök igen senare.");
+    }
 }
 
 function logout() {

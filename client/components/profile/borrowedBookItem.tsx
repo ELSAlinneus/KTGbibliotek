@@ -25,7 +25,6 @@ export default function BorrowedBookItem({ book, onClick }: { book: Book; onClic
         fetchBookOwnerProfile();
     }, [book.Owner]);
 
-    console.log("Rendering BorrowedBookItem for book:", book);
     return (
         <div className="mt-2 flex row justify-between items-center mb-2 bg-slate-700 border border-slate-600 rounded-lg p-2 cursor-pointer hover:bg-slate-600 transition duration-300" onClick={onClick}>
             <p>{book.Title}</p>
