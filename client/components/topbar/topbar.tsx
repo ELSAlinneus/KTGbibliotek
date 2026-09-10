@@ -3,6 +3,7 @@ import { logout } from "../../lib/controllers/login.controller";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { auth } from "../../lib/firebase/firebase";
+import Image from "next/image";
 import NavbarItem from "./navbar-item";
 
 export default function Topbar(){
@@ -33,8 +34,9 @@ export default function Topbar(){
 
     return (
         <div>
-            <div className="w-full bg-blue-950 p-4 flex items-center justify-center">
-                <h1 className="text-white text-5xl font-bold pb-4">KTG Bibliotek</h1>
+            <div className="relative flex w-full items-center justify-start bg-blue-950 p-4">
+                <Image src="/ktg-logga.jpg" alt="KTG" className="mr-4 h-12 w-auto" width={48} height={48} />
+                <h1 className="absolute left-1/2 -translate-x-1/2 text-5xl font-bold text-white">KTG Bibliotek</h1>
             </div>
             <nav className="flex justify-between items-center bg-gray-800 p-4">
                 <div className="flex space-x-4">
