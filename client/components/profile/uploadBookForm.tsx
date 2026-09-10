@@ -19,7 +19,7 @@ export default function UploadBookForm({ onClose, user, onBookAdded }: NewBookFo
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-            <div className="w-full max-w-xl rounded-lg border border-slate-700 bg-slate-800 p-6 text-slate-200 shadow-lg">
+            <div className="w-full max-w-xl rounded-lg border border-slate-700 bg-slate-800 p-6 text-slate-200 shadow-lg overflow-y-auto max-h-[90vh]">
                 <div className="flex items-center justify-between mb-4">
                     <h1 className="text-2xl font-bold text-slate-100">
                         Lägg till en ny bok
@@ -83,11 +83,11 @@ export default function UploadBookForm({ onClose, user, onBookAdded }: NewBookFo
                             <h3 className="text-lg font-bold pb-2">Hämtad bokinformation:</h3>
                             <div className="mb-4">
                                 <label className="block font-bold text-slate-300 mb-2">Titel:</label>
-                                <input readOnly value={bookInfo.title} type="text" name="title"  />
+                                <input required defaultValue={bookInfo.title} type="text" name="title" className="w-full rounded border border-slate-600 p-2 text-slate-200" />
                             </div>
                             <div className="mb-4">
                                 <label className="block font-bold text-slate-300 mb-2">Författare:</label>
-                                <input required defaultValue={bookInfo.author} type="text" name="author" />
+                                <input required defaultValue={bookInfo.author} type="text" name="author" className="rounded border border-slate-600 p-2 text-slate-200"/>
                             </div>
                             <div className="mb-4">
                                 <label className="block font-bold text-slate-300 mb-2">Språk:</label>           
