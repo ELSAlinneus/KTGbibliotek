@@ -7,7 +7,7 @@ import { handleUserProfileChange, handleUserProfilePictureChange, getUserProfile
 import BookInfo from "@/components/books/bookinfo";
 import { Book } from "@/lib/types/Book";
 import { PublicUserProfile } from "@/lib/types/Profile";
-import { deleteBook, manageBookLoan } from "@/lib/controllers/books.controller";
+import { deleteBook, getAllBooks, manageBookLoan } from "@/lib/controllers/books.controller";
 import ImgUploader from "@/components/imgUploader/imgUploader";
 import UploadBookForm from "@/components/profile/uploadBookForm";
 import ChangeCustodyForm from "@/components/books/changeCustodyForm";
@@ -27,8 +27,9 @@ export default function ProfilePage() {
     const [showChangeCustodyForm, setShowChangeCustodyForm] = useState<Book | null>(null);
     const [userBooks, setUserBooks] = useState<Book[]>([]);
     const [borrowedBooks, setBorrowedBooks] = useState<Book[]>([]);
+    const [readBooks, setReadBooks] = useState<Book[]>([]);
     const [selectedBookId, setSelectedBookId] = useState<string | null>(null);
-    const selectedBook = [...userBooks, ...borrowedBooks].find((book) => book.id === selectedBookId) || null;
+    const selectedBook = [...userBooks, ...borrowedBooks, ...readBooks].find((book) => book.id === selectedBookId) || null;
 
     useEffect(() => {
         const unsub = onAuthStateChanged(auth, (u) => {
@@ -45,6 +46,14 @@ export default function ProfilePage() {
                     setBorrowedBooks(books);
                 };
                 fetchBorrowedBooks();
+
+                const fetchReadBooks = async () => {
+                    //TODO borde denna logik ligga här? eller books.controller.ts? Eller kanske i user.controller.ts?
+                    const books = await getAllBooks();
+                    const readBooks = books.filter(book => book.Readers?.includes(u.uid));
+                    setReadBooks(readBooks);
+                }
+                fetchReadBooks();
 
                 const fetchUserProfilePicture = async () => {
                     const picture = await getUserProfilePicture(u.uid);
@@ -63,6 +72,7 @@ export default function ProfilePage() {
 
     function handleBookDeleted(bookId: string) {
         setUserBooks(userBooks.filter(b => b.id !== bookId));
+        setReadBooks(readBooks.filter(b => b.id !== bookId));
         if (selectedBookId === bookId) {
             setSelectedBookId(null);
         }
@@ -184,6 +194,16 @@ export default function ProfilePage() {
                     ))}
                 </div>
             )}
+            {readBooks.length > 0 && (
+                <div className="p-4 mb-4 ml-10 mr-10 mt-4 bg-slate-800 border border-slate-700 rounded-lg">
+                    <p className="font-bold"> Lästa böcker:</p>
+                    {readBooks.map((book: Book) => (
+                        <div key={book.id} onClick={() => setSelectedBookId(book.id)} className="mt-2 flex row justify-between items-center mb-2 bg-slate-700 border border-slate-600 rounded-lg p-2 cursor-pointer hover:bg-slate-600 transition duration-300">
+                            <p>{book.Title}</p>
+                        </div>
+                    ))}
+                </div>
+            )}
             {selectedBook && (
                 <BookInfo 
                     book={selectedBook} 
@@ -198,6 +218,8 @@ export default function ProfilePage() {
                     }}
                     onBookUpdated={(updatedBook) => {
                         setUserBooks(userBooks.map((item) => item.id === updatedBook.id ? updatedBook : item));
+                        setBorrowedBooks(borrowedBooks.map((item) => item.id === updatedBook.id ? updatedBook : item));
+                        setReadBooks(readBooks.map((item) => item.id === updatedBook.id ? updatedBook : item));
                     }}
                 />
             )}
