@@ -81,7 +81,7 @@ export default function ProfilePage() {
 
     return (
         <div className="w-full">
-            <div className="p-4 mb-4 w-full bg-slate-800 border border-slate-700 rounded-lg flex flex-col items-center justify-center">
+            <div className=" p-4 m-4 bg-slate-800 border border-slate-700 rounded-lg flex flex-col items-center justify-center">
                 <ImgUploader
                     value={profile.photoURL}
                     onChange={(result) => {
@@ -107,7 +107,7 @@ export default function ProfilePage() {
                     <p className="font-bold">Användaruppgifter</p>
                     <i className="fa fa-pen-to-square" onClick={() => setIsEditing(!isEditing)}></i>
                 </div>
-                <div className="flex row">
+                <div className="flex row mb-4">
                     <label className="text-slate-300 mr-2">Användarnamn:</label>
                     <input
                         type="text"
@@ -160,7 +160,7 @@ export default function ProfilePage() {
                 <div className="p-4 mb-4 ml-10 mr-10 mt-4 bg-slate-800 border border-slate-700 rounded-lg">
                     <p className="font-bold"> Mina böcker:</p>
                     {userBooks.map((book: Book) => (
-                        <div key={book.id} onClick={() => setSelectedBookId(book.id)} className="mt-2 flex row justify-between items-center mb-2">
+                        <div key={book.id} onClick={() => setSelectedBookId(book.id)} className="mt-2 flex row justify-between items-center mb-2 bg-slate-700 border border-slate-600 rounded-lg p-2 cursor-pointer hover:bg-slate-600 transition duration-300">
                             <p>{book.Title}</p>
                             <BookStateBtns 
                             book={book} 

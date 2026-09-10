@@ -27,7 +27,7 @@ export default function BorrowedBookItem({ book, onClick }: { book: Book; onClic
 
     console.log("Rendering BorrowedBookItem for book:", book);
     return (
-        <div className="mt-2 flex row justify-between items-center mb-2" onClick={onClick}>
+        <div className="mt-2 flex row justify-between items-center mb-2 bg-slate-700 border border-slate-600 rounded-lg p-2 cursor-pointer hover:bg-slate-600 transition duration-300" onClick={onClick}>
             <p>{book.Title}</p>
             <p className="inline-flex items-center gap-1 text-sm text-slate-400">
                 <span>Lånad från</span>
