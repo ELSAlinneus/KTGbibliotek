@@ -196,6 +196,9 @@ export default function ProfilePage() {
                     onLendBook={async (book: Book) => {
                         setShowChangeCustodyForm(book);
                     }}
+                    onBookUpdated={(updatedBook) => {
+                        setUserBooks(userBooks.map((item) => item.id === updatedBook.id ? updatedBook : item));
+                    }}
                 />
             )}
             {showChangeCustodyForm && (

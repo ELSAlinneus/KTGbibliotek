@@ -99,6 +99,9 @@ export default function AllBooksPage() {
                             }}
                             onLendBook={async (book) => {
                                 setShowChangeCustodyForm(book);
+                            }}
+                            onBookUpdated={(updatedBook) => {
+                                setBooks(allbooks.map((item) => item.id === updatedBook.id ? updatedBook : item));
                             }} />
                         )}
                     </div>

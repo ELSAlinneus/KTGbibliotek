@@ -22,7 +22,7 @@ export default function Searchbar({ onSearch, placeholder = "Sök..." }: Searchb
     };
 
     return (
-        <div className="flex items-center gap-2 w-full max-w-md relative flex-1 mx-auto mb-4 max-w-none mx-0 ">
+        <div className="relative mx-0 mb-4 flex w-full max-w-none flex-1 items-center gap-2">
             <input
                 type="text"
                 value={query}

@@ -147,6 +147,7 @@ async function getInformationFromISBN(isbn: string): Promise<ExternalBookInfo | 
 
 async function manageBookLoan(bookId: string, currentCustodyId: string | null, borrowstate: boolean): Promise<boolean> {
     const bookRef = doc(db, "Books", bookId);
+    // TODO validate currentCustodyId to a valid user 
     //currently no safety for wrong input
     try {
         await updateDoc(bookRef, {
@@ -160,4 +161,24 @@ async function manageBookLoan(bookId: string, currentCustodyId: string | null, b
     }
 }
 
-export { addBook, deleteBook, getAllBooks, subscribeBooks, getInformationFromISBN, manageBookLoan };
+async function updateBookImage(bookId: string, imageBlob?: Blob): Promise<string> {
+    let imageUrl = "";
+
+    if (imageBlob) {
+        if (imageBlob.size > MAX_COVER_IMAGE_BYTES) {
+            throw new Error("Bokomslaget är för stort. Välj en mindre bild.");
+        }
+
+        imageUrl = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(String(reader.result || ""));
+            reader.onerror = () => reject(new Error("Kunde inte läsa bilden."));
+            reader.readAsDataURL(imageBlob);
+        });
+    }
+
+    await updateDoc(doc(db, "Books", bookId), { ImageURL: imageUrl });
+    return imageUrl;
+}
+
+export { addBook, deleteBook, getAllBooks, subscribeBooks, getInformationFromISBN, manageBookLoan, updateBookImage };

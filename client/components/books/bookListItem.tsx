@@ -11,8 +11,15 @@ export default function BookListItem({ book, onClick, userId }: { book: Book, on
 
     return (
         <li
-            className={`text-slate-200 hover:text-white cursor-pointer m-2 bg-slate-800 border border-slate-700 p-3 rounded-lg flex items-start gap-4 w-full ${book.ImageURL ? "min-h-44 h-44" : ""}`}
+            className={`cursor-pointer m-2 flex w-full items-start gap-4 rounded-lg border border-slate-700 bg-slate-800 p-3 text-slate-200 transition duration-200 hover:-translate-y-0.5 hover:border-blue-400 hover:bg-slate-700 hover:text-white hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 ${book.ImageURL ? "min-h-44 h-44" : ""}`}
             onClick={onClick}
+            onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    onClick();
+                }
+            }}
+            tabIndex={0}
         >
             {book.ImageURL && (
                 <div className="h-full w-28 shrink-0 overflow-hidden rounded-md bg-slate-700">

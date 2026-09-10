@@ -8,14 +8,38 @@ import { PublicUserProfile } from "@/lib/types/Profile";
 import UserProfileLink from "./userProfileLink";
 import BookStateBtns from "@/components/books/bookStateBtns";
 import BookStatusBadge from "@/components/books/bookStatusBadge";
+import ImgUploader from "@/components/imgUploader/imgUploader";
+import { updateBookImage } from "@/lib/controllers/books.controller";
 
-export default function BookInfo({ book, onClose, onDelete, onGetBookBack, onLendBook }: { book: Book, onClose: () => void, onDelete: (bookId: string) => void, onGetBookBack: (book: Book) => void, onLendBook: (book: Book) => void }) {
+export default function BookInfo({ book, onClose, onDelete, onGetBookBack, onLendBook, onBookUpdated }: { book: Book, onClose: () => void, onDelete: (bookId: string) => void, onGetBookBack: (book: Book) => void, onLendBook: (book: Book) => void, onBookUpdated?: (book: Book) => void }) {
     const [userId, setUserId] = useState<string | null>(null);
     const [userProfile, setUserProfile] = useState<PublicUserProfile | null>(null);
     const [ownerProfile, setOwnerProfile] = useState<PublicUserProfile | null>(null);
     const [loanedToProfile, setLoanedToProfile] = useState<PublicUserProfile | null>(null);
     const [isOwnerProfileLoading, setIsOwnerProfileLoading] = useState(false);
     const [isLoanedToProfileLoading, setIsLoanedToProfileLoading] = useState(false);
+    const [imageUrl, setImageUrl] = useState(book.ImageURL || "");
+
+    const handleImageChange = async (result: { blob: Blob; previewUrl: string } | null) => {
+        const previousImageUrl = imageUrl;
+        setImageUrl(result?.previewUrl || "");
+
+        try {
+            const savedImageUrl = await updateBookImage(book.id, result?.blob);
+            setImageUrl(savedImageUrl);
+            onBookUpdated?.({ ...book, ImageURL: savedImageUrl });
+        } catch (error) {
+            setImageUrl(previousImageUrl);
+            const message = error instanceof Error ? error.message : "Kunde inte uppdatera bilden.";
+            alert(message);
+        }
+    };
+
+    const removeBookImage = async () => {
+        const confirmRemove = window.confirm("Är du säker på att du vill ta bort omslagsbilden?");
+        if (!confirmRemove) return;
+        handleImageChange(null);
+    }
 
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged((currentUser) => {
@@ -82,11 +106,11 @@ export default function BookInfo({ book, onClose, onDelete, onGetBookBack, onLen
                     </button>
                 </div>
                 <div className="w-full rounded-xl border border-slate-700 bg-slate-900 p-6 shadow-sm flex items-start gap-6">
-                    <div className="h-72 w-48 shrink-0 overflow-hidden rounded-lg border border-slate-700 bg-slate-700">
-                        {book.ImageURL ? (
+                    <div className="relative h-72 w-48 shrink-0 overflow-hidden rounded-lg border border-slate-700 bg-slate-700">
+                        {imageUrl ? (
                             <Image
                                 className="h-full w-full object-cover"
-                                src={book.ImageURL}
+                                src={imageUrl}
                                 alt={book.Title}
                                 width={192}
                                 height={288}
@@ -94,6 +118,33 @@ export default function BookInfo({ book, onClose, onDelete, onGetBookBack, onLen
                             />
                         ) : (
                             <div className="h-full w-full"></div>
+                        )}
+                        {userId === book.Owner && imageUrl && (
+                            <div className="absolute inset-0 z-10 flex items-center justify-center ">
+                                <ImgUploader
+                                    value=""
+                                    onChange={handleImageChange}
+                                    label="Byt omslagsbild"
+                                    className="absolute left-2 top-2 cursor-pointer rounded-lg border border-white/25 bg-slate-950/85 px-2 py-1 text-center text-sm text-white shadow-lg transition hover:border-white/50 hover:bg-slate-700 focus-within:outline-none focus-within:ring-2 focus-within:ring-white/70"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={removeBookImage}
+                                    className="absolute right-2 top-2 rounded-full border border-white/20 bg-slate-950/85 px-2 py-1 text-sm font-medium text-white shadow-lg transition hover:border-white/50 hover:bg-slate-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300"
+                                    aria-label="Ta bort omslagsbild"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+                        )} : {(userId === book.Owner && !imageUrl) && (
+                            <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/45 border-2 border-dashed border-white/70 rounded-lg">
+                                <ImgUploader
+                                    value=""
+                                    onChange={handleImageChange}
+                                    label="Lägg till omslagsbild"
+                                    className="flex h-full w-full items-center justify-center px-3 py-2 text-center text-sm text-white transition "
+                                />
+                            </div>
                         )}
                     </div>
                     <div className="flex-1 min-w-0 h-72 overflow-y-auto text-left pr-2 space-y-1 text-slate-300">
