@@ -62,7 +62,8 @@ export default function ProfilePage() {
                         displayName: u.displayName || "",
                         email: u.email || "",
                         photoURL: "",
-                        bio: ""
+                        bio: "",
+                        phone: ""
                     });
                 };
                 fetchUserProfile();
@@ -119,14 +120,24 @@ export default function ProfilePage() {
                     <i className="fa fa-pen-to-square" onClick={() => setIsEditing(!isEditing)}></i>
                 </div>
                 <div className="flex row mb-4">
+                    <label className="text-slate-300 mr-2">Användarnamn:</label>
+                    <input
+                        type="text"
+                        value={profile.displayName}
+                        onChange={(e) => setProfile({...profile, displayName: e.target.value})}
+                        readOnly={!isEditing}
+                        className="h-10 text-slate-100 bg-slate-900 border border-slate-600 rounded p-2"
+                    />                  
+                </div>
+                <div className="flex row">
                     <label className="text-slate-300 mr-2">Bio:</label>
-                    <div className="size-full">
+                    <div className="flex-1 min-w-0">
                         <input
                             type="text"
                             value={profile.bio || ""}
                             onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
                             readOnly={!isEditing}
-                            className="text-slate-100 bg-slate-900 border border-slate-600 rounded p-2 size-full"
+                            className="w-full h-10 text-slate-100 bg-slate-900 border border-slate-600 rounded p-2"
                             maxLength={250}
                             aria-describedby="bio-character-count"
                             placeholder="Berätta om dig själv..."
@@ -141,14 +152,16 @@ export default function ProfilePage() {
                     </div>
                 </div>
                 <div className="flex row mb-4">
-                    <label className="text-slate-300 mr-2">Användarnamn:</label>
+                    <label className="text-slate-300 mr-2">Telefon:</label>
                     <input
-                        type="text"
-                        value={profile.displayName}
-                        onChange={(e) => setProfile({...profile, displayName: e.target.value})}
+                        type="tel"
+                        value={profile.phone || ""}
+                        onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
                         readOnly={!isEditing}
-                        className="text-slate-100 bg-slate-900 border border-slate-600 rounded p-2"
-                    />                  
+                        className="h-10 text-slate-100 bg-slate-900 border border-slate-600 rounded p-2"
+                        maxLength={30}
+                        placeholder="Telefonnummer..."
+                    />
                 </div>
                 <div className="flex row">
                     <label className="text-slate-300 mr-2">E-post:</label>
@@ -157,7 +170,7 @@ export default function ProfilePage() {
                         value={profile.email}
                         onChange={(e) => setProfile({ ...profile, email: e.target.value })}
                         readOnly={!isEditing}
-                        className="text-slate-400 border border-slate-600 rounded p-2 bg-slate-700"
+                        className="h-10 text-slate-400 border border-slate-600 rounded p-2 bg-slate-700"
                     />
                 </div>
                 {isEditing && (
@@ -169,7 +182,7 @@ export default function ProfilePage() {
                             alert(message);
                         }
                         setIsEditing(false);
-                    }} className="mt-2 ml-2 p-2 bg-blue-500 text-white rounded">
+                    }} className="mt-4 ml-2 p-2 bg-blue-500 text-white rounded">
                         Uppdatera användaruppgifter
                     </button>
                 )}

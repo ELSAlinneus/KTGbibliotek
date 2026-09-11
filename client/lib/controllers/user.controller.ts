@@ -35,6 +35,16 @@ async function handleBioChange(user: User, newBio: string) {
     console.log("Bio updated successfully");
 }
 
+async function handlePhoneChange(user: User, newPhone: string) {
+    const sanitizedPhone = newPhone.trim();
+    if (sanitizedPhone.length > 30) {
+        throw new Error("Telefonnumret är för långt.");
+    }
+
+    const userDocRef = doc(db, "users", user.uid);
+    await setDoc(userDocRef, { phone: sanitizedPhone }, { merge: true });
+}
+
 async function handleUserProfileChange(profile: PublicUserProfile) {
     const user = auth.currentUser;
     if (!user) {
@@ -46,14 +56,20 @@ async function handleUserProfileChange(profile: PublicUserProfile) {
         return;
     }
 
-    console.log("handle profile change", profile);
-
     const usernameChanged = profile.displayName.trim() !== (user.displayName || "").trim();
-
     if (usernameChanged) {
         await handleUsernameChange(user, profile.displayName);
     }
-    await handleBioChange(user, profile.bio || "");
+
+    const phoneChanged = profile.phone?.trim() !== (user.phoneNumber || "").trim();
+    if (phoneChanged) {
+        await handlePhoneChange(user, profile.phone || "");
+    }
+
+    const bioChanged = profile.bio?.trim() !== (await getUserByUid(user.uid))?.bio?.trim();
+    if (bioChanged) {
+        await handleBioChange(user, profile.bio || "");
+    }
     //TODO: Implement email change functionality
 }
 
@@ -133,13 +149,14 @@ async function getUserByUid(uid: string): Promise<PublicUserProfile | null> {
         return null;
     }
 
-    const data = userDoc.data() as { uid?: string; username?: string; email?: string; profilePicture?: string; bio?: string };
+    const data = userDoc.data() as { uid?: string; username?: string; email?: string; profilePicture?: string; bio?: string; phone?: string };
     return {
         userId: data.uid || "",
         displayName: data.username || data.email || "Okänd",
         email: data.email || "",
         photoURL: data.profilePicture || "",
-        bio: data.bio || ""
+        bio: data.bio || "",
+        phone: data.phone || ""
     };
 }
 
@@ -148,13 +165,14 @@ async function getAllUsers(): Promise<PublicUserProfile[]> {
     const querySnapshot = await getDocs(collection(db, "users"));
 
     querySnapshot.forEach((doc) => {
-        const data = doc.data() as { uid?: string; username?: string; email?: string; profilePicture?: string; bio?: string };
+        const data = doc.data() as { uid?: string; username?: string; email?: string; profilePicture?: string; bio?: string; phone?: string };
         users.push({
             userId: data.uid || "",
             displayName: data.username || data.email || "Okänd",
             email: data.email || "",
             photoURL: data.profilePicture || "",
-            bio: data.bio || ""
+            bio: data.bio || "",
+            phone: data.phone || ""
         });
     });
 

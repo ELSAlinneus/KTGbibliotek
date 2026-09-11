@@ -26,6 +26,9 @@ export default function UserInfo({ user, onClose}: { user: PublicUserProfile, on
                     <p className="mt-1 mb-3">{user.bio}</p>
                 }
                 <p>{user.email || "ingen email angiven"}</p>
+                {user.phone &&
+                    <p className="mt-1">{user.phone}</p>
+                }
             </div>
         </div>
     );
