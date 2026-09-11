@@ -146,7 +146,7 @@ export default function BookInfo({ book, onClose, onDelete, onGetBookBack, onLen
                 </div>
                 <div className="relative w-full rounded-xl border border-slate-700 bg-slate-900 p-6 shadow-sm flex items-start gap-6">
                     {userId && (
-                        <label className="absolute right-3 top-2 flex max-w-[45%] items-center gap-2 text-right text-sm font-medium text-slate-200">
+                        <label className="absolute right-5 top-4 flex max-w-[45%] items-center gap-2 text-right text-sm font-medium text-slate-200">
                             <input
                                 type="checkbox"
                                 id="readStatus"
@@ -199,8 +199,7 @@ export default function BookInfo({ book, onClose, onDelete, onGetBookBack, onLen
                             </div>
                         )}
                     </div>
-                    <div className="flex-1 min-w-0 h-72 overflow-y-auto text-left pr-2 space-y-1 text-slate-300">
-                        <h2 className="text-2xl font-semibold text-slate-100 break-words">{book.Title}</h2>
+                    <div className="mt-4 flex-1 min-w-0 h-72 overflow-y-auto text-left pr-2 space-y-1 text-slate-300">
                         {book.Author && <p className="text-sm">Författare: {book.Author}</p>}
                         {book.Year_of_publication && <p className="text-sm">Utgiven: {book.Year_of_publication}</p>}
                         {book.Language && <p className="text-sm">Språk: {book.Language}</p>}
