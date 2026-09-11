@@ -96,16 +96,12 @@ export default function ProfilePage() {
             <div className=" p-4 m-4 bg-slate-800 border border-slate-700 rounded-lg flex flex-col items-center justify-center">
                 <ImgUploader
                     value={profile.photoURL}
-                    onChange={(result) => {
-                        if (result) {
-                            const updatedProfile = { ...profile, photoURL: result.previewUrl };
-                            setProfile(updatedProfile);
-                            handleUserProfilePictureChange(updatedProfile, result.blob);
-                        } else {
-                            const updatedProfile = { ...profile, photoURL: "" };
-                            setProfile(updatedProfile);
-                            handleUserProfilePictureChange(updatedProfile);
-                        }
+                    onChange={async (result) => {
+                        const updatedProfile = { ...profile, photoURL: result?.previewUrl || "" };
+                        const changed = await handleUserProfilePictureChange(updatedProfile, result?.blob);
+                        if (!changed) return;
+
+                        setProfile(updatedProfile);
                     }}
                     round={true}
                     className="w-48 h-48 cursor-pointer rounded-full border-2 border-dashed border-slate-600 p-13 text-center hover:border-slate-400"

@@ -73,34 +73,36 @@ async function handleUserProfileChange(profile: PublicUserProfile) {
     //TODO: Implement email change functionality
 }
 
-async function handleUserProfilePictureChange(profile: PublicUserProfile, pictureBlob?: Blob) {
+async function handleUserProfilePictureChange(profile: PublicUserProfile, pictureBlob?: Blob): Promise<boolean> {
     const user = auth.currentUser;
     if (user) {
         const confirmChange = window.confirm("Är du säker på att du vill ändra din profilbild?");
-        if (confirmChange) {
-            console.log("handle profile picture change", profile);
-
-            let profilePicture = profile.photoURL || "";
-
-            if (pictureBlob) {
-                profilePicture = await new Promise<string>((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.onload = () => resolve(String(reader.result || ""));
-                    reader.onerror = () => reject(new Error("Could not read image blob"));
-                    reader.readAsDataURL(pictureBlob);
-                });
-            }
-
-            if (profilePicture.length > 250000) {
-                alert("Profilbilden är för stor. Välj en mindre bild.");
-                return;
-            }
-
-            const userDocRef = doc(db, "users", user.uid);
-            await setDoc(userDocRef, { profilePicture }, { merge: true });
+        if (!confirmChange) {
+            return false;
         }
+
+        let profilePicture = profile.photoURL || "";
+
+        if (pictureBlob) {
+            profilePicture = await new Promise<string>((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(String(reader.result || ""));
+                reader.onerror = () => reject(new Error("Could not read image blob"));
+                reader.readAsDataURL(pictureBlob);
+            });
+        }
+
+        if (profilePicture.length > 250000) {
+            alert("Profilbilden är för stor. Välj en mindre bild.");
+            return false;
+        }
+
+        const userDocRef = doc(db, "users", user.uid);
+        await setDoc(userDocRef, { profilePicture }, { merge: true });
+        return true;
     } else {
         console.error("No user is currently signed in.");
+        return false;
     }
 }
 
