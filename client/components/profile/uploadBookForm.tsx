@@ -110,6 +110,7 @@ export default function UploadBookForm({ onClose, user, onBookAdded }: NewBookFo
                                             setCoverImagePreview("");
                                         }
                                     }}
+                                    aspect={2 / 3}
                                     className="w-36 h-40 cursor-pointer border-2 border-dashed border-slate-600 p-5 pt-10 text-center hover:border-slate-400"
                                 />
                             </div>

@@ -177,6 +177,7 @@ export default function BookInfo({ book, onClose, onDelete, onGetBookBack, onLen
                                     value=""
                                     onChange={handleImageChange}
                                     label="Byt omslagsbild"
+                                    aspect={2 / 3}
                                     className="absolute left-2 top-2 cursor-pointer rounded-lg border border-white/25 bg-slate-950/85 px-2 py-1 text-center text-sm text-white shadow-lg transition hover:border-white/50 hover:bg-slate-700 focus-within:outline-none focus-within:ring-2 focus-within:ring-white/70"
                                 />
                                 <button
@@ -194,6 +195,7 @@ export default function BookInfo({ book, onClose, onDelete, onGetBookBack, onLen
                                     value=""
                                     onChange={handleImageChange}
                                     label="Lägg till omslagsbild"
+                                    aspect={2 / 3}
                                     className="flex h-full w-full items-center justify-center px-3 py-2 text-center text-sm text-white transition "
                                 />
                             </div>
