@@ -23,6 +23,18 @@ async function handleUsernameChange(user: User, newUsername: string) {
     console.log("Username updated successfully");
 }
 
+async function handleBioChange(user: User, newBio: string) {
+    const sanitizedBio = newBio.trim();
+    if (sanitizedBio.length > 250) {
+        throw new Error("Biografin är för lång.");
+    }
+
+    const userDocRef = doc(db, "users", user.uid);
+    await setDoc(userDocRef, { bio: sanitizedBio }, { merge: true });
+
+    console.log("Bio updated successfully");
+}
+
 async function handleUserProfileChange(profile: PublicUserProfile) {
     const user = auth.currentUser;
     if (!user) {
@@ -36,11 +48,12 @@ async function handleUserProfileChange(profile: PublicUserProfile) {
 
     console.log("handle profile change", profile);
 
-    if (profile.displayName.trim() === (user.displayName || "").trim()) {
-        return;
-    }
+    const usernameChanged = profile.displayName.trim() !== (user.displayName || "").trim();
 
-    await handleUsernameChange(user, profile.displayName);
+    if (usernameChanged) {
+        await handleUsernameChange(user, profile.displayName);
+    }
+    await handleBioChange(user, profile.bio || "");
     //TODO: Implement email change functionality
 }
 
@@ -120,12 +133,13 @@ async function getUserByUid(uid: string): Promise<PublicUserProfile | null> {
         return null;
     }
 
-    const data = userDoc.data() as { uid?: string; username?: string; email?: string; profilePicture?: string };
+    const data = userDoc.data() as { uid?: string; username?: string; email?: string; profilePicture?: string; bio?: string };
     return {
         userId: data.uid || "",
         displayName: data.username || data.email || "Okänd",
         email: data.email || "",
-        photoURL: data.profilePicture || ""
+        photoURL: data.profilePicture || "",
+        bio: data.bio || ""
     };
 }
 
@@ -134,12 +148,13 @@ async function getAllUsers(): Promise<PublicUserProfile[]> {
     const querySnapshot = await getDocs(collection(db, "users"));
 
     querySnapshot.forEach((doc) => {
-        const data = doc.data() as { uid?: string; username?: string; email?: string; profilePicture?: string };
+        const data = doc.data() as { uid?: string; username?: string; email?: string; profilePicture?: string; bio?: string };
         users.push({
             userId: data.uid || "",
             displayName: data.username || data.email || "Okänd",
             email: data.email || "",
-            photoURL: data.profilePicture || ""
+            photoURL: data.profilePicture || "",
+            bio: data.bio || ""
         });
     });
 

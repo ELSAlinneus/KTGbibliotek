@@ -3,7 +3,7 @@
 import { onAuthStateChanged, User } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { auth } from "@/lib/firebase/firebase";
-import { handleUserProfileChange, handleUserProfilePictureChange, getUserProfilePicture, getUserBooks, getUserBorrowedBooks } from "@/lib/controllers/user.controller";
+import { handleUserProfileChange, handleUserProfilePictureChange, getUserByUid, getUserBooks, getUserBorrowedBooks } from "@/lib/controllers/user.controller";
 import BookInfo from "@/components/books/bookinfo";
 import { Book } from "@/lib/types/Book";
 import { PublicUserProfile } from "@/lib/types/Profile";
@@ -55,16 +55,17 @@ export default function ProfilePage() {
                 }
                 fetchReadBooks();
 
-                const fetchUserProfilePicture = async () => {
-                    const picture = await getUserProfilePicture(u.uid);
-                    setProfile({
+                const fetchUserProfile = async () => {
+                    const userProfile = await getUserByUid(u.uid);
+                    setProfile(userProfile || {
                         userId: u.uid,
                         displayName: u.displayName || "",
                         email: u.email || "",
-                        photoURL: picture || ""
+                        photoURL: "",
+                        bio: ""
                     });
                 };
-                fetchUserProfilePicture();
+                fetchUserProfile();
             }
         });
         return () => unsub();
@@ -118,6 +119,28 @@ export default function ProfilePage() {
                     <i className="fa fa-pen-to-square" onClick={() => setIsEditing(!isEditing)}></i>
                 </div>
                 <div className="flex row mb-4">
+                    <label className="text-slate-300 mr-2">Bio:</label>
+                    <div className="size-full">
+                        <input
+                            type="text"
+                            value={profile.bio || ""}
+                            onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
+                            readOnly={!isEditing}
+                            className="text-slate-100 bg-slate-900 border border-slate-600 rounded p-2 size-full"
+                            maxLength={250}
+                            aria-describedby="bio-character-count"
+                            placeholder="Berätta om dig själv..."
+                        />
+                        <p
+                            id="bio-character-count"
+                            className={`mt-1 text-right text-sm ${(profile.bio || "").length >= 250 ? "text-amber-400" : "text-slate-400"}`}
+                        >
+                            {(profile.bio || "").length}/250 tecken
+                            {(profile.bio || "").length >= 250 && " - maxgränsen är nådd"}
+                        </p>
+                    </div>
+                </div>
+                <div className="flex row mb-4">
                     <label className="text-slate-300 mr-2">Användarnamn:</label>
                     <input
                         type="text"
@@ -145,6 +168,7 @@ export default function ProfilePage() {
                             const message = error instanceof Error ? error.message : "Ett fel uppstod vid uppdatering.";
                             alert(message);
                         }
+                        setIsEditing(false);
                     }} className="mt-2 ml-2 p-2 bg-blue-500 text-white rounded">
                         Uppdatera användaruppgifter
                     </button>
