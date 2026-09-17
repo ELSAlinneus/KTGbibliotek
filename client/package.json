@@ -29,5 +29,8 @@
     "jest-environment-node": "^30.5.1",
     "tailwindcss": "^4",
     "typescript": "^5"
+  },
+  "overrides": {
+    "glob": "^13.0.0"
   }
 }
