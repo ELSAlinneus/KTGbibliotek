@@ -173,13 +173,6 @@ export default function BookInfo({ book, onClose, onDelete, onGetBookBack, onLen
                         )}
                         {userId === book.Owner && imageUrl && (
                             <div className="absolute inset-0 z-10 flex items-center justify-center ">
-                                <ImgUploader
-                                    value=""
-                                    onChange={handleImageChange}
-                                    label="Byt omslagsbild"
-                                    aspect={2 / 3}
-                                    className="absolute left-2 top-2 cursor-pointer rounded-lg border border-white/25 bg-slate-950/85 px-2 py-1 text-center text-sm text-white shadow-lg transition hover:border-white/50 hover:bg-slate-700 focus-within:outline-none focus-within:ring-2 focus-within:ring-white/70"
-                                />
                                 <button
                                     type="button"
                                     onClick={removeBookImage}
