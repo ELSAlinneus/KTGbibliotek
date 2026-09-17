@@ -1,11 +1,11 @@
 name: CI
 on:
   pull_request:
-    branches: [main]
   push:
+    branches: [main]
 
 jobs:
-  build-and-test:
+  install:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -18,5 +18,35 @@ jobs:
           cache: 'npm'
           cache-dependency-path: client/package-lock.json
       - run: npm ci
+      - uses: actions/upload-artifact@v4
+        with:
+          name: node_modules
+          path: client/node_modules
+
+  lint:
+    needs: install
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: client
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: node_modules
+          path: client/node_modules
       - run: npm run lint
+
+  test:
+    needs: install
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: client
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: node_modules
+          path: client/node_modules
       - run: npm test
