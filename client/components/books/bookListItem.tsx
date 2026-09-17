@@ -22,13 +22,12 @@ export default function BookListItem({ book, onClick, userId }: { book: Book, on
             tabIndex={0}
         >
             {book.ImageURL && (
-                <div className="h-full w-28 shrink-0 overflow-hidden rounded-md bg-slate-700">
+                <div className="relative h-full w-28 shrink-0 overflow-hidden rounded-md bg-slate-700">
                     <Image
+                        fill
                         className="h-full w-full object-cover"
                         src={book.ImageURL}
                         alt={book.Title}
-                        width={112}
-                        height={176}
                         unoptimized
                     />
                 </div>

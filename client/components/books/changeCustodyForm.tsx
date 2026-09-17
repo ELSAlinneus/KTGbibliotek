@@ -51,13 +51,12 @@ export default function ChangeCustodyForm({ book, onClose, onSave }: { book: Boo
                     </div>
                     <div className="flex items-start gap-6">
                             {book.ImageURL && (
-                                <div className="h-72 w-48 shrink-0 overflow-hidden rounded-lg border border-slate-700 bg-slate-700">
+                                <div className="relative h-72 w-48 shrink-0 overflow-hidden rounded-lg border border-slate-700 bg-slate-700">
                                         <Image
+                                            fill
                                             className="h-full w-full object-cover"
                                             src={book.ImageURL}
                                             alt={book.Title}
-                                            width={192}
-                                            height={288}
                                             unoptimized
                                         />
                                 </div>
