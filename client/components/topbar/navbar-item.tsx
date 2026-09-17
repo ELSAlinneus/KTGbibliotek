@@ -3,7 +3,7 @@ import { useRouter } from "next/navigation";
 
 export default function NavbarItem({ title, href }: { title: string, href: string }) {
     const router = useRouter();
-    const handleClick = (e: any) => {
+    const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
         e.preventDefault();
         router.push(href);
     }

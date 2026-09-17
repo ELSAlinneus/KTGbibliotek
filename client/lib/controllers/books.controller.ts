@@ -1,5 +1,5 @@
 import { db } from "@/lib/firebase/firebase";
-import { collection, getDocs, onSnapshot, addDoc, doc, deleteDoc, updateDoc } from "firebase/firestore";
+import { arrayRemove, arrayUnion, collection, getDocs, onSnapshot, addDoc, doc, deleteDoc, updateDoc } from "firebase/firestore";
 import { Book } from "../../lib/types/Book";
 import { User } from "firebase/auth";
 
@@ -57,7 +57,8 @@ async function addBook(
                 ImageURL: imageUrl,
                 Owner: user.uid,
                 Borrowed: false,
-                Current_custody: user.uid
+                Current_custody: user.uid,
+                Readers: []
             });
             alert("Boken har lagts till i biblioteket!");
             return {
@@ -70,7 +71,8 @@ async function addBook(
                 ImageURL: imageUrl,
                 Owner: user.uid,
                 Borrowed: false,
-                Current_custody: user.uid
+                Current_custody: user.uid,
+                Readers: []
             };
         } catch (error: unknown) {
             const message = error instanceof Error ? error.message : "Unknown error";
@@ -181,4 +183,16 @@ async function updateBookImage(bookId: string, imageBlob?: Blob): Promise<string
     return imageUrl;
 }
 
-export { addBook, deleteBook, getAllBooks, subscribeBooks, getInformationFromISBN, manageBookLoan, updateBookImage };
+async function updateBookReadStatus(bookId: string, userId: string, hasRead: boolean): Promise<boolean> {
+    try {
+        await updateDoc(doc(db, "Books", bookId), {
+            Readers: hasRead ? arrayUnion(userId) : arrayRemove(userId)
+        });
+        return true;
+    } catch (error) {
+        console.error("Error updating book read status: ", error);
+        return false;
+    }
+}
+
+export { addBook, deleteBook, getAllBooks, subscribeBooks, getInformationFromISBN, manageBookLoan, updateBookImage, updateBookReadStatus };

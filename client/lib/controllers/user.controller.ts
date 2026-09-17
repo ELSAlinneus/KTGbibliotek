@@ -23,6 +23,28 @@ async function handleUsernameChange(user: User, newUsername: string) {
     console.log("Username updated successfully");
 }
 
+async function handleBioChange(user: User, newBio: string) {
+    const sanitizedBio = newBio.trim();
+    if (sanitizedBio.length > 250) {
+        throw new Error("Biografin är för lång.");
+    }
+
+    const userDocRef = doc(db, "users", user.uid);
+    await setDoc(userDocRef, { bio: sanitizedBio }, { merge: true });
+
+    console.log("Bio updated successfully");
+}
+
+async function handlePhoneChange(user: User, newPhone: string) {
+    const sanitizedPhone = newPhone.trim();
+    if (sanitizedPhone.length > 30) {
+        throw new Error("Telefonnumret är för långt.");
+    }
+
+    const userDocRef = doc(db, "users", user.uid);
+    await setDoc(userDocRef, { phone: sanitizedPhone }, { merge: true });
+}
+
 async function handleUserProfileChange(profile: PublicUserProfile) {
     const user = auth.currentUser;
     if (!user) {
@@ -34,44 +56,53 @@ async function handleUserProfileChange(profile: PublicUserProfile) {
         return;
     }
 
-    console.log("handle profile change", profile);
-
-    if (profile.displayName.trim() === (user.displayName || "").trim()) {
-        return;
+    const usernameChanged = profile.displayName.trim() !== (user.displayName || "").trim();
+    if (usernameChanged) {
+        await handleUsernameChange(user, profile.displayName);
     }
 
-    await handleUsernameChange(user, profile.displayName);
+    const phoneChanged = profile.phone?.trim() !== (user.phoneNumber || "").trim();
+    if (phoneChanged) {
+        await handlePhoneChange(user, profile.phone || "");
+    }
+
+    const bioChanged = profile.bio?.trim() !== (await getUserByUid(user.uid))?.bio?.trim();
+    if (bioChanged) {
+        await handleBioChange(user, profile.bio || "");
+    }
     //TODO: Implement email change functionality
 }
 
-async function handleUserProfilePictureChange(profile: PublicUserProfile, pictureBlob?: Blob) {
+async function handleUserProfilePictureChange(profile: PublicUserProfile, pictureBlob?: Blob): Promise<boolean> {
     const user = auth.currentUser;
     if (user) {
         const confirmChange = window.confirm("Är du säker på att du vill ändra din profilbild?");
-        if (confirmChange) {
-            console.log("handle profile picture change", profile);
-
-            let profilePicture = profile.photoURL || "";
-
-            if (pictureBlob) {
-                profilePicture = await new Promise<string>((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.onload = () => resolve(String(reader.result || ""));
-                    reader.onerror = () => reject(new Error("Could not read image blob"));
-                    reader.readAsDataURL(pictureBlob);
-                });
-            }
-
-            if (profilePicture.length > 250000) {
-                alert("Profilbilden är för stor. Välj en mindre bild.");
-                return;
-            }
-
-            const userDocRef = doc(db, "users", user.uid);
-            await setDoc(userDocRef, { profilePicture }, { merge: true });
+        if (!confirmChange) {
+            return false;
         }
+
+        let profilePicture = profile.photoURL || "";
+
+        if (pictureBlob) {
+            profilePicture = await new Promise<string>((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(String(reader.result || ""));
+                reader.onerror = () => reject(new Error("Could not read image blob"));
+                reader.readAsDataURL(pictureBlob);
+            });
+        }
+
+        if (profilePicture.length > 250000) {
+            alert("Profilbilden är för stor. Välj en mindre bild.");
+            return false;
+        }
+
+        const userDocRef = doc(db, "users", user.uid);
+        await setDoc(userDocRef, { profilePicture }, { merge: true });
+        return true;
     } else {
         console.error("No user is currently signed in.");
+        return false;
     }
 }
 
@@ -120,12 +151,14 @@ async function getUserByUid(uid: string): Promise<PublicUserProfile | null> {
         return null;
     }
 
-    const data = userDoc.data() as { uid?: string; username?: string; email?: string; profilePicture?: string };
+    const data = userDoc.data() as { uid?: string; username?: string; email?: string; profilePicture?: string; bio?: string; phone?: string };
     return {
         userId: data.uid || "",
         displayName: data.username || data.email || "Okänd",
         email: data.email || "",
-        photoURL: data.profilePicture || ""
+        photoURL: data.profilePicture || "",
+        bio: data.bio || "",
+        phone: data.phone || ""
     };
 }
 
@@ -134,12 +167,14 @@ async function getAllUsers(): Promise<PublicUserProfile[]> {
     const querySnapshot = await getDocs(collection(db, "users"));
 
     querySnapshot.forEach((doc) => {
-        const data = doc.data() as { uid?: string; username?: string; email?: string; profilePicture?: string };
+        const data = doc.data() as { uid?: string; username?: string; email?: string; profilePicture?: string; bio?: string; phone?: string };
         users.push({
             userId: data.uid || "",
             displayName: data.username || data.email || "Okänd",
             email: data.email || "",
-            photoURL: data.profilePicture || ""
+            photoURL: data.profilePicture || "",
+            bio: data.bio || "",
+            phone: data.phone || ""
         });
     });
 

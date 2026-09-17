@@ -3,11 +3,11 @@
 import { onAuthStateChanged, User } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { auth } from "@/lib/firebase/firebase";
-import { handleUserProfileChange, handleUserProfilePictureChange, getUserProfilePicture, getUserBooks, getUserBorrowedBooks } from "@/lib/controllers/user.controller";
+import { handleUserProfileChange, handleUserProfilePictureChange, getUserByUid, getUserBooks, getUserBorrowedBooks } from "@/lib/controllers/user.controller";
 import BookInfo from "@/components/books/bookinfo";
 import { Book } from "@/lib/types/Book";
 import { PublicUserProfile } from "@/lib/types/Profile";
-import { deleteBook, manageBookLoan } from "@/lib/controllers/books.controller";
+import { deleteBook, getAllBooks, manageBookLoan } from "@/lib/controllers/books.controller";
 import ImgUploader from "@/components/imgUploader/imgUploader";
 import UploadBookForm from "@/components/profile/uploadBookForm";
 import ChangeCustodyForm from "@/components/books/changeCustodyForm";
@@ -27,8 +27,9 @@ export default function ProfilePage() {
     const [showChangeCustodyForm, setShowChangeCustodyForm] = useState<Book | null>(null);
     const [userBooks, setUserBooks] = useState<Book[]>([]);
     const [borrowedBooks, setBorrowedBooks] = useState<Book[]>([]);
+    const [readBooks, setReadBooks] = useState<Book[]>([]);
     const [selectedBookId, setSelectedBookId] = useState<string | null>(null);
-    const selectedBook = [...userBooks, ...borrowedBooks].find((book) => book.id === selectedBookId) || null;
+    const selectedBook = [...userBooks, ...borrowedBooks, ...readBooks].find((book) => book.id === selectedBookId) || null;
 
     useEffect(() => {
         const unsub = onAuthStateChanged(auth, (u) => {
@@ -46,16 +47,26 @@ export default function ProfilePage() {
                 };
                 fetchBorrowedBooks();
 
-                const fetchUserProfilePicture = async () => {
-                    const picture = await getUserProfilePicture(u.uid);
-                    setProfile({
+                const fetchReadBooks = async () => {
+                    //TODO borde denna logik ligga här? eller books.controller.ts? Eller kanske i user.controller.ts?
+                    const books = await getAllBooks();
+                    const readBooks = books.filter(book => book.Readers?.includes(u.uid));
+                    setReadBooks(readBooks);
+                }
+                fetchReadBooks();
+
+                const fetchUserProfile = async () => {
+                    const userProfile = await getUserByUid(u.uid);
+                    setProfile(userProfile || {
                         userId: u.uid,
                         displayName: u.displayName || "",
                         email: u.email || "",
-                        photoURL: picture || ""
+                        photoURL: "",
+                        bio: "",
+                        phone: ""
                     });
                 };
-                fetchUserProfilePicture();
+                fetchUserProfile();
             }
         });
         return () => unsub();
@@ -63,6 +74,7 @@ export default function ProfilePage() {
 
     function handleBookDeleted(bookId: string) {
         setUserBooks(userBooks.filter(b => b.id !== bookId));
+        setReadBooks(readBooks.filter(b => b.id !== bookId));
         if (selectedBookId === bookId) {
             setSelectedBookId(null);
         }
@@ -84,16 +96,12 @@ export default function ProfilePage() {
             <div className=" p-4 m-4 bg-slate-800 border border-slate-700 rounded-lg flex flex-col items-center justify-center">
                 <ImgUploader
                     value={profile.photoURL}
-                    onChange={(result) => {
-                        if (result) {
-                            const updatedProfile = { ...profile, photoURL: result.previewUrl };
-                            setProfile(updatedProfile);
-                            handleUserProfilePictureChange(updatedProfile, result.blob);
-                        } else {
-                            const updatedProfile = { ...profile, photoURL: "" };
-                            setProfile(updatedProfile);
-                            handleUserProfilePictureChange(updatedProfile);
-                        }
+                    onChange={async (result) => {
+                        const updatedProfile = { ...profile, photoURL: result?.previewUrl || "" };
+                        const changed = await handleUserProfilePictureChange(updatedProfile, result?.blob);
+                        if (!changed) return;
+
+                        setProfile(updatedProfile);
                     }}
                     round={true}
                     className="w-48 h-48 cursor-pointer rounded-full border-2 border-dashed border-slate-600 p-13 text-center hover:border-slate-400"
@@ -114,8 +122,42 @@ export default function ProfilePage() {
                         value={profile.displayName}
                         onChange={(e) => setProfile({...profile, displayName: e.target.value})}
                         readOnly={!isEditing}
-                        className="text-slate-100 bg-slate-900 border border-slate-600 rounded p-2"
+                        className="h-10 text-slate-100 bg-slate-900 border border-slate-600 rounded p-2"
                     />                  
+                </div>
+                <div className="flex row">
+                    <label className="text-slate-300 mr-2">Bio:</label>
+                    <div className="flex-1 min-w-0">
+                        <input
+                            type="text"
+                            value={profile.bio || ""}
+                            onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
+                            readOnly={!isEditing}
+                            className="w-full h-10 text-slate-100 bg-slate-900 border border-slate-600 rounded p-2"
+                            maxLength={250}
+                            aria-describedby="bio-character-count"
+                            placeholder="Berätta om dig själv..."
+                        />
+                        <p
+                            id="bio-character-count"
+                            className={`mt-1 text-right text-sm ${(profile.bio || "").length >= 250 ? "text-amber-400" : "text-slate-400"}`}
+                        >
+                            {(profile.bio || "").length}/250 tecken
+                            {(profile.bio || "").length >= 250 && " - maxgränsen är nådd"}
+                        </p>
+                    </div>
+                </div>
+                <div className="flex row mb-4">
+                    <label className="text-slate-300 mr-2">Telefon:</label>
+                    <input
+                        type="tel"
+                        value={profile.phone || ""}
+                        onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
+                        readOnly={!isEditing}
+                        className="h-10 text-slate-100 bg-slate-900 border border-slate-600 rounded p-2"
+                        maxLength={30}
+                        placeholder="Telefonnummer..."
+                    />
                 </div>
                 <div className="flex row">
                     <label className="text-slate-300 mr-2">E-post:</label>
@@ -124,7 +166,7 @@ export default function ProfilePage() {
                         value={profile.email}
                         onChange={(e) => setProfile({ ...profile, email: e.target.value })}
                         readOnly={!isEditing}
-                        className="text-slate-400 border border-slate-600 rounded p-2 bg-slate-700"
+                        className="h-10 text-slate-400 border border-slate-600 rounded p-2 bg-slate-700"
                     />
                 </div>
                 {isEditing && (
@@ -135,7 +177,8 @@ export default function ProfilePage() {
                             const message = error instanceof Error ? error.message : "Ett fel uppstod vid uppdatering.";
                             alert(message);
                         }
-                    }} className="mt-2 ml-2 p-2 bg-blue-500 text-white rounded">
+                        setIsEditing(false);
+                    }} className="mt-4 ml-2 p-2 bg-blue-500 text-white rounded">
                         Uppdatera användaruppgifter
                     </button>
                 )}
@@ -184,6 +227,16 @@ export default function ProfilePage() {
                     ))}
                 </div>
             )}
+            {readBooks.length > 0 && (
+                <div className="p-4 mb-4 ml-10 mr-10 mt-4 bg-slate-800 border border-slate-700 rounded-lg">
+                    <p className="font-bold"> Lästa böcker:</p>
+                    {readBooks.map((book: Book) => (
+                        <div key={book.id} onClick={() => setSelectedBookId(book.id)} className="mt-2 flex row justify-between items-center mb-2 bg-slate-700 border border-slate-600 rounded-lg p-2 cursor-pointer hover:bg-slate-600 transition duration-300">
+                            <p>{book.Title}</p>
+                        </div>
+                    ))}
+                </div>
+            )}
             {selectedBook && (
                 <BookInfo 
                     book={selectedBook} 
@@ -198,6 +251,8 @@ export default function ProfilePage() {
                     }}
                     onBookUpdated={(updatedBook) => {
                         setUserBooks(userBooks.map((item) => item.id === updatedBook.id ? updatedBook : item));
+                        setBorrowedBooks(borrowedBooks.map((item) => item.id === updatedBook.id ? updatedBook : item));
+                        setReadBooks(readBooks.map((item) => item.id === updatedBook.id ? updatedBook : item));
                     }}
                 />
             )}

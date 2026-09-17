@@ -7,6 +7,7 @@ export type Book = {
     ImageURL: string;
     Language: string;
     Owner: string;
+    Readers?: string[];
     ISBN: string;
     Year_of_publication: number;
 }

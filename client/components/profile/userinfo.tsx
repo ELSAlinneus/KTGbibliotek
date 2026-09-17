@@ -21,9 +21,14 @@ export default function UserInfo({ user, onClose}: { user: PublicUserProfile, on
                     height={100}
                     className="rounded-full mb-4 mx-auto"
                 />
-                <h2 className="text-xl font-bold mb-4">Användarinfo</h2>
-                <p><strong>Namn:</strong> {user.displayName || "N/A"}</p>
-                <p><strong>Email:</strong> {user.email || "N/A"}</p>
+                <h2 className="text-xl font-bold ">{user.displayName || "N/A"}</h2>
+                {user.bio &&
+                    <p className="mt-1 mb-3">{user.bio}</p>
+                }
+                <p>{user.email || "ingen email angiven"}</p>
+                {user.phone &&
+                    <p className="mt-1">{user.phone}</p>
+                }
             </div>
         </div>
     );
