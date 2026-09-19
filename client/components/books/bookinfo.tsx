@@ -1,7 +1,6 @@
 import { Book } from "@/lib/types/Book";
 import { auth } from "@/lib/firebase/firebase";
 import { useEffect, useState } from "react";
-import Image from "next/image";
 import UserInfo from "@/components/profile/userinfo";
 import { getUserByUid } from "@/lib/controllers/user.controller";
 import { PublicUserProfile } from "@/lib/types/Profile";
@@ -9,7 +8,8 @@ import UserProfileLink from "./userProfileLink";
 import BookStateBtns from "@/components/books/bookStateBtns";
 import BookStatusBadge from "@/components/books/bookStatusBadge";
 import ImgUploader from "@/components/imgUploader/imgUploader";
-import { updateBookImage, updateBookReadStatus } from "@/lib/controllers/books.controller";
+import BookImagePreview from "@/components/books/bookImagePreview";
+import { updateBookBackCoverImage, updateBookImage, updateBookReadStatus } from "@/lib/controllers/books.controller";
 
 const EMPTY_READERS: string[] = [];
 
@@ -21,6 +21,7 @@ export default function BookInfo({ book, onClose, onDelete, onGetBookBack, onLen
     const [isOwnerProfileLoading, setIsOwnerProfileLoading] = useState(false);
     const [isLoanedToProfileLoading, setIsLoanedToProfileLoading] = useState(false);
     const [imageUrl, setImageUrl] = useState(book.ImageURL || "");
+    const [backCoverImageUrl, setBackCoverImageUrl] = useState(book.BackCoverImageURL || "");
     const [readerProfiles, setReaderProfiles] = useState<PublicUserProfile[]>([]);
     const [isUpdatingReadStatus, setIsUpdatingReadStatus] = useState(false);
     const readers = book.Readers ?? EMPTY_READERS;
@@ -60,10 +61,31 @@ export default function BookInfo({ book, onClose, onDelete, onGetBookBack, onLen
         }
     };
 
+    const handleBackCoverImageChange = async (result: { blob: Blob; previewUrl: string } | null) => {
+        const previousBackCoverImageUrl = backCoverImageUrl;
+        setBackCoverImageUrl(result?.previewUrl || "");
+
+        try {
+            const savedImageUrl = await updateBookBackCoverImage(book.id, result?.blob);
+            setBackCoverImageUrl(savedImageUrl);
+            onBookUpdated?.({ ...book, BackCoverImageURL: savedImageUrl });
+        } catch (error) {
+            setBackCoverImageUrl(previousBackCoverImageUrl);
+            const message = error instanceof Error ? error.message : "Kunde inte uppdatera bilden.";
+            alert(message);
+        }
+    };
+
     const removeBookImage = async () => {
         const confirmRemove = window.confirm("Är du säker på att du vill ta bort omslagsbilden?");
         if (!confirmRemove) return;
         handleImageChange(null);
+    }
+
+    const removeBackCoverImage = async () => {
+        const confirmRemove = window.confirm("Är du säker på att du vill ta bort baksidesbilden?");
+        if (!confirmRemove) return;
+        handleBackCoverImageChange(null);
     }
 
     useEffect(() => {
@@ -144,7 +166,7 @@ export default function BookInfo({ book, onClose, onDelete, onGetBookBack, onLen
                         ✕
                     </button>
                 </div>
-                <div className="relative w-full rounded-xl border border-slate-700 bg-slate-900 p-6 shadow-sm flex items-start gap-6">
+                <div className="relative w-full rounded-xl border border-slate-700 bg-slate-900 p-6 shadow-sm flex flex-wrap items-start gap-6">
                     {userId && (
                         <label className="absolute right-5 top-4 flex max-w-[45%] items-center gap-2 text-right text-sm font-medium text-slate-200">
                             <input
@@ -158,31 +180,17 @@ export default function BookInfo({ book, onClose, onDelete, onGetBookBack, onLen
                             <span>{isUpdatingReadStatus ? "Sparar..." : "Jag har läst denna bok"}</span>
                         </label>
                     )}
-                    <div className="relative h-72 w-48 shrink-0 overflow-hidden rounded-lg border border-slate-700 bg-slate-700">
-                        {imageUrl ? (
-                            <Image
-                                fill
-                                className="h-full w-full object-cover"
-                                src={imageUrl}
+                    <div className="flex shrink-0 gap-4">
+                        {imageUrl && (
+                            <BookImagePreview
+                                imageUrl={imageUrl}
                                 alt={book.Title}
-                                unoptimized
+                                label="framsida"
+                                onRemove={userId === book.Owner ? removeBookImage : undefined}
                             />
-                        ) : (
-                            <div className="h-full w-full"></div>
                         )}
-                        {userId === book.Owner && imageUrl && (
-                            <div className="absolute inset-0 z-10 flex items-center justify-center ">
-                                <button
-                                    type="button"
-                                    onClick={removeBookImage}
-                                    className="absolute right-2 top-2 rounded-full border border-white/20 bg-slate-950/85 px-2 py-1 text-sm font-medium text-white shadow-lg transition hover:border-white/50 hover:bg-slate-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-300"
-                                    aria-label="Ta bort omslagsbild"
-                                >
-                                    ✕
-                                </button>
-                            </div>
-                        )} : {(userId === book.Owner && !imageUrl) && (
-                            <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/45 border-2 border-dashed border-white/70 rounded-lg">
+                        {(userId === book.Owner && !imageUrl) && (
+                            <div className="relative h-72 w-48 overflow-hidden rounded-lg border-2 border-dashed border-white/70 bg-black/45">
                                 <ImgUploader
                                     value=""
                                     onChange={handleImageChange}
@@ -192,6 +200,26 @@ export default function BookInfo({ book, onClose, onDelete, onGetBookBack, onLen
                                 />
                             </div>
                         )}
+                        {backCoverImageUrl && (
+                            <BookImagePreview
+                                imageUrl={backCoverImageUrl}
+                                alt={`${book.Title}, baksida`}
+                                label="baksida"
+                                onRemove={userId === book.Owner ? removeBackCoverImage : undefined}
+                            />
+                        )}
+                        {(userId === book.Owner && !backCoverImageUrl) && (
+                            <div className="relative h-72 w-48 overflow-hidden rounded-lg border-2 border-dashed border-white/70 bg-black/45">
+                                <ImgUploader
+                                    value=""
+                                    onChange={handleBackCoverImageChange}
+                                    label="Lägg till baksida"
+                                    aspect={2 / 3}
+                                    className="flex h-full w-full items-center justify-center px-3 py-2 text-center text-sm text-white transition "
+                                />
+                            </div>
+                        )}
+
                     </div>
                     <div className="mt-4 flex-1 min-w-0 h-72 overflow-y-auto text-left pr-2 space-y-1 text-slate-300">
                         {book.Author && <p className="text-sm">Författare: {book.Author}</p>}

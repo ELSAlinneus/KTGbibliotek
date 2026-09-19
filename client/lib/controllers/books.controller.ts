@@ -199,6 +199,26 @@ async function updateBookImage(bookId: string, imageBlob?: Blob): Promise<string
     await updateDoc(doc(db, "Books", bookId), { ImageURL: imageUrl });
     return imageUrl;
 }
+// TODO: skapa funktion för att inte upprepa samma kod
+async function updateBookBackCoverImage(bookId: string, imageBlob?: Blob): Promise<string> {
+    let imageUrl = "";
+
+    if (imageBlob) {
+        if (imageBlob.size > MAX_COVER_IMAGE_BYTES) {
+            throw new Error("Bokomslaget är för stort. Välj en mindre bild.");
+        }
+
+        imageUrl = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(String(reader.result || ""));
+            reader.onerror = () => reject(new Error("Kunde inte läsa bilden."));
+            reader.readAsDataURL(imageBlob);
+        });
+    }
+
+    await updateDoc(doc(db, "Books", bookId), { BackCoverImageURL: imageUrl });
+    return imageUrl;
+}
 
 async function updateBookReadStatus(bookId: string, userId: string, hasRead: boolean): Promise<boolean> {
     try {
@@ -212,4 +232,4 @@ async function updateBookReadStatus(bookId: string, userId: string, hasRead: boo
     }
 }
 
-export { addBook, deleteBook, getAllBooks, subscribeBooks, getInformationFromISBN, manageBookLoan, updateBookImage, updateBookReadStatus };
+export { addBook, deleteBook, getAllBooks, subscribeBooks, getInformationFromISBN, manageBookLoan, updateBookImage, updateBookBackCoverImage, updateBookReadStatus };
