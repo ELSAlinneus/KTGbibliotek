@@ -9,7 +9,8 @@ const MAX_COVER_IMAGE_BYTES = 262500;
 async function addBook(
     event: React.FormEvent<HTMLFormElement>,
     user: User | null,
-    coverImageBlob?: Blob
+    coverImageBlob?: Blob,
+    backCoverImageBlob?: Blob
 ): Promise<Book | null> {
     const form = event.currentTarget;
     const formData = new FormData(form);
@@ -28,6 +29,7 @@ async function addBook(
     if (user) {
         try {
             let imageUrl = "";
+            let backCoverImageUrl = "";
 
             if (coverImageBlob) {
                 if (coverImageBlob.size > MAX_COVER_IMAGE_BYTES) {
@@ -43,6 +45,19 @@ async function addBook(
                 });
             }
 
+            if (backCoverImageBlob) {
+                if (backCoverImageBlob.size > MAX_COVER_IMAGE_BYTES) {
+                    alert("Bokomslaget är för stort. Välj en mindre bild.");
+                    return null;
+                }
+
+                backCoverImageUrl = await new Promise<string>((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(String(reader.result || ""));
+                    reader.onerror = () => reject(new Error("Could not read image blob"));
+                    reader.readAsDataURL(backCoverImageBlob);
+                });
+            }
             const docRef = await addDoc(collection(db, "Books"), {
                 Title: title,
                 Author: author,
@@ -51,6 +66,7 @@ async function addBook(
                 Language: language,
                 Year_of_publication: yearOfPublication,
                 ImageURL: imageUrl,
+                BackCoverImageURL: backCoverImageUrl,
                 Owner: user.uid,
                 Borrowed: false,
                 Current_custody: user.uid,
@@ -66,6 +82,7 @@ async function addBook(
                 Language: language,
                 Year_of_publication: yearOfPublication,
                 ImageURL: imageUrl,
+                BackCoverImageURL: backCoverImageUrl,
                 Owner: user.uid,
                 Borrowed: false,
                 Current_custody: user.uid,

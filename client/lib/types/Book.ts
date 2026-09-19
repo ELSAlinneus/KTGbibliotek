@@ -6,6 +6,7 @@ export type Book = {
     Borrowed: boolean;
     Current_custody: string;
     ImageURL: string;
+    BackCoverImageURL: string;
     Language: string;
     Owner: string;
     Readers?: string[];
