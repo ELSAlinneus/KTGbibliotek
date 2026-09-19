@@ -20,7 +20,7 @@ export default function BookStateBtns({ book, onDelete, onGetBookBack, onLendBoo
                 {book.Borrowed ? (
                     <div className="flex row justify-end items-center">
                         
-                        <button className="mr-2 p-1 bg-gray-500 text-white rounded hover:bg-gray-700 transition duration-300 shadow"
+                        <button className="mr-2 p-1 h-9 min-w-25 bg-gray-500 text-white rounded hover:bg-gray-700 transition duration-300 shadow "
                         onClick={(e) => {
                             e.stopPropagation();
                             const confirmBookBack = window.confirm("Är du säker på att har fått tillbaka denna bok?");
@@ -31,7 +31,7 @@ export default function BookStateBtns({ book, onDelete, onGetBookBack, onLendBoo
                         </button>
                     </div>
                 ):(
-                    <button className="mr-2 p-1 bg-gray-500 text-white rounded hover:bg-gray-700 transition duration-300 shadow"
+                    <button className="mr-2 h-9 min-w-20 whitespace-nowrap rounded bg-gray-500 px-2 text-white shadow transition duration-300 hover:bg-gray-700"
                     onClick={(e) => {
                         e.stopPropagation();
                         onLendBook(book);
@@ -39,7 +39,7 @@ export default function BookStateBtns({ book, onDelete, onGetBookBack, onLendBoo
                         Låna ut
                     </button>
                 )}
-                <button className="p-1 bg-gray-600 text-white rounded hover:bg-red-700 transition duration-300 shadow"
+                <button className="h-9 min-w-20 whitespace-nowrap rounded bg-gray-600 px-2 text-white shadow transition duration-300 hover:bg-red-700"
                 onClick={async (e) => {
                     e.stopPropagation();
                     onDelete();

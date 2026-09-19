@@ -8,22 +8,20 @@ import BookInfo from "@/components/books/bookinfo";
 import { Book } from "@/lib/types/Book";
 import { PublicUserProfile } from "@/lib/types/Profile";
 import { deleteBook, getAllBooks, manageBookLoan } from "@/lib/controllers/books.controller";
-import ImgUploader from "@/components/imgUploader/imgUploader";
 import UploadBookForm from "@/components/profile/uploadBookForm";
 import ChangeCustodyForm from "@/components/books/changeCustodyForm";
-import BookStateBtns from "@/components/books/bookStateBtns";
 import BorrowedBookItem from "@/components/profile/borrowedBookItem";
+import OwnedBookItem from "@/components/profile/ownedBookItem";
+import ProfileBookListItem from "@/components/profile/profileBookListItem";
+import ProfileBookSection from "@/components/profile/profileBookSection";
+import ProfileDetails from "@/components/profile/profileDetails";
+import ProfileHeader from "@/components/profile/profileHeader";
 
 export default function ProfilePage() {
     const [user, setUser] = useState<User | null>(null);
-    const [isEditing, setIsEditing] = useState<boolean>(false); 
-    const [profile, setProfile] = useState<PublicUserProfile>({
-        userId: "",
-        displayName: "",
-        email: "",
-        photoURL: ""
-    });
-    const [ShowUploadBookForm, setShowUploadBookForm] = useState<boolean>(false);
+    const [isEditing, setIsEditing] = useState(false);
+    const [profile, setProfile] = useState<PublicUserProfile>({ userId: "", displayName: "", email: "", photoURL: "" });
+    const [showUploadBookForm, setShowUploadBookForm] = useState(false);
     const [showChangeCustodyForm, setShowChangeCustodyForm] = useState<Book | null>(null);
     const [userBooks, setUserBooks] = useState<Book[]>([]);
     const [borrowedBooks, setBorrowedBooks] = useState<Book[]>([]);
@@ -32,237 +30,107 @@ export default function ProfilePage() {
     const selectedBook = [...userBooks, ...borrowedBooks, ...readBooks].find((book) => book.id === selectedBookId) || null;
 
     useEffect(() => {
-        const unsub = onAuthStateChanged(auth, (u) => {
-            setUser(u);
-            if (u) {
-                const fetchUserBooks = async () => {
-                    const books = await getUserBooks();
-                    setUserBooks(books);
-                };
-                fetchUserBooks();
+        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+            setUser(currentUser);
+            if (!currentUser) return;
 
-                const fetchBorrowedBooks = async () => {
-                    const books = await getUserBorrowedBooks();
-                    setBorrowedBooks(books);
-                };
-                fetchBorrowedBooks();
-
-                const fetchReadBooks = async () => {
-                    //TODO borde denna logik ligga här? eller books.controller.ts? Eller kanske i user.controller.ts?
-                    const books = await getAllBooks();
-                    const readBooks = books.filter(book => book.Readers?.includes(u.uid));
-                    setReadBooks(readBooks);
-                }
-                fetchReadBooks();
-
-                const fetchUserProfile = async () => {
-                    const userProfile = await getUserByUid(u.uid);
-                    setProfile(userProfile || {
-                        userId: u.uid,
-                        displayName: u.displayName || "",
-                        email: u.email || "",
-                        photoURL: "",
-                        bio: "",
-                        phone: ""
-                    });
-                };
-                fetchUserProfile();
-            }
+            getUserBooks().then(setUserBooks);
+            getUserBorrowedBooks().then(setBorrowedBooks);
+            getAllBooks().then((books) => setReadBooks(books.filter((book) => book.Readers?.includes(currentUser.uid))));
+            getUserByUid(currentUser.uid).then((userProfile) => setProfile(userProfile || {
+                userId: currentUser.uid,
+                displayName: currentUser.displayName || "",
+                email: currentUser.email || "",
+                photoURL: "",
+                bio: "",
+                phone: ""
+            }));
         });
-        return () => unsub();
+        return () => unsubscribe();
     }, []);
 
     function handleBookDeleted(bookId: string) {
-        setUserBooks(userBooks.filter(b => b.id !== bookId));
-        setReadBooks(readBooks.filter(b => b.id !== bookId));
-        if (selectedBookId === bookId) {
-            setSelectedBookId(null);
-        }
+        setUserBooks((books) => books.filter((book) => book.id !== bookId));
+        setReadBooks((books) => books.filter((book) => book.id !== bookId));
+        if (selectedBookId === bookId) setSelectedBookId(null);
     }
 
     const handleGetBookBack = async (book: Book) => {
         if (!user) return;
-
         const updated = await manageBookLoan(book.id, user.uid, false);
-        if (updated) {
-            setUserBooks(userBooks.map(b => b.id === book.id ? { ...b, Borrowed: false } : b));
-            setBorrowedBooks(borrowedBooks.filter(b => b.id !== book.id));
-            setSelectedBookId(null);
-        }
-    }
+        if (!updated) return;
+        setUserBooks((books) => books.map((item) => item.id === book.id ? { ...item, Borrowed: false } : item));
+        setBorrowedBooks((books) => books.filter((item) => item.id !== book.id));
+        setSelectedBookId(null);
+    };
 
     return (
         <div className="w-full">
-            <div className=" p-4 m-4 bg-slate-800 border border-slate-700 rounded-lg flex flex-col items-center justify-center">
-                <ImgUploader
-                    value={profile.photoURL}
-                    onChange={async (result) => {
-                        const updatedProfile = { ...profile, photoURL: result?.previewUrl || "" };
-                        const changed = await handleUserProfilePictureChange(updatedProfile, result?.blob);
-                        if (!changed) return;
-
-                        setProfile(updatedProfile);
-                    }}
-                    round={true}
-                    className="w-48 h-48 cursor-pointer rounded-full border-2 border-dashed border-slate-600 p-13 text-center hover:border-slate-400"
-                />
-                <h1 className="text-2xl font-bold text-slate-100 text-center">
-                    {profile.displayName || "Användarnamn saknas"}
-                </h1>
-            </div>
-            <div className="p-4 mb-4 ml-10 mr-10 bg-slate-800 border border-slate-700 rounded-lg">
-                <div className="flex row justify-between items-center mb-4">
-                    <p className="font-bold">Användaruppgifter</p>
-                    <i className="fa fa-pen-to-square" onClick={() => setIsEditing(!isEditing)}></i>
-                </div>
-                <div className="flex row mb-4">
-                    <label className="text-slate-300 mr-2">Användarnamn:</label>
-                    <input
-                        type="text"
-                        value={profile.displayName}
-                        onChange={(e) => setProfile({...profile, displayName: e.target.value})}
-                        readOnly={!isEditing}
-                        className="h-10 text-slate-100 bg-slate-900 border border-slate-600 rounded p-2"
-                    />                  
-                </div>
-                <div className="flex row">
-                    <label className="text-slate-300 mr-2">Bio:</label>
-                    <div className="flex-1 min-w-0">
-                        <input
-                            type="text"
-                            value={profile.bio || ""}
-                            onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
-                            readOnly={!isEditing}
-                            className="w-full h-10 text-slate-100 bg-slate-900 border border-slate-600 rounded p-2"
-                            maxLength={250}
-                            aria-describedby="bio-character-count"
-                            placeholder="Berätta om dig själv..."
-                        />
-                        <p
-                            id="bio-character-count"
-                            className={`mt-1 text-right text-sm ${(profile.bio || "").length >= 250 ? "text-amber-400" : "text-slate-400"}`}
-                        >
-                            {(profile.bio || "").length}/250 tecken
-                            {(profile.bio || "").length >= 250 && " - maxgränsen är nådd"}
-                        </p>
-                    </div>
-                </div>
-                <div className="flex row mb-4">
-                    <label className="text-slate-300 mr-2">Telefon:</label>
-                    <input
-                        type="tel"
-                        value={profile.phone || ""}
-                        onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
-                        readOnly={!isEditing}
-                        className="h-10 text-slate-100 bg-slate-900 border border-slate-600 rounded p-2"
-                        maxLength={30}
-                        placeholder="Telefonnummer..."
-                    />
-                </div>
-                <div className="flex row">
-                    <label className="text-slate-300 mr-2">E-post:</label>
-                    <input
-                        type="text"
-                        value={profile.email}
-                        onChange={(e) => setProfile({ ...profile, email: e.target.value })}
-                        readOnly={!isEditing}
-                        className="h-10 text-slate-400 border border-slate-600 rounded p-2 bg-slate-700"
-                    />
-                </div>
-                {isEditing && (
-                    <button onClick={async () => {
-                        try {
-                            await handleUserProfileChange(profile);
-                        } catch (error) {
-                            const message = error instanceof Error ? error.message : "Ett fel uppstod vid uppdatering.";
-                            alert(message);
-                        }
-                        setIsEditing(false);
-                    }} className="mt-4 ml-2 p-2 bg-blue-500 text-white rounded">
-                        Uppdatera användaruppgifter
-                    </button>
-                )}
-            </div>
-
-            <div >
-                <button className="ml-10 p-2 bg-gray-500 text-white rounded hover:bg-gray-700 transition duration-300 shadow"
-                    onClick={() => setShowUploadBookForm(!ShowUploadBookForm)}>
+            <ProfileHeader
+                profile={profile}
+                onPhotoChange={async (result) => {
+                    const updatedProfile = { ...profile, photoURL: result?.previewUrl || "" };
+                    const changed = await handleUserProfilePictureChange(updatedProfile, result?.blob);
+                    if (changed) setProfile(updatedProfile);
+                }}
+            />
+            <ProfileDetails
+                profile={profile}
+                isEditing={isEditing}
+                onEditingChange={setIsEditing}
+                onProfileChange={setProfile}
+                onSave={async () => {
+                    try {
+                        await handleUserProfileChange(profile);
+                    } catch (error) {
+                        const message = error instanceof Error ? error.message : "Ett fel uppstod vid uppdatering.";
+                        alert(message);
+                    }
+                    setIsEditing(false);
+                }}
+            />
+            <div>
+                <button type="button" className="ml-10 rounded bg-gray-500 p-2 text-white shadow transition duration-300 hover:bg-gray-700" onClick={() => setShowUploadBookForm(!showUploadBookForm)}>
                     Ladda upp ny bok till biblioteket
                 </button>
-                {ShowUploadBookForm && (
-                    <UploadBookForm 
-                        user={user} 
-                        onClose={() => setShowUploadBookForm(false)}
-                        onBookAdded={(newBook) => {
-                            setUserBooks([...userBooks, newBook]);
-                        }}
-                    />
-                )}
+                {showUploadBookForm && <UploadBookForm user={user} onClose={() => setShowUploadBookForm(false)} onBookAdded={(book) => setUserBooks((books) => [...books, book])} />}
             </div>
+
             {userBooks.length > 0 && (
-                <div className="p-4 mb-4 ml-10 mr-10 mt-4 bg-slate-800 border border-slate-700 rounded-lg">
-                    <p className="font-bold"> Mina böcker:</p>
-                    {userBooks.map((book: Book) => (
-                        <div key={book.id} onClick={() => setSelectedBookId(book.id)} className="mt-2 flex row justify-between items-center mb-2 bg-slate-700 border border-slate-600 rounded-lg p-2 cursor-pointer hover:bg-slate-600 transition duration-300">
-                            <p>{book.Title}</p>
-                            <BookStateBtns 
-                            book={book} 
-                            onDelete={async () => {
-                                const deleted = await deleteBook(book.id);
-                                if(deleted) handleBookDeleted(book.id);
-                            } }
-                            onGetBookBack={handleGetBookBack} 
-                            onLendBook={async (book) => {
-                                setShowChangeCustodyForm(book);
-                            }} />
-                        </div>
-                    ))}
-                </div>
+                <ProfileBookSection title="Mina böcker:">
+                    {userBooks.map((book) => <OwnedBookItem  key={book.id} book={book} onClick={() => setSelectedBookId(book.id)} onDelete={async () => { if (await deleteBook(book.id)) handleBookDeleted(book.id); }} onGetBookBack={handleGetBookBack} onLendBook={async (bookToLend) => setShowChangeCustodyForm(bookToLend)} /> )}
+                </ProfileBookSection>
             )}
+
             {borrowedBooks.length > 0 && (
-                <div className="p-4 mb-4 ml-10 mr-10 mt-4 bg-slate-800 border border-slate-700 rounded-lg">
-                    <p className="font-bold"> Lånade böcker:</p>
-                    {borrowedBooks.map((book: Book) => (
-                        <BorrowedBookItem key={book.id} book={book} onClick={() => setSelectedBookId(book.id)} />
-                    ))}
-                </div>
+                <ProfileBookSection title="Lånade böcker:">
+                    {borrowedBooks.map((book) => <BorrowedBookItem  key={book.id}  book={book} onClick={() => setSelectedBookId(book.id)} /> )}
+                </ProfileBookSection>
             )}
+
             {readBooks.length > 0 && (
-                <div className="p-4 mb-4 ml-10 mr-10 mt-4 bg-slate-800 border border-slate-700 rounded-lg">
-                    <p className="font-bold"> Lästa böcker:</p>
-                    {readBooks.map((book: Book) => (
-                        <div key={book.id} onClick={() => setSelectedBookId(book.id)} className="mt-2 flex row justify-between items-center mb-2 bg-slate-700 border border-slate-600 rounded-lg p-2 cursor-pointer hover:bg-slate-600 transition duration-300">
-                            <p>{book.Title}</p>
-                        </div>
-                    ))}
-                </div>
+                <ProfileBookSection title="Lästa böcker:">
+                    {readBooks.map((book) => <ProfileBookListItem key={book.id} book={book} onClick={() => setSelectedBookId(book.id)} /> )}
+                </ProfileBookSection>
             )}
-            {selectedBook && (
-                <BookInfo 
-                    book={selectedBook} 
-                    onClose={() => setSelectedBookId(null)} 
-                    onDelete={async (bookId) => {
-                        const deleted = await deleteBook(bookId);
-                        if(deleted) handleBookDeleted(bookId);
-                    }}
-                    onGetBookBack={handleGetBookBack} 
-                    onLendBook={async (book: Book) => {
-                        setShowChangeCustodyForm(book);
-                    }}
-                    onBookUpdated={(updatedBook) => {
-                        setUserBooks(userBooks.map((item) => item.id === updatedBook.id ? updatedBook : item));
-                        setBorrowedBooks(borrowedBooks.map((item) => item.id === updatedBook.id ? updatedBook : item));
-                        setReadBooks(readBooks.map((item) => item.id === updatedBook.id ? updatedBook : item));
-                    }}
-                />
-            )}
-            {showChangeCustodyForm && (
-                <ChangeCustodyForm book={showChangeCustodyForm} onClose={() => setShowChangeCustodyForm(null)} 
-                onSave={() => {
-                    setUserBooks(userBooks.map(b => b.id === showChangeCustodyForm.id ? { ...b, Borrowed: true } : b));
-                    setShowChangeCustodyForm(null);
+
+            {selectedBook && <BookInfo 
+                book={selectedBook} 
+                onClose={() => setSelectedBookId(null)} 
+                onDelete={async (bookId) => { if (await deleteBook(bookId)) handleBookDeleted(bookId); }} 
+                onGetBookBack={handleGetBookBack} 
+                onLendBook={async (book) => setShowChangeCustodyForm(book)} 
+                onBookUpdated={(updatedBook) => {
+                    setUserBooks((books) => books.map((item) => item.id === updatedBook.id ? updatedBook : item));
+                    setBorrowedBooks((books) => books.map((item) => item.id === updatedBook.id ? updatedBook : item));
+                    setReadBooks((books) => books.map((item) => item.id === updatedBook.id ? updatedBook : item));
                 }} />
-            )}
+            }
+
+            {showChangeCustodyForm && <ChangeCustodyForm book={showChangeCustodyForm} onClose={() => setShowChangeCustodyForm(null)} onSave={() => {
+                setUserBooks((books) => books.map((book) => book.id === showChangeCustodyForm.id ? { ...book, Borrowed: true } : book));
+                setShowChangeCustodyForm(null);
+            }} />}
         </div>
     );
 }

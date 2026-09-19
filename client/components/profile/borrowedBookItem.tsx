@@ -1,5 +1,6 @@
 import UserProfileLink from "@/components/books/userProfileLink";
 import UserInfo from "@/components/profile/userinfo";
+import ProfileBookListItem from "@/components/profile/profileBookListItem";
 import { getUserByUid } from "@/lib/controllers/user.controller";
 import { PublicUserProfile } from "@/lib/types/Profile";
 import { Book } from "@/lib/types/Book";
@@ -26,17 +27,24 @@ export default function BorrowedBookItem({ book, onClick }: { book: Book; onClic
     }, [book.Owner]);
 
     return (
-        <div className="mt-2 flex row justify-between items-center mb-2 bg-slate-700 border border-slate-600 rounded-lg p-2 cursor-pointer hover:bg-slate-600 transition duration-300" onClick={onClick}>
-            <p>{book.Title}</p>
-            <p className="inline-flex items-center gap-1 text-sm text-slate-400">
-                <span>Lånad från</span>
-                <UserProfileLink
-                    user={bookOwnerProfile}
-                    onUserProfileLoaded={setUserProfile}
-                    isLoading={isBookOwnerProfileLoading}
-                />
-            </p>
+        <div>
+
+        <ProfileBookListItem
+            book={book}
+            onClick={onClick}
+            actions={
+                <p className="inline-flex max-w-56 items-center gap-1 text-right text-sm text-slate-400">
+                    <span className="whitespace-nowrap">Lånad från</span>
+                    <UserProfileLink
+                        user={bookOwnerProfile}
+                        onUserProfileLoaded={setUserProfile}
+                        isLoading={isBookOwnerProfileLoading}
+                        />
+                </p>
+            }
+            />
+
             {userProfile && <UserInfo user={userProfile} onClose={() => setUserProfile(null)} />}
-        </div>
+            </div>
     );
 }
