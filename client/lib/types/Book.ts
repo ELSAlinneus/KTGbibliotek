@@ -2,6 +2,7 @@ export type Book = {
     id: string;
     Title: string;
     Author: string;
+    Publisher: string;
     Borrowed: boolean;
     Current_custody: string;
     ImageURL: string;

@@ -195,6 +195,7 @@ export default function BookInfo({ book, onClose, onDelete, onGetBookBack, onLen
                     </div>
                     <div className="mt-4 flex-1 min-w-0 h-72 overflow-y-auto text-left pr-2 space-y-1 text-slate-300">
                         {book.Author && <p className="text-sm">Författare: {book.Author}</p>}
+                        {book.Publisher && <p className="text-sm">Förlag: {book.Publisher}</p>}
                         {book.Year_of_publication && <p className="text-sm">Utgiven: {book.Year_of_publication}</p>}
                         {book.Language && <p className="text-sm">Språk: {book.Language}</p>}
                         {readerProfiles.length > 0 && (

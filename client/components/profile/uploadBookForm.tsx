@@ -1,5 +1,6 @@
-import { addBook, ExternalBookInfo, getInformationFromISBN } from "@/lib/controllers/books.controller";
+import { addBook, getInformationFromISBN } from "@/lib/controllers/books.controller";
 import { Book } from "@/lib/types/Book";
+import { LibrisBookResult } from "@/lib/types/LibrisBookResult";
 import { useState } from "react";
 import { User } from "firebase/auth";
 import ImgUploader from "@/components/imgUploader/imgUploader";
@@ -12,7 +13,7 @@ type NewBookFormProps = {
 
 export default function UploadBookForm({ onClose, user, onBookAdded }: NewBookFormProps)  {
 
-    const [bookInfo, setBookInfo] = useState<ExternalBookInfo | null>(null);
+    const [bookInfo, setBookInfo] = useState<LibrisBookResult | null>(null);
     const [infoFetched, setInfoFetched] = useState<boolean>(false);
     const [coverImageBlob, setCoverImageBlob] = useState<Blob | null>(null);
     const [coverImagePreview, setCoverImagePreview] = useState<string>("");
@@ -88,6 +89,10 @@ export default function UploadBookForm({ onClose, user, onBookAdded }: NewBookFo
                             <div className="mb-4">
                                 <label className="block font-bold text-slate-300 mb-2">Författare:</label>
                                 <input required defaultValue={bookInfo.author} type="text" name="author" className="rounded border border-slate-600 p-2 text-slate-200"/>
+                            </div>
+                            <div className="mb-4">
+                                <label className="block font-bold text-slate-300 mb-2">Utgivare:</label>
+                                <input readOnly value={bookInfo.publisher} type="text" name="publisher" /> 
                             </div>
                             <div className="mb-4">
                                 <label className="block font-bold text-slate-300 mb-2">Språk:</label>           

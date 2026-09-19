@@ -2,15 +2,9 @@ import { db } from "@/lib/firebase/firebase";
 import { arrayRemove, arrayUnion, collection, getDocs, onSnapshot, addDoc, doc, deleteDoc, updateDoc } from "firebase/firestore";
 import { Book } from "../../lib/types/Book";
 import { User } from "firebase/auth";
+import { LibrisBookResult } from "@/lib/types/LibrisBookResult";
 
 const MAX_COVER_IMAGE_BYTES = 262500;
-
-export type ExternalBookInfo = {
-    title: string;
-    author: string;
-    language: string;
-    publishedYear: string;
-};
 
 async function addBook(
     event: React.FormEvent<HTMLFormElement>,
@@ -21,6 +15,7 @@ async function addBook(
     const formData = new FormData(form);
     const title = String(formData.get("title") ?? "");
     const author = String(formData.get("author") ?? "");
+    const publisher = String(formData.get("publisher") ?? "");
     const isbn = String(formData.get("isbn") ?? "");
     const language = String(formData.get("language") ?? "");
     const publicationYear = String(formData.get("publicationYear") ?? "");
@@ -51,6 +46,7 @@ async function addBook(
             const docRef = await addDoc(collection(db, "Books"), {
                 Title: title,
                 Author: author,
+                Publisher: publisher,
                 ISBN: isbn,
                 Language: language,
                 Year_of_publication: yearOfPublication,
@@ -65,6 +61,7 @@ async function addBook(
                 id: docRef.id,
                 Title: title,
                 Author: author,
+                Publisher: publisher,
                 ISBN: isbn,
                 Language: language,
                 Year_of_publication: yearOfPublication,
@@ -115,7 +112,7 @@ function subscribeBooks(onUpdate: (books: Book[]) => void) {
     return unsubscribe;
 }
 
-async function getInformationFromISBN(isbn: string): Promise<ExternalBookInfo | null> {
+async function getInformationFromISBN(isbn: string): Promise<LibrisBookResult | null> {
     const cleanIsbn = isbn.replace(/[- ]/g, "");
     if(cleanIsbn.length < 1) return null;
 
@@ -132,9 +129,12 @@ async function getInformationFromISBN(isbn: string): Promise<ExternalBookInfo | 
         if (data.xsearch.list && data.xsearch.list.length > 0) {
             const bookData = data.xsearch.list[0];
 
+            console.log("Fetched book data from Libris:", bookData);
+
             return {
                 title: bookData.title || "Okänd titel",
                 author: bookData.creator || "Okänd författare",
+                publisher: bookData.publisher || "Okänd utgivare",
                 language: bookData.language || "Okänt språk",
                 publishedYear: bookData.date || "Okänt publiceringsår",
             };
