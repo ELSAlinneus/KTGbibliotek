@@ -31,7 +31,7 @@ export default function UploadBookForm({ onClose, user, onBookAdded }: NewBookFo
                     <button
                         type="button"
                         onClick={onClose}
-                        className="text-slate-300 hover:text-red-400"
+                        className="text-slate-300 hover:text-red-400 font-bold text-2xl"
                         aria-label="Stäng"
                     >
                         ✕
@@ -63,7 +63,6 @@ export default function UploadBookForm({ onClose, user, onBookAdded }: NewBookFo
                         <button type="button" onClick={async () => {
                             const isbn = (document.getElementById("isbn") as HTMLInputElement).value;
                             const bookInfo = await getInformationFromISBN(isbn);
-                            console.log(bookInfo);
                             setBookInfo(bookInfo);
                             setInfoFetched(true);
                         }} className="mt-2 px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-700 transition duration-300">
@@ -91,15 +90,15 @@ export default function UploadBookForm({ onClose, user, onBookAdded }: NewBookFo
                             <h3 className="text-lg font-bold pb-2">Hämtad bokinformation:</h3>
                             <div className="mb-4">
                                 <label className="block font-bold text-slate-300 mb-2">Titel:</label>
-                                <input required defaultValue={bookInfo.title} type="text" name="title" className="w-full rounded border border-slate-600 p-2 text-slate-200" />
+                                <input readOnly value={bookInfo.title} type="text" name="title" className="w-full"/>
                             </div>
                             <div className="mb-4">
                                 <label className="block font-bold text-slate-300 mb-2">Författare:</label>
-                                <input required defaultValue={bookInfo.author} type="text" name="author" className="rounded border border-slate-600 p-2 text-slate-200"/>
+                                <input readOnly value={bookInfo.author} type="text" name="author" className="w-full"/>
                             </div>
                             <div className="mb-4">
                                 <label className="block font-bold text-slate-300 mb-2">Utgivare:</label>
-                                <input readOnly value={bookInfo.publisher} type="text" name="publisher" /> 
+                                <input readOnly value={bookInfo.publisher} type="text" name="publisher" className="w-full"/> 
                             </div>
                             <div className="mb-4">
                                 <label className="block font-bold text-slate-300 mb-2">Språk:</label>           
