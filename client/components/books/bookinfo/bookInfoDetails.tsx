@@ -34,7 +34,7 @@ export default function BookInfoDetails({
         <div className="mt-4 h-72 min-w-0 flex-1 space-y-1 overflow-y-auto pr-2 text-left text-slate-300">
             {book.Author && <p className="text-sm">Författare: {book.Author}</p>}
             {book.Publisher && <p className="text-sm">Förlag: {book.Publisher}</p>}
-            {book.Year_of_publication && <p className="text-sm">Utgiven: {book.Year_of_publication}</p>}
+            {!!book.Year_of_publication && <p className="text-sm">Utgiven: {book.Year_of_publication}</p>}
             {book.Language && <p className="text-sm">Språk: {book.Language}</p>}
             {readerProfiles.length > 0 && (
                 <p className="mt-2 text-sm">
