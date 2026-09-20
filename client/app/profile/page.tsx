@@ -16,8 +16,11 @@ import ProfileBookListItem from "@/components/profile/profileBookListItem";
 import ProfileBookSection from "@/components/profile/profileBookSection";
 import ProfileDetails from "@/components/profile/profileDetails";
 import ProfileHeader from "@/components/profile/profileHeader";
+import LoadingComponent from '@/components/loadingComponent';
+import { useRouter } from "next/navigation";
 
 export default function ProfilePage() {
+    const [isLoading, setIsLoading] = useState(true);
     const [user, setUser] = useState<User | null>(null);
     const [isEditing, setIsEditing] = useState(false);
     const [profile, setProfile] = useState<PublicUserProfile>({ userId: "", displayName: "", email: "", photoURL: "" });
@@ -28,26 +31,51 @@ export default function ProfilePage() {
     const [readBooks, setReadBooks] = useState<Book[]>([]);
     const [selectedBookId, setSelectedBookId] = useState<string | null>(null);
     const selectedBook = [...userBooks, ...borrowedBooks, ...readBooks].find((book) => book.id === selectedBookId) || null;
+    const router = useRouter();
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
             setUser(currentUser);
-            if (!currentUser) return;
 
-            getUserBooks().then(setUserBooks);
-            getUserBorrowedBooks().then(setBorrowedBooks);
-            getAllBooks().then((books) => setReadBooks(books.filter((book) => book.Readers?.includes(currentUser.uid))));
-            getUserByUid(currentUser.uid).then((userProfile) => setProfile(userProfile || {
-                userId: currentUser.uid,
-                displayName: currentUser.displayName || "",
-                email: currentUser.email || "",
-                photoURL: "",
-                bio: "",
-                phone: ""
-            }));
+            if (!currentUser) {
+                auth.signOut();
+                router.push('/');
+                setIsLoading(false);
+                return;
+            }
+
+            try {
+                const [books, borrowed, allBooks, userProfile] = await Promise.all([
+                    getUserBooks(),
+                    getUserBorrowedBooks(),
+                    getAllBooks(),
+                    getUserByUid(currentUser.uid)
+                ]);
+
+                setUserBooks(books || []);
+                setBorrowedBooks(borrowed || []);
+                setReadBooks(
+                    (allBooks || []).filter((book) => book.Readers?.includes(currentUser.uid))
+                );
+                setProfile(
+                    userProfile || {
+                        userId: currentUser.uid,
+                        displayName: currentUser.displayName || "",
+                        email: currentUser.email || "",
+                        photoURL: "",
+                        bio: "",
+                        phone: ""
+                    }
+                );
+            } catch (error) {
+                console.error("Kunde inte hämta profildata:", error);
+            } finally {
+                setIsLoading(false);
+            }
         });
+
         return () => unsubscribe();
-    }, []);
+    }, [router]);
 
     function handleBookDeleted(bookId: string) {
         setUserBooks((books) => books.filter((book) => book.id !== bookId));
@@ -63,6 +91,10 @@ export default function ProfilePage() {
         setBorrowedBooks((books) => books.filter((item) => item.id !== book.id));
         setSelectedBookId(null);
     };
+
+    if (isLoading) {
+        return <LoadingComponent />;
+    }
 
     return (
         <div className="w-full">
