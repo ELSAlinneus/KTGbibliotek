@@ -2,25 +2,21 @@ import { db } from "@/lib/firebase/firebase";
 import { arrayRemove, arrayUnion, collection, getDocs, onSnapshot, addDoc, doc, deleteDoc, updateDoc } from "firebase/firestore";
 import { Book } from "../../lib/types/Book";
 import { User } from "firebase/auth";
+import { LibrisBookResult } from "@/lib/types/LibrisBookResult";
 
 const MAX_COVER_IMAGE_BYTES = 262500;
-
-export type ExternalBookInfo = {
-    title: string;
-    author: string;
-    language: string;
-    publishedYear: string;
-};
 
 async function addBook(
     event: React.FormEvent<HTMLFormElement>,
     user: User | null,
-    coverImageBlob?: Blob
+    coverImageBlob?: Blob,
+    backCoverImageBlob?: Blob
 ): Promise<Book | null> {
     const form = event.currentTarget;
     const formData = new FormData(form);
     const title = String(formData.get("title") ?? "");
     const author = String(formData.get("author") ?? "");
+    const publisher = String(formData.get("publisher") ?? "");
     const isbn = String(formData.get("isbn") ?? "");
     const language = String(formData.get("language") ?? "");
     const publicationYear = String(formData.get("publicationYear") ?? "");
@@ -33,6 +29,7 @@ async function addBook(
     if (user) {
         try {
             let imageUrl = "";
+            let backCoverImageUrl = "";
 
             if (coverImageBlob) {
                 if (coverImageBlob.size > MAX_COVER_IMAGE_BYTES) {
@@ -48,13 +45,28 @@ async function addBook(
                 });
             }
 
+            if (backCoverImageBlob) {
+                if (backCoverImageBlob.size > MAX_COVER_IMAGE_BYTES) {
+                    alert("Bokomslaget är för stort. Välj en mindre bild.");
+                    return null;
+                }
+
+                backCoverImageUrl = await new Promise<string>((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(String(reader.result || ""));
+                    reader.onerror = () => reject(new Error("Could not read image blob"));
+                    reader.readAsDataURL(backCoverImageBlob);
+                });
+            }
             const docRef = await addDoc(collection(db, "Books"), {
                 Title: title,
                 Author: author,
+                Publisher: publisher,
                 ISBN: isbn,
                 Language: language,
                 Year_of_publication: yearOfPublication,
                 ImageURL: imageUrl,
+                BackCoverImageURL: backCoverImageUrl,
                 Owner: user.uid,
                 Borrowed: false,
                 Current_custody: user.uid,
@@ -65,10 +77,12 @@ async function addBook(
                 id: docRef.id,
                 Title: title,
                 Author: author,
+                Publisher: publisher,
                 ISBN: isbn,
                 Language: language,
                 Year_of_publication: yearOfPublication,
                 ImageURL: imageUrl,
+                BackCoverImageURL: backCoverImageUrl,
                 Owner: user.uid,
                 Borrowed: false,
                 Current_custody: user.uid,
@@ -115,7 +129,7 @@ function subscribeBooks(onUpdate: (books: Book[]) => void) {
     return unsubscribe;
 }
 
-async function getInformationFromISBN(isbn: string): Promise<ExternalBookInfo | null> {
+async function getInformationFromISBN(isbn: string): Promise<LibrisBookResult | null> {
     const cleanIsbn = isbn.replace(/[- ]/g, "");
     if(cleanIsbn.length < 1) return null;
 
@@ -132,9 +146,12 @@ async function getInformationFromISBN(isbn: string): Promise<ExternalBookInfo | 
         if (data.xsearch.list && data.xsearch.list.length > 0) {
             const bookData = data.xsearch.list[0];
 
+            console.log("Fetched book data from Libris:", bookData);
+
             return {
                 title: bookData.title || "Okänd titel",
                 author: bookData.creator || "Okänd författare",
+                publisher: bookData.publisher || "Okänd utgivare",
                 language: bookData.language || "Okänt språk",
                 publishedYear: bookData.date || "Okänt publiceringsår",
             };
@@ -167,20 +184,35 @@ async function updateBookImage(bookId: string, imageBlob?: Blob): Promise<string
     let imageUrl = "";
 
     if (imageBlob) {
-        if (imageBlob.size > MAX_COVER_IMAGE_BYTES) {
-            throw new Error("Bokomslaget är för stort. Välj en mindre bild.");
-        }
-
-        imageUrl = await new Promise<string>((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(String(reader.result || ""));
-            reader.onerror = () => reject(new Error("Kunde inte läsa bilden."));
-            reader.readAsDataURL(imageBlob);
-        });
+        imageUrl = await getImageUrlFromBlob(imageBlob);
     }
 
     await updateDoc(doc(db, "Books", bookId), { ImageURL: imageUrl });
     return imageUrl;
+}
+
+async function updateBookBackCoverImage(bookId: string, imageBlob?: Blob): Promise<string> {
+    let imageUrl = "";
+
+    if (imageBlob) {
+        imageUrl = await getImageUrlFromBlob(imageBlob);
+    }
+
+    await updateDoc(doc(db, "Books", bookId), { BackCoverImageURL: imageUrl });
+    return imageUrl;
+}
+
+async function getImageUrlFromBlob(imageBlob: Blob): Promise<string> {
+    if (imageBlob.size > MAX_COVER_IMAGE_BYTES) {
+        throw new Error("Bokomslaget är för stort. Välj en mindre bild.");
+    }
+
+    return new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result || ""));
+        reader.onerror = () => reject(new Error("Kunde inte läsa bilden."));
+        reader.readAsDataURL(imageBlob);
+    });
 }
 
 async function updateBookReadStatus(bookId: string, userId: string, hasRead: boolean): Promise<boolean> {
@@ -195,4 +227,4 @@ async function updateBookReadStatus(bookId: string, userId: string, hasRead: boo
     }
 }
 
-export { addBook, deleteBook, getAllBooks, subscribeBooks, getInformationFromISBN, manageBookLoan, updateBookImage, updateBookReadStatus };
+export { addBook, deleteBook, getAllBooks, subscribeBooks, getInformationFromISBN, manageBookLoan, updateBookImage, updateBookBackCoverImage, updateBookReadStatus };

@@ -93,6 +93,7 @@ export default function ImgUploader({
             image={imageToDisplay}
             round={round}
             disabled={disabled}
+            className={className}
             onEdit={openEditor}
             onClear={clearImage}
             />
@@ -101,7 +102,7 @@ export default function ImgUploader({
             onSelectFile={handleSelectFile}
             disabled={disabled}
             label={label}
-            className={className}
+          className={`flex items-center justify-center ${className ?? "h-72 w-48"}`}
         />
       )} 
 

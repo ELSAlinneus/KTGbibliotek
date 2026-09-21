@@ -8,8 +8,6 @@ async function login(email: string, password: string) {
         await signInWithEmailAndPassword(auth, email, password);
     } catch (error) {
         const errorCode = (error as { code?: string }).code;
-        console.error("Sign-in error:", errorCode);
-
         if (
             errorCode === "auth/invalid-credential" ||
             errorCode === "auth/invalid-email" ||

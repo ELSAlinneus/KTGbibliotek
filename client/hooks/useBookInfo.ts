@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { auth } from "@/lib/firebase/firebase";
 import { getUserByUid } from "@/lib/controllers/user.controller";
-import { updateBookImage, updateBookReadStatus } from "@/lib/controllers/books.controller";
+import { updateBookBackCoverImage, updateBookImage, updateBookReadStatus } from "@/lib/controllers/books.controller";
 import { Book } from "@/lib/types/Book";
 import { PublicUserProfile } from "@/lib/types/Profile";
 
@@ -17,6 +17,7 @@ export function useBookInfo(book: Book, onBookUpdated?: (book: Book) => void) {
     const [isOwnerProfileLoading, setIsOwnerProfileLoading] = useState(false);
     const [isLoanedToProfileLoading, setIsLoanedToProfileLoading] = useState(false);
     const [imageUrl, setImageUrl] = useState(book.ImageURL || "");
+    const [backCoverImageUrl, setBackCoverImageUrl] = useState(book.BackCoverImageURL || "");
     const [readerProfiles, setReaderProfiles] = useState<PublicUserProfile[]>([]);
     const [isUpdatingReadStatus, setIsUpdatingReadStatus] = useState(false);
     const readers = book.Readers ?? EMPTY_READERS;
@@ -56,11 +57,32 @@ export function useBookInfo(book: Book, onBookUpdated?: (book: Book) => void) {
         }
     };
 
+    const handleBackCoverImageChange = async (result: { blob: Blob; previewUrl: string } | null) => {
+        const previousBackCoverImageUrl = backCoverImageUrl;
+        setBackCoverImageUrl(result?.previewUrl || "");
+
+        try {
+            const savedImageUrl = await updateBookBackCoverImage(book.id, result?.blob);
+            setBackCoverImageUrl(savedImageUrl);
+            onBookUpdated?.({ ...book, BackCoverImageURL: savedImageUrl });
+        } catch (error) {
+            setBackCoverImageUrl(previousBackCoverImageUrl);
+            const message = error instanceof Error ? error.message : "Kunde inte uppdatera bilden.";
+            alert(message);
+        }
+    };
+
     const removeBookImage = async () => {
         const confirmRemove = window.confirm("Är du säker på att du vill ta bort omslagsbilden?");
         if (!confirmRemove) return;
         await handleImageChange(null);
     };
+
+    const removeBackCoverImage = async () => {
+        const confirmRemove = window.confirm("Är du säker på att du vill ta bort omslagsbilden?");
+        if (!confirmRemove) return;
+        handleBackCoverImageChange(null);
+    }
 
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged((currentUser) => {
@@ -130,11 +152,14 @@ export function useBookInfo(book: Book, onBookUpdated?: (book: Book) => void) {
         isOwnerProfileLoading,
         isLoanedToProfileLoading,
         imageUrl,
+        backCoverImageUrl,
         readerProfiles,
         isUpdatingReadStatus,
         hasRead,
         toggleReadStatus,
         handleImageChange,
-        removeBookImage
+        handleBackCoverImageChange,
+        removeBookImage,
+        removeBackCoverImage
     };
 }

@@ -1,5 +1,6 @@
-import { addBook, ExternalBookInfo, getInformationFromISBN } from "@/lib/controllers/books.controller";
+import { addBook, getInformationFromISBN } from "@/lib/controllers/books.controller";
 import { Book } from "@/lib/types/Book";
+import { LibrisBookResult } from "@/lib/types/LibrisBookResult";
 import { useState } from "react";
 import { User } from "firebase/auth";
 import ImgUploader from "@/components/imgUploader/imgUploader";
@@ -12,10 +13,13 @@ type NewBookFormProps = {
 
 export default function UploadBookForm({ onClose, user, onBookAdded }: NewBookFormProps)  {
 
-    const [bookInfo, setBookInfo] = useState<ExternalBookInfo | null>(null);
+    const [bookInfo, setBookInfo] = useState<LibrisBookResult | null>(null);
     const [infoFetched, setInfoFetched] = useState<boolean>(false);
     const [coverImageBlob, setCoverImageBlob] = useState<Blob | null>(null);
+    const [backCoverImageBlob, setBackCoverImageBlob] = useState<Blob | null>(null);
     const [coverImagePreview, setCoverImagePreview] = useState<string>("");
+    const [backCoverImagePreview, setBackCoverImagePreview] = useState<string>("");
+
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
@@ -27,7 +31,7 @@ export default function UploadBookForm({ onClose, user, onBookAdded }: NewBookFo
                     <button
                         type="button"
                         onClick={onClose}
-                        className="text-slate-300 hover:text-red-400"
+                        className="text-slate-300 hover:text-red-400 font-bold text-2xl"
                         aria-label="Stäng"
                     >
                         ✕
@@ -35,11 +39,13 @@ export default function UploadBookForm({ onClose, user, onBookAdded }: NewBookFo
                 </div>
                 <form className="p-4 bg-slate-900 rounded-lg" onSubmit={async (e) => {
                     e.preventDefault();
-                    const newBook = await addBook(e, user, coverImageBlob ?? undefined);
+                    const newBook = await addBook(e, user, coverImageBlob ?? undefined, backCoverImageBlob ?? undefined);
                     if (newBook) {
                         onBookAdded(newBook);
                         setCoverImageBlob(null);
+                        setBackCoverImageBlob(null);
                         setCoverImagePreview("");
+                        setBackCoverImagePreview("");
                         onClose();
                     }
                 }}>
@@ -57,7 +63,6 @@ export default function UploadBookForm({ onClose, user, onBookAdded }: NewBookFo
                         <button type="button" onClick={async () => {
                             const isbn = (document.getElementById("isbn") as HTMLInputElement).value;
                             const bookInfo = await getInformationFromISBN(isbn);
-                            console.log(bookInfo);
                             setBookInfo(bookInfo);
                             setInfoFetched(true);
                         }} className="mt-2 px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-700 transition duration-300">
@@ -69,7 +74,9 @@ export default function UploadBookForm({ onClose, user, onBookAdded }: NewBookFo
                             setBookInfo(null);
                             setInfoFetched(false);
                             setCoverImageBlob(null);
+                            setBackCoverImageBlob(null);
                             setCoverImagePreview("");
+                            setBackCoverImagePreview("");
                             const isbnInput = document.getElementById("isbn") as HTMLInputElement;
                             if (isbnInput) {
                                 isbnInput.value = "";
@@ -83,11 +90,15 @@ export default function UploadBookForm({ onClose, user, onBookAdded }: NewBookFo
                             <h3 className="text-lg font-bold pb-2">Hämtad bokinformation:</h3>
                             <div className="mb-4">
                                 <label className="block font-bold text-slate-300 mb-2">Titel:</label>
-                                <input required defaultValue={bookInfo.title} type="text" name="title" className="w-full rounded border border-slate-600 p-2 text-slate-200" />
+                                <input readOnly value={bookInfo.title} type="text" name="title" className="w-full"/>
                             </div>
                             <div className="mb-4">
                                 <label className="block font-bold text-slate-300 mb-2">Författare:</label>
-                                <input required defaultValue={bookInfo.author} type="text" name="author" className="rounded border border-slate-600 p-2 text-slate-200"/>
+                                <input readOnly value={bookInfo.author} type="text" name="author" className="w-full"/>
+                            </div>
+                            <div className="mb-4">
+                                <label className="block font-bold text-slate-300 mb-2">Utgivare:</label>
+                                <input readOnly value={bookInfo.publisher} type="text" name="publisher" className="w-full"/> 
                             </div>
                             <div className="mb-4">
                                 <label className="block font-bold text-slate-300 mb-2">Språk:</label>           
@@ -97,23 +108,44 @@ export default function UploadBookForm({ onClose, user, onBookAdded }: NewBookFo
                                 <label className="block font-bold text-slate-300 mb-2">publiceringsår:</label>           
                                 <input readOnly value={bookInfo.publishedYear} type="text" name="publicationYear"/> 
                             </div>
-                            <div className="mb-4">
-                                <label className="block font-bold text-slate-300 mb-2">Bokomslag:</label>           
-                                <ImgUploader 
-                                    value={coverImagePreview}
-                                    onChange={(result) => {
-                                        if (result) {
-                                            setCoverImageBlob(result.blob);
-                                            setCoverImagePreview(result.previewUrl);
-                                        } else {
-                                            setCoverImageBlob(null);
-                                            setCoverImagePreview("");
-                                        }
-                                    }}
-                                    aspect={2 / 3}
-                                    className="w-36 h-40 cursor-pointer border-2 border-dashed border-slate-600 p-5 pt-10 text-center hover:border-slate-400"
-                                />
+                            <div className="mb-4 flex gap-4">
+                                <div>
+
+                                    <label className="block font-bold text-slate-300 mb-2">Bokomslag:</label>           
+                                    <ImgUploader 
+                                        value={coverImagePreview}
+                                        onChange={(result) => {
+                                            if (result) {
+                                                setCoverImageBlob(result.blob);
+                                                setCoverImagePreview(result.previewUrl);
+                                            } else {
+                                                setCoverImageBlob(null);
+                                                setCoverImagePreview("");
+                                            }
+                                        }}
+                                        aspect={2 / 3}
+                                        className="relative h-72 w-48 cursor-pointer border-2 border-dashed border-slate-600 text-center hover:border-slate-400"
+                                        />
+                                </div>
+                                <div>
+                                    <label className="block font-bold text-slate-300 mb-2">Baksidan:</label>           
+                                    <ImgUploader 
+                                        value={backCoverImagePreview}
+                                        onChange={(result) => {
+                                            if (result) {
+                                                setBackCoverImageBlob(result.blob);
+                                                setBackCoverImagePreview(result.previewUrl);
+                                            } else {
+                                                setBackCoverImageBlob(null);
+                                                setBackCoverImagePreview("");
+                                            }
+                                        }}
+                                        aspect={2 / 3}
+                                        className="relative h-72 w-48 cursor-pointer border-2 border-dashed border-slate-600 text-center hover:border-slate-400"
+                                    />
+                                </div>
                             </div>
+
                             <button type="submit" className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-700 transition duration-300 shadow">
                                 Lägg till bok
                             </button>
