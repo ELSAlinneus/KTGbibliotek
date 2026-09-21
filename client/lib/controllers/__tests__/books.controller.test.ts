@@ -17,7 +17,7 @@ describe("getInformationFromISBN", () => {
       ok: true,
       json: async () => ({
         xsearch: {
-          list: [{ title: "Test Book", creator: "Test Author", language: "swe", date: "2020" }],
+          list: [{ title: "Test Book", creator: "Test Author", publisher: "Test Publisher", language: "swe", date: "2020" }],
         },
       }),
     }) as jest.Mock;
@@ -27,6 +27,7 @@ describe("getInformationFromISBN", () => {
     expect(result).toEqual({
       title: "Test Book",
       author: "Test Author",
+      publisher: "Test Publisher",
       language: "swe",
       publishedYear: "2020",
     });
