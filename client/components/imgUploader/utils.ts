@@ -33,7 +33,7 @@ const createImage = (url: string) => {
 export const getCroppedBlob = (
   imageSrc: string,
   crop: { x: number; y: number; width: number; height: number },
-  maxSide = 160
+  maxSide = 640
 ): Promise<Blob> => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -52,7 +52,7 @@ export const getCroppedBlob = (
       canvas.toBlob((blob) => {
         if (blob) resolve(blob);
         else reject(new Error("Could not create blob"));
-      }, "image/jpeg", 0.75);
+      }, "image/jpeg", 0.9);
     } catch (e) {
       reject(e);
     }

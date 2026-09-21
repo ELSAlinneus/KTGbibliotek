@@ -34,11 +34,12 @@ export default function BookListItem({ book, onClick, userId }: { book: Book, on
             )}
             <div className="flex-1 min-w-0 overflow-y-auto text-left pr-1">
                 <h1 className="font-bold break-words">{book.Title}</h1>
+                {book.Author && <p className="break-words">Författare: {book.Author}</p>}
+                {book.Language && <p className="break-words">Språk: {book.Language}</p>}
                 <div className="mt-2 flex flex-wrap gap-2">
                     {book.Owner === userId && <BookStatusBadge status="my-book" />}
                     <BookStatusBadge status={loanStatus} />
                 </div>
-                {book.Language && <p className="break-words">Språk: {book.Language}</p>}
             </div>
         </li>
     );

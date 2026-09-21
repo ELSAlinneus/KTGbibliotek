@@ -6,6 +6,7 @@ type ImagePreviewProps = {
     image: string;
     round?: boolean;
     disabled?: boolean;
+    className?: string;
     onEdit: () => void;
     onClear: () => void;
 };
@@ -14,26 +15,31 @@ export default function ImagePreview({
     image,
     round,
     disabled,
+    className,
     onEdit,
     onClear,
 }: ImagePreviewProps) {
 
+    const imageShape = round ? "rounded-full" : "rounded";
+
     return (
-        <div className="relative mx-auto h-48 w-48 overflow-hidden">
+        <div className={`relative mx-auto ${className ?? "h-72 w-48"}`}>
+            <div className={`absolute inset-0 overflow-hidden ${imageShape}`}>
             <Image
                 src={image}
                 alt="Selected preview"
                 fill
                 sizes="192px"
                 unoptimized
-                className={`object-cover ${round ? "rounded-full" : "rounded"}`}
+                className="object-cover"
             />
+            </div>
             <>
                 <button
                     type="button"
                     onClick={onClear}
                     disabled={disabled}
-                    className="absolute right-1 top-1 disabled:opacity-60"
+                    className="absolute right-2 top-0 z-10 font-bold text-2xl disabled:opacity-60"
                     aria-label="Clear image"
                 >
                 ✕
@@ -42,7 +48,7 @@ export default function ImagePreview({
                     type="button"
                     onClick={onEdit}
                     disabled={disabled}
-                    className="absolute right-1 bottom-1 disabled:opacity-60"
+                    className="absolute bottom-1 right-1 z-10 disabled:opacity-60"
                     aria-label="Edit image"
                 >
                 <i className="fa fa-pen-to-square"></i>

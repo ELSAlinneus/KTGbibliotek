@@ -10,6 +10,7 @@ import { getAllUsers } from "@/lib/controllers/user.controller";
 import { PublicUserProfile } from "@/lib/types/Profile";
 import { auth } from "@/lib/firebase/firebase";
 import { onAuthStateChanged } from "firebase/auth";
+import LoadingComponent from '@/components/loadingComponent';
 
 export default function AllBooksPage() {
     const [allbooks, setBooks] = useState<Book[]>([]);
@@ -71,7 +72,7 @@ export default function AllBooksPage() {
     });
 
     if (isLoading) {
-        return <div>Loading...</div>;
+        return <LoadingComponent />;
     }
 
     return (
