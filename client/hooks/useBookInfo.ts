@@ -8,6 +8,7 @@ import { PublicUserProfile } from "@/lib/types/Profile";
 const EMPTY_READERS: string[] = [];
 
 type ImageChangeResult = { blob: Blob; previewUrl: string } | null;
+type CoverType = "front" | "back";
 
 export function useBookInfo(book: Book, onBookUpdated?: (book: Book) => void) {
     const [userId, setUserId] = useState<string | null>(null);
@@ -22,7 +23,47 @@ export function useBookInfo(book: Book, onBookUpdated?: (book: Book) => void) {
     const [isUpdatingReadStatus, setIsUpdatingReadStatus] = useState(false);
     const readers = book.Readers ?? EMPTY_READERS;
     const hasRead = userId ? readers.includes(userId) : false;
+    const coverImageConfig = {
+        front: {
+            field: "ImageURL" as const,
+            currentUrl: imageUrl,
+            setUrl: setImageUrl,
+            updater: updateBookImage,
+        },
+        back: {
+            field: "BackCoverImageURL" as const,
+            currentUrl: backCoverImageUrl,
+            setUrl: setBackCoverImageUrl,
+            updater: updateBookBackCoverImage,
+        },
+    };
 
+    const updateCover = async (type: CoverType, result: ImageChangeResult) => {
+        const { field, currentUrl, setUrl, updater } = coverImageConfig[type];
+        const previousUrl = currentUrl;
+        setUrl(result?.previewUrl || "");
+
+        try {
+            const savedUrl = await updater(book.id, result?.blob);
+            setUrl(savedUrl);
+            onBookUpdated?.({ ...book, [field]: savedUrl });
+        } catch (error) {
+            setUrl(previousUrl);
+            const message = error instanceof Error ? error.message : "Kunde inte uppdatera bilden.";
+            alert(message);
+        }
+    };
+
+    const removeCover = async (type: CoverType) => {
+        if (!window.confirm(`Är du säker på att du vill ta bort omslagsbilden?`)) return;
+        await updateCover(type, null);
+    };
+
+    const handleImageChange = (result: ImageChangeResult) => updateCover("front", result);
+    const handleBackCoverImageChange = (result: ImageChangeResult) => updateCover("back", result);
+    const removeBookImage = () => removeCover("front");
+    const removeBackCoverImage = () => removeCover("back");
+    
     const toggleReadStatus = async () => {
         if (!userId || isUpdatingReadStatus) return;
 
@@ -41,48 +82,6 @@ export function useBookInfo(book: Book, onBookUpdated?: (book: Book) => void) {
         }
         setIsUpdatingReadStatus(false);
     };
-
-    const handleImageChange = async (result: ImageChangeResult) => {
-        const previousImageUrl = imageUrl;
-        setImageUrl(result?.previewUrl || "");
-
-        try {
-            const savedImageUrl = await updateBookImage(book.id, result?.blob);
-            setImageUrl(savedImageUrl);
-            onBookUpdated?.({ ...book, ImageURL: savedImageUrl });
-        } catch (error) {
-            setImageUrl(previousImageUrl);
-            const message = error instanceof Error ? error.message : "Kunde inte uppdatera bilden.";
-            alert(message);
-        }
-    };
-
-    const handleBackCoverImageChange = async (result: { blob: Blob; previewUrl: string } | null) => {
-        const previousBackCoverImageUrl = backCoverImageUrl;
-        setBackCoverImageUrl(result?.previewUrl || "");
-
-        try {
-            const savedImageUrl = await updateBookBackCoverImage(book.id, result?.blob);
-            setBackCoverImageUrl(savedImageUrl);
-            onBookUpdated?.({ ...book, BackCoverImageURL: savedImageUrl });
-        } catch (error) {
-            setBackCoverImageUrl(previousBackCoverImageUrl);
-            const message = error instanceof Error ? error.message : "Kunde inte uppdatera bilden.";
-            alert(message);
-        }
-    };
-
-    const removeBookImage = async () => {
-        const confirmRemove = window.confirm("Är du säker på att du vill ta bort omslagsbilden?");
-        if (!confirmRemove) return;
-        await handleImageChange(null);
-    };
-
-    const removeBackCoverImage = async () => {
-        const confirmRemove = window.confirm("Är du säker på att du vill ta bort omslagsbilden?");
-        if (!confirmRemove) return;
-        handleBackCoverImageChange(null);
-    }
 
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged((currentUser) => {
