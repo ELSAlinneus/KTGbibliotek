@@ -77,7 +77,7 @@ export default function AllBooksPage() {
 
     return (
         <div className="w-full">
-            <BookFilters books={allbooks} users={users} values={filters} onChange={setFilters} />
+            <BookFilters books={allbooks} users={users} values={filters} onChange={setFilters} userId={userId} />
             <ul className="w-full">
                 {filteredBooks.length === 0 ? (
                     <p className="m-4 rounded-lg border border-slate-700 bg-slate-800 p-6 text-center text-slate-400">

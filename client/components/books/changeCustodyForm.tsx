@@ -7,7 +7,7 @@ import { PublicUserProfile } from "@/lib/types/Profile";
 import { useEffect, useState } from "react";
 
 
-export default function ChangeCustodyForm({ book, onClose, onSave }: { book: Book; onClose: () => void; onSave: () => void }) {
+export default function ChangeCustodyForm({ book, onClose, onSave }: { book: Book; onClose: () => void; onSave: (newCustodyUserId: string) => void }) {
     const [users, setUsers] = useState<PublicUserProfile[]>([]);
     const [selectedUserId, setSelectedUserId] = useState<string>("");
     const [userSearchQuery, setUserSearchQuery] = useState("");
@@ -16,7 +16,6 @@ export default function ChangeCustodyForm({ book, onClose, onSave }: { book: Boo
         const fetchUsers = async () => {
             const allUsers = await getAllUsers();
             setUsers(allUsers);
-            console.log("fetched users for custody change:", allUsers);
         };
         fetchUsers();
     }, []);
@@ -89,13 +88,17 @@ export default function ChangeCustodyForm({ book, onClose, onSave }: { book: Boo
                                 </div>
                                 <button
                                     type="submit"
+                                    disabled={!selectedUserId}
                                     className="inline-flex cursor-pointer items-center justify-center rounded-md bg-gray-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600"
                                     onClick={async (e) => {
                                         e.preventDefault();
                                         const confirmation = window.confirm("Är du säker på att du vill låna ut boken till denna användare?");
                                         if (!confirmation) return;
-                                        await manageBookLoan(book.id, selectedUserId, true); 
-                                        onSave();  
+
+                                        const success = await manageBookLoan(book.id, selectedUserId, true); 
+                                        if (success) {
+                                            onSave(selectedUserId); 
+                                        } 
                                     }}
                                 >
                                     Låna ut
