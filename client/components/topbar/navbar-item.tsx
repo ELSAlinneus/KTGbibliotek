@@ -1,5 +1,6 @@
 'use client'
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function NavbarItem({ title, href }: { title: string, href: string }) {
     const router = useRouter();
@@ -8,6 +9,8 @@ export default function NavbarItem({ title, href }: { title: string, href: strin
         router.push(href);
     }
     return (
-        <a href={href} className="text-white" onClick={handleClick}>{title}</a>
+        <Link href={href} className="text-white" onClick={handleClick}>
+            {title}
+        </Link>
     );
 }
