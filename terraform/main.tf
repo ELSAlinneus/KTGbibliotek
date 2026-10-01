@@ -40,3 +40,10 @@ resource "google_firebase_hosting_site" "default" {
   project  = "ktgbibliotek"
   site_id  = "ktgbibliotek"
 }
+
+resource "google_firestore_database" "default" {
+  project     = "ktgbibliotek"
+  name        = "(default)"
+  location_id = "eur3"
+  type        = "FIRESTORE_NATIVE"
+}
