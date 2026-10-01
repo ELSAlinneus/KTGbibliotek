@@ -34,6 +34,7 @@ describe("getInformationFromISBN", () => {
   });
 
   it("returns null when the API call fails", async () => {
+    jest.spyOn(console, "error").mockImplementation(() => {});
     global.fetch = jest.fn().mockResolvedValue({ ok: false, status: 500 }) as jest.Mock;
     const result = await getInformationFromISBN("9789100000000");
     expect(result).toBeNull();

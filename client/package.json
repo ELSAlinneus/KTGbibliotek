@@ -11,8 +11,8 @@
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^7.3.1",
-    "firebase": "^12.19.0",
-    "next": "16.3.5",
+    "firebase": "^9.14.0",
+    "next": "^16.3.8",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-easy-crop": "^6.2.3"
