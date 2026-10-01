@@ -14,8 +14,15 @@ import {
 } from "../user.controller"; 
 import { auth, db } from "@/lib/firebase/firebase";
 import { updateProfile, User } from "firebase/auth";
-import { collection, doc, getDoc, getDocs, setDoc } from "@firebase/firestore";
-
+import {
+  collection,
+  doc,
+  DocumentData,
+  getDoc,
+  getDocs,
+  QueryDocumentSnapshot,
+  setDoc,
+} from "@firebase/firestore";
 
 jest.mock("@/lib/firebase/firebase", () => ({
   auth: {
@@ -36,6 +43,11 @@ jest.mock("@firebase/firestore", () => ({
   setDoc: jest.fn(),
 }));
 
+// Typat alias för den mockade auth-instansen
+type MockedAuth = {
+  currentUser: Partial<User> | null;
+};
+
 describe("User & Profile Controller", () => {
   const originalAlert = window.alert;
   const originalConfirm = window.confirm;
@@ -54,7 +66,10 @@ describe("User & Profile Controller", () => {
     jest.restoreAllMocks();
   });
 
-  const setupFileReaderMock = (resultUrl: string = "data:image/jpeg;base64,abc", shouldFail: boolean = false) => {
+  const setupFileReaderMock = (
+    resultUrl: string = "data:image/jpeg;base64,abc",
+    shouldFail: boolean = false
+  ) => {
     class MockFileReader {
       result: string = "";
       onload: (() => void) | null = null;
@@ -79,7 +94,7 @@ describe("User & Profile Controller", () => {
   // handleUsernameChange
   // ==========================================
   describe("handleUsernameChange", () => {
-    const mockUser = { uid: "user-123" } as User;
+    const mockUser = { uid: "user-123" } as unknown as User;
 
     it("updates the user's username in both Firestore and Firebase Auth", async () => {
       (doc as jest.Mock).mockReturnValue("userDocRef");
@@ -114,7 +129,7 @@ describe("User & Profile Controller", () => {
   // ==========================================
   describe("handleUserProfileChange", () => {
     it("throws an error if no user is currently signed in", async () => {
-      (auth as { currentUser: any }).currentUser = null;
+      (auth as unknown as MockedAuth).currentUser = null;
 
       await expect(
         handleUserProfileChange({
@@ -129,7 +144,7 @@ describe("User & Profile Controller", () => {
     });
 
     it("cancels the update if the user cancels the confirm dialog", async () => {
-      (auth as { currentUser: any }).currentUser = { uid: "user-1", displayName: "Gammalt" };
+      (auth as unknown as MockedAuth).currentUser = { uid: "user-1", displayName: "Gammalt" };
       (window.confirm as jest.Mock).mockReturnValue(false);
 
       await handleUserProfileChange({
@@ -145,7 +160,7 @@ describe("User & Profile Controller", () => {
     });
 
     it("only updates the fields that have actually changed (username, phone, bio)", async () => {
-      (auth as { currentUser: any }).currentUser = {
+      (auth as unknown as MockedAuth).currentUser = {
         uid: "user-1",
         displayName: "Samma Namn",
         phoneNumber: "111",
@@ -179,7 +194,7 @@ describe("User & Profile Controller", () => {
   // ==========================================
   describe("handleUserProfilePictureChange", () => {
     it("returns false if no user is currently signed in", async () => {
-      (auth as { currentUser: any }).currentUser = null;
+      (auth as unknown as MockedAuth).currentUser = null;
 
       const res = await handleUserProfilePictureChange({
         userId: "1",
@@ -195,7 +210,7 @@ describe("User & Profile Controller", () => {
     });
 
     it("returns false if the user cancels the confirm dialog", async () => {
-      (auth as { currentUser: any }).currentUser = { uid: "user-1" };
+      (auth as unknown as MockedAuth).currentUser = { uid: "user-1" };
       (window.confirm as jest.Mock).mockReturnValue(false);
 
       const res = await handleUserProfilePictureChange({
@@ -212,7 +227,7 @@ describe("User & Profile Controller", () => {
     });
 
     it("saves the profile picture in Firestore when the blob is converted correctly", async () => {
-      (auth as { currentUser: any }).currentUser = { uid: "user-1" };
+      (auth as unknown as MockedAuth).currentUser = { uid: "user-1" };
       (window.confirm as jest.Mock).mockReturnValue(true);
       (doc as jest.Mock).mockReturnValue("userDocRef");
       (setDoc as jest.Mock).mockResolvedValueOnce(undefined);
@@ -234,7 +249,7 @@ describe("User & Profile Controller", () => {
     });
 
     it("shows an alert and cancels the update if the image string exceeds 250 000 characters", async () => {
-      (auth as { currentUser: any }).currentUser = { uid: "user-1" };
+      (auth as unknown as MockedAuth).currentUser = { uid: "user-1" };
       (window.confirm as jest.Mock).mockReturnValue(true);
 
       const massiveString = "a".repeat(250001);
@@ -337,13 +352,14 @@ describe("User & Profile Controller", () => {
     ];
 
     beforeEach(() => {
-      (auth as { currentUser: any }).currentUser = { uid: "my-uid" };
+      (auth as unknown as MockedAuth).currentUser = { uid: "my-uid" };
       (collection as jest.Mock).mockReturnValue("booksRef");
     });
 
     it("getUserBooks only returns books where Owner matches the current user", async () => {
       (getDocs as jest.Mock).mockResolvedValueOnce({
-        forEach: (cb: (doc: any) => void) => mockBookDocs.forEach(cb),
+        forEach: (cb: (docSnapshot: QueryDocumentSnapshot<DocumentData>) => void) =>
+          mockBookDocs.forEach((d) => cb(d as unknown as QueryDocumentSnapshot<DocumentData>)),
       });
 
       const books = await getUserBooks();
@@ -354,7 +370,8 @@ describe("User & Profile Controller", () => {
 
     it("getUserBorrowedBooks returns books where Current_custody is the user but Owner is not the user", async () => {
       (getDocs as jest.Mock).mockResolvedValueOnce({
-        forEach: (cb: (doc: any) => void) => mockBookDocs.forEach(cb),
+        forEach: (cb: (docSnapshot: QueryDocumentSnapshot<DocumentData>) => void) =>
+          mockBookDocs.forEach((d) => cb(d as unknown as QueryDocumentSnapshot<DocumentData>)),
       });
 
       const borrowed = await getUserBorrowedBooks();
@@ -372,11 +389,12 @@ describe("User & Profile Controller", () => {
     it("fetches and transforms all user documents from Firestore", async () => {
       (collection as jest.Mock).mockReturnValue("usersRef");
       (getDocs as jest.Mock).mockResolvedValueOnce({
-        forEach: (cb: (doc: any) => void) => {
-          [
+        forEach: (cb: (docSnapshot: QueryDocumentSnapshot<DocumentData>) => void) => {
+          const docs = [
             { data: () => ({ uid: "u1", username: "Stina", email: "stina@test.com" }) },
             { data: () => ({ uid: "u2", email: "utan-namn@test.com" }) },
-          ].forEach(cb);
+          ];
+          docs.forEach((d) => cb(d as unknown as QueryDocumentSnapshot<DocumentData>));
         },
       });
 
