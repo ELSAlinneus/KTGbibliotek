@@ -1,6 +1,18 @@
 {
   "hosting": {
     "public": "client/out",
+    "cleanUrls": true,
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"]
+  },
+  "firestore": {
+    "rules": "terraform/firestore.rules"
+  },
+  "emulators": {
+    "firestore": {
+      "port": 8080
+    },
+    "ui": {
+      "enabled": false
+    }
   }
 }

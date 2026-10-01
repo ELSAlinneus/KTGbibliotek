@@ -7,33 +7,38 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "jest"
+    "test": "jest --testPathIgnorePatterns='\\.rules\\.test\\.ts$' --testPathIgnorePatterns='\\.integration\\.test\\.tsx$'",
+    "test:integration": "jest \".*\\.integration\\.test\\.tsx$\"",
+    "test:rules": "firebase --config ../firebase.json emulators:exec --only firestore 'jest rules.test.ts'"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-free": "^7.2.0",
-    "firebase": "^12.9.0",
-    "next": "16.3.5",
+    "@fortawesome/fontawesome-free": "^7.3.1",
+    "firebase": "^12.19.0",
+    "next": "^16.3.8",
     "react": "19.2.3",
     "react-dom": "19.2.3",
-    "react-easy-crop": "^5.5.6"
+    "react-easy-crop": "^6.2.3"
   },
   "devDependencies": {
+    "@firebase/rules-unit-testing": "^5.0.2",
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.7",
     "@types/jest": "^30.0.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.3.5",
-    "jest": "^30.5.1",
+    "jest": "^30.5.2",
     "jest-environment-jsdom": "^30.5.2",
-    "jest-environment-node": "^30.5.1",
+    "jest-environment-node": "^30.5.2",
     "tailwindcss": "^4",
     "typescript": "^5"
   },
   "overrides": {
-    "glob": "^13.0.0"
+    "glob": "^13.0.0",
+    "@grpc/grpc-js": "^1.13.6"
   }
 }

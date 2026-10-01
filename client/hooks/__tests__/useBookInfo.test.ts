@@ -59,6 +59,17 @@ const mockBook: Book = {
     Readers: ["user-2"],
 };
 
+async function waitForInitialLoad(result: { current: ReturnType<typeof useBookInfo> }) {
+    await waitFor(() => {
+        expect(result.current.isOwnerProfileLoading).toBe(false);
+        expect(result.current.isLoanedToProfileLoading).toBe(false);
+    });
+
+    await act(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+}
+
 describe("useBookInfo", () => {
     beforeEach(() => {
         jest.clearAllMocks();
@@ -73,7 +84,7 @@ describe("useBookInfo", () => {
         );
     });
 
-    it("sets userId and computes hasRead when user is authenticated", () => {
+    it("sets userId and computes hasRead when user is authenticated", async () => {
         const fakeFirebaseUser = { uid: "user-2" } as User;
 
         mockedOnAuthStateChanged.mockImplementation(
@@ -86,6 +97,8 @@ describe("useBookInfo", () => {
         );
 
         const { result } = renderHook(() => useBookInfo(mockBook));
+
+        await waitForInitialLoad(result);
 
         expect(result.current.userId).toBe("user-2");
         expect(result.current.hasRead).toBe(true);
@@ -101,11 +114,9 @@ describe("useBookInfo", () => {
 
         const { result } = renderHook(() => useBookInfo(mockBook));
 
-        await waitFor(() => {
-            expect(result.current.ownerProfile).toEqual(mockProfile);
-            expect(result.current.isOwnerProfileLoading).toBe(false);
-        });
+        await waitForInitialLoad(result);
 
+        expect(result.current.ownerProfile).toEqual(mockProfile);
         expect(mockedGetUserByUid).toHaveBeenCalledWith("owner-1");
     });
 
@@ -128,6 +139,8 @@ describe("useBookInfo", () => {
             useBookInfo(mockBook, onBookUpdatedMock)
         );
 
+        await waitForInitialLoad(result);
+
         await act(async () => {
             await result.current.toggleReadStatus();
         });
@@ -149,6 +162,8 @@ describe("useBookInfo", () => {
         mockedUpdateBookImage.mockRejectedValue(new Error("Upload failed"));
 
         const { result } = renderHook(() => useBookInfo(mockBook));
+
+        await waitForInitialLoad(result);
 
         await act(async () => {
             await result.current.handleImageChange({

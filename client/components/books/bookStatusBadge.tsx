@@ -21,11 +21,11 @@ const statusStyles = {
 export default function BookStatusBadge({ status, loanedToProfile, onUserProfileLoaded, isLoanedToProfileLoading = false }: BookStatusBadgeProps) {
     const content = {
         "available-listItem": "Tillgänglig",
-        available: "Boken är tillgänglig för utlåning",
+        available: "Tillgänglig för utlåning",
         borrowed: "Utlånad",
         "borrowed-by-me": "Du har lånat denna bok",
         "i-have-lent-to": loanedToProfile ? "Utlånad till" : "Utlånad",
-        "borrowed-by-other": loanedToProfile ? "Boken är redan utlånad till" : "Utlånad",
+        "borrowed-by-other": loanedToProfile ? "Lånad av" : "Utlånad",
         "my-book": "Min bok"
     }[status];
 

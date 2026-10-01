@@ -16,9 +16,10 @@ type BookFiltersProps = {
     users: PublicUserProfile[];
     values: BookFilterValues;
     onChange: (values: BookFilterValues) => void;
+    userId?: string | null;
 };
 
-export default function BookFilters({ books, users, values, onChange }: BookFiltersProps) {
+export default function BookFilters({ books, users, values, onChange, userId }: BookFiltersProps) {
     const languages = Array.from(new Set(books.map((book) => book.Language).filter(Boolean))).sort();
     const hasActiveFilters = Object.values(values).some(Boolean);
     const updateFilter = (key: keyof BookFilterValues, value: string | boolean) => {
@@ -43,15 +44,18 @@ export default function BookFilters({ books, users, values, onChange }: BookFilt
                 onSearch={(searchQuery) => updateFilter("searchQuery", searchQuery)}
                 placeholder="Sök efter titel, författare eller ISBN..."
             />
-            <label className="mb-4 flex cursor-pointer items-center gap-2 text-sm font-medium text-slate-300">
-                <input
-                    type="checkbox"
-                    checked={values.includeMyBooks}
-                    onChange={(event) => updateFilter("includeMyBooks", event.target.checked)}
-                    className="h-4 w-4 appearance-none rounded border border-slate-600 bg-transparent checked:appearance-auto checked:accent-slate-600"
-                />
-                Inkludera mina böcker
-            </label>
+            {userId && (
+
+                <label className="mb-4 flex cursor-pointer items-center gap-2 text-sm font-medium text-slate-300">
+                    <input
+                        type="checkbox"
+                        checked={values.includeMyBooks}
+                        onChange={(event) => updateFilter("includeMyBooks", event.target.checked)}
+                        className="h-4 w-4 appearance-none rounded border border-slate-600 bg-transparent checked:appearance-auto checked:accent-slate-600"
+                        />
+                    Inkludera mina böcker
+                </label>
+            )}
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 <label className="grid gap-1 text-sm font-medium text-slate-300">
                     Språk

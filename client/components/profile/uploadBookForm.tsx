@@ -50,7 +50,7 @@ export default function UploadBookForm({ onClose, user, onBookAdded }: NewBookFo
                     }
                 }}>
                     <div>
-                        <label className="block font-bold text-slate-300 mb-2">ISBN:</label>
+                        <label htmlFor="isbn" className="block font-bold text-slate-300 mb-2">ISBN:</label>
                         <input readOnly={bookInfo !== null} type="text" id="isbn" name="isbn" className="mt-1 block w-full border border-slate-600 bg-slate-800 text-slate-100 rounded-md shadow-sm p-2" />
                     </div>
                     {infoFetched && !bookInfo && (
@@ -89,16 +89,16 @@ export default function UploadBookForm({ onClose, user, onBookAdded }: NewBookFo
                         <div className="mt-4">
                             <h3 className="text-lg font-bold pb-2">Hämtad bokinformation:</h3>
                             <div className="mb-4">
-                                <label className="block font-bold text-slate-300 mb-2">Titel:</label>
-                                <input readOnly value={bookInfo.title} type="text" name="title" className="w-full"/>
+                                <label htmlFor="title" className="block font-bold text-slate-300 mb-2">Titel:</label>
+                                <input readOnly value={bookInfo.title} type="text" name="title" id="title" className="w-full"/>
                             </div>
                             <div className="mb-4">
-                                <label className="block font-bold text-slate-300 mb-2">Författare:</label>
-                                <input readOnly value={bookInfo.author} type="text" name="author" className="w-full"/>
+                                <label htmlFor="author" className="block font-bold text-slate-300 mb-2">Författare:</label>
+                                <input readOnly value={bookInfo.author} type="text" name="author" id="author" className="w-full"/>
                             </div>
                             <div className="mb-4">
-                                <label className="block font-bold text-slate-300 mb-2">Utgivare:</label>
-                                <input readOnly value={bookInfo.publisher} type="text" name="publisher" className="w-full"/> 
+                                <label htmlFor="publisher" className="block font-bold text-slate-300 mb-2">Utgivare:</label>
+                                <input readOnly value={bookInfo.publisher} type="text" name="publisher" id="publisher" className="w-full"/> 
                             </div>
                             <div className="mb-4">
                                 <label className="block font-bold text-slate-300 mb-2">Språk:</label>           

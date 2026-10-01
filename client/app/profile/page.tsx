@@ -159,8 +159,8 @@ export default function ProfilePage() {
                 }} />
             }
 
-            {showChangeCustodyForm && <ChangeCustodyForm book={showChangeCustodyForm} onClose={() => setShowChangeCustodyForm(null)} onSave={() => {
-                setUserBooks((books) => books.map((book) => book.id === showChangeCustodyForm.id ? { ...book, Borrowed: true } : book));
+            {showChangeCustodyForm && <ChangeCustodyForm book={showChangeCustodyForm} onClose={() => setShowChangeCustodyForm(null)} onSave={(newCustodyUserId) => {
+                setUserBooks((books) => books.map((book) => book.id === showChangeCustodyForm.id ? { ...book, Borrowed: true, Current_custody: newCustodyUserId } : book));
                 setShowChangeCustodyForm(null);
             }} />}
         </div>
