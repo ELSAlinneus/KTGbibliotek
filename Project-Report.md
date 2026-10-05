@@ -2,7 +2,7 @@
 
 ## 1\. Architecture and processes
 
-KTG Bibliotek is a library web application, built with [Next.js](http://Next.js), React, and TypeScript. It uses Firebase for both data storage (Firestore) and Hosting. Around this application, we implemented the core DevOps techniques required for this assignment
+KTG Bibliotek is a library web application, built with Next.js, React, and TypeScript. It uses Firebase for both data storage (Firestore) and Hosting. Around this application, we implemented the core DevOps techniques required for this assignment
 
 ### Continuous Integration
 
@@ -44,7 +44,7 @@ Since we wanted the CI pipeline to run more often than the CD pipeline, we decid
 
 ### Firebase Hosting over Vercel
 
-Vercel offers zero-configuration deployment for [Next.js](http://Next.js), and would’ve required no GitHub Actions workflow at all since it happens outside of GitHub. Firebase Hosting keeps the deployment step visible in the repository, and keeps both the application’s data and hosting layer on the same platform, which is also what the IaC configuration manages, rather than splitting infrastructure across two unrelated providers for no functional benefit.
+Vercel offers zero-configuration deployment for Next.js, and would’ve required no GitHub Actions workflow at all since it happens outside of GitHub. Firebase Hosting keeps the deployment step visible in the repository, and keeps both the application’s data and hosting layer on the same platform, which is also what the IaC configuration manages, rather than splitting infrastructure across two unrelated providers for no functional benefit.
 
 ### Terraform scope: Firestore, Hosting and local state
 
