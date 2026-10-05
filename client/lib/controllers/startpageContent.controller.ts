@@ -30,3 +30,18 @@ export async function getHomeContent(): Promise<HomeContent | null> {
 export async function saveHomeContent(content: HomeContent): Promise<void> {
     await setDoc(homeContentRef, content);
 }
+
+export async function deleteHomeContentBlock(blockId: string): Promise<void> {
+    const snapshot = await getDoc(homeContentRef);
+    if (!snapshot.exists()) {
+        return;
+    }
+
+    const data = snapshot.data() as Partial<HomeContent>;
+    const blocks = (data.blocks ?? []).filter((block) => block.id !== blockId);
+    await setDoc(homeContentRef, {
+        welcomeText: data.welcomeText ?? "",
+        sectionTitle: data.sectionTitle ?? "KTG Tipsar:",
+        blocks,
+    });
+}

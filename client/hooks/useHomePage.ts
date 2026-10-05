@@ -4,6 +4,7 @@ import { auth } from "@/lib/firebase/firebase";
 import {
     getHomeContent,
     saveHomeContent,
+    deleteHomeContentBlock,
     type ContentBlock,
     type HomeContent,
 } from "@/lib/controllers/startpageContent.controller";
@@ -154,11 +155,27 @@ export function useHomePage() {
         setEditingId(block.id);
     };
 
-    const deleteBlock = (id: string) => {
-        setContent((current) => ({
-            ...current,
-            blocks: current.blocks.filter((block) => block.id !== id),
-        }));
+    const deleteBlock = async (id: string) => {
+        if (!window.confirm("Är du säker på att du vill ta bort inlägget? Det går inte att ångra.")) {
+            return;
+        }
+
+        setIsSaving(true);
+        setError("");
+        try {
+            await deleteHomeContentBlock(id);
+            setContent((current) => ({
+                ...current,
+                blocks: current.blocks.filter((block) => block.id !== id),
+            }));
+            setEditingSnapshot(null);
+            setEditingId(null);
+        } catch (deleteError) {
+            console.error("Kunde inte ta bort startsidans inlägg:", deleteError);
+            setError("Kunde inte ta bort inlägget. Försök igen.");
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     const sortedBlocks = [...content.blocks].sort((a, b) => {
