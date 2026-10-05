@@ -1,7 +1,7 @@
 import ImgUploader from "@/components/imgUploader/imgUploader";
 import type { ContentBlock } from "@/lib/controllers/startpageContent.controller";
 
-type InformationPostProps = {
+type PostProps = {
     block: ContentBlock;
     isEditing: boolean;
     isAdmin: boolean;
@@ -21,7 +21,7 @@ function formatDate(value?: string) {
     }).format(new Date(value));
 }
 
-export default function InformationPost({
+export default function Post({
     block,
     isEditing,
     isAdmin,
@@ -31,7 +31,7 @@ export default function InformationPost({
     onCancel,
     onSave,
     onDelete,
-}: InformationPostProps) {
+}: PostProps) {
     return (
         <article className="relative rounded-lg border border-slate-700 bg-slate-800 p-6 text-slate-200 shadow-lg">
             {isEditing ? (
@@ -128,11 +128,11 @@ export default function InformationPost({
                         <div className={`mt-4 flex gap-4 ${block.imageLayout === "two" ? "flex-row" : ""}`}>
                             {block.image && (
                                 // eslint-disable-next-line @next/next/no-img-element
-                                <img src={block.image} alt={block.title || "Bild i informationsinlägg"} className={`${block.imageLayout === "two" ? "w-1/2" : "w-full"} max-h-80 rounded object-cover`} />
+                                <img src={block.image} alt={block.title || "Bild i inlägg"} className={`${block.imageLayout === "two" ? "w-1/2" : "w-full"} max-h-80 rounded object-cover`} />
                             )}
                             {block.imageLayout === "two" && block.image2 && (
                                 // eslint-disable-next-line @next/next/no-img-element
-                                <img src={block.image2} alt={block.title || "Bild i informationsinlägg"} className="max-h-80 w-1/2 rounded object-cover" />
+                                <img src={block.image2} alt={block.title || "Bild i inlägg"} className="max-h-80 w-1/2 rounded object-cover" />
                             )}
                         </div>
                     )}

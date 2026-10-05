@@ -1,7 +1,7 @@
 "use client";
 
 import AdminInfoBadge from "@/components/home/adminInfoBadge";
-import InformationPost from "@/components/home/informationPost";
+import Post from "@/components/home/Post";
 import WelcomeSection from "@/components/home/welcomeSection";
 import SectionHeading from "@/components/home/sectionHeading";
 import { useHomePage } from "@/hooks/useHomePage";
@@ -48,7 +48,7 @@ export default function HomePage() {
             />
 
             {sortedBlocks.map((block) => (
-                <InformationPost
+                <Post
                     key={block.id}
                     block={block}
                     isEditing={editingId === block.id}
