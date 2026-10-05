@@ -5,15 +5,27 @@ import { useEffect, useState } from "react";
 import { auth } from "../../lib/firebase/firebase";
 import Image from "next/image";
 import NavbarItem from "./navbar-item";
+import AdminInfoBadge from "./adminInfoBadge";
 
 export default function Topbar(){
     const [user, setUser] = useState<User | null>(null);
     const [ready, setReady] = useState(false);
     const [isDarkMode, setIsDarkMode] = useState(true);
+    const [isAdmin, setIsAdmin] = useState(false);
 
     useEffect(() => {
         const unsub = onAuthStateChanged(auth, (u) => {
             setUser(u);
+            if (!u) {
+                setIsAdmin(false);
+            } else {
+                u.getIdTokenResult().then((tokenResult) => {
+                    setIsAdmin(tokenResult.claims.admin === true);
+                }).catch((error) => {
+                    console.error("Kunde inte kontrollera adminbehörighet:", error);
+                    setIsAdmin(false);
+                });
+            }
             const savedTheme = window.localStorage.getItem("theme");
             const darkMode = savedTheme !== "light";
             setIsDarkMode(darkMode);
@@ -34,6 +46,7 @@ export default function Topbar(){
 
     return (
         <div>
+            {isAdmin && <AdminInfoBadge />}
             <div className="relative flex w-full items-center justify-start bg-blue-950 p-4">
                 <Image src="/ktg-logga.jpg" alt="KTG" className="mr-4 h-12 w-auto" width={48} height={48} />
                 <h1 className="absolute left-1/2 -translate-x-1/2 text-5xl font-bold text-white">KTG Bibliotek</h1>
