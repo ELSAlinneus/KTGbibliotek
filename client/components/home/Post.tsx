@@ -1,5 +1,7 @@
 import ImgUploader from "@/components/imgUploader/imgUploader";
 import type { ContentBlock } from "@/lib/controllers/startpageContent.controller";
+import Image from "next/image";
+import BookImagePreview from "@/components/books/bookImagePreview";
 
 type PostProps = {
     block: ContentBlock;
@@ -125,14 +127,30 @@ export default function Post({
                     {block.title && <h2 className="mb-2 text-xl font-bold">{block.title}</h2>}
                     <p className="whitespace-pre-wrap">{block.text}</p>
                     {(block.image || block.image2) && (
-                        <div className={`mt-4 flex gap-4 ${block.imageLayout === "two" ? "flex-row" : ""}`}>
+                        <div className={`mt-4 flex  ${block.imageLayout === "two" ? "flex-row  gap-8 justify-center" : ""}`}>
                             {block.image && (
-                                // eslint-disable-next-line @next/next/no-img-element
-                                <img src={block.image} alt={block.title || "Bild i inlägg"} className={`${block.imageLayout === "two" ? "w-1/2" : "w-full"} max-h-80 rounded object-cover`} />
+                                block.imageLayout === "two" ? (
+                                    <BookImagePreview
+                                        imageUrl={block.image}
+                                        alt={block.title || "Bild i inlägg"}
+                                        label="bild 1"
+                                    />
+                                ) : (
+                                    <Image
+                                        src={block.image}
+                                        alt={block.title || "Bild i inlägg"}
+                                        className="w-full max-h-80 rounded object-cover"
+                                        width={300}
+                                        height={400}
+                                    />
+                                )
                             )}
                             {block.imageLayout === "two" && block.image2 && (
-                                // eslint-disable-next-line @next/next/no-img-element
-                                <img src={block.image2} alt={block.title || "Bild i inlägg"} className="max-h-80 w-1/2 rounded object-cover" />
+                                <BookImagePreview
+                                    imageUrl={block.image2}
+                                    alt={block.title || "Bild i inlägg"}
+                                    label="bild 2"
+                                />
                             )}
                         </div>
                     )}
