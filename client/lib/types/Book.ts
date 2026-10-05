@@ -9,6 +9,7 @@ export type Book = {
     BackCoverImageURL: string;
     Language: string;
     Owner: string;
+    Hidden?: boolean;
     Readers?: string[];
     ISBN: string;
     Year_of_publication: number;

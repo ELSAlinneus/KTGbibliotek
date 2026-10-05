@@ -23,17 +23,15 @@ export default function AllBooksPage() {
         owner: "",
         custody: "",
         status: "",
-        includeMyBooks: false
+        includeMyBooks: false,
+        hiddenOnly: false
     });
     const [users, setUsers] = useState<PublicUserProfile[]>([]);
     const [userId, setUserId] = useState<string | null>(null);
+    const [isAdmin, setIsAdmin] = useState(false);
 
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
-            setUserId(user?.uid || null);
-        });
-
         const fetchBooks = async () => {
             console.log("fetching books...");
             setIsLoading(true);
@@ -43,7 +41,11 @@ export default function AllBooksPage() {
             console.log("books fetched:", fetchedBooks);
         };
 
-        fetchBooks();
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
+            setUserId(user?.uid || null);
+            setIsAdmin(user ? (await user.getIdTokenResult()).claims.admin === true : false);
+            await fetchBooks();
+        });
 
         const fetchUsers = async () => {
             const fetchedUsers = await getAllUsers();
@@ -67,8 +69,9 @@ export default function AllBooksPage() {
             || (filters.status === "borrowed" && book.Borrowed);
 
         const matchesMyBooks = !userId || filters.includeMyBooks || book.Owner !== userId;
+        const matchesHidden = !filters.hiddenOnly || book.Hidden === true;
 
-        return matchesQuery && matchesLanguage && matchesOwner && matchesCustody && matchesStatus && matchesMyBooks;
+        return matchesQuery && matchesLanguage && matchesOwner && matchesCustody && matchesStatus && matchesMyBooks && matchesHidden;
     });
 
     if (isLoading) {
@@ -77,7 +80,7 @@ export default function AllBooksPage() {
 
     return (
         <div className="w-full">
-            <BookFilters books={allbooks} users={users} values={filters} onChange={setFilters} userId={userId} />
+            <BookFilters books={allbooks} users={users} values={filters} onChange={setFilters} userId={userId} isAdmin={isAdmin} />
             <ul className="w-full">
                 {filteredBooks.length === 0 ? (
                     <p className="m-4 rounded-lg border border-slate-700 bg-slate-800 p-6 text-center text-slate-400">

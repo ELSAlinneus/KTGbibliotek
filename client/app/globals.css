@@ -77,3 +77,46 @@ body {
 [data-theme="light"] .bg-red-950\/40 {
   background-color: #fee2e2;
 }
+
+.hidden-book-surface {
+  background-color: #17202b;
+  color: #cbd5e1;
+}
+
+.hidden-book-surface .bg-slate-900 {
+  background-color: rgb(15 23 42 / 0.55);
+}
+
+.hidden-book-surface:hover {
+  background-color: #17202b;
+}
+
+.hidden-book-badge {
+  border-color: #64748b;
+  background-color: rgb(15 23 42 / 0.9);
+  color: #cbd5e1;
+}
+
+[data-theme="light"] .hidden-book-surface {
+  background-color: #b6b9be;
+  color: #374151;
+}
+
+[data-theme="light"] .hidden-book-surface .bg-slate-900 {
+  background-color: #96979a;
+}
+
+[data-theme="light"] .hidden-book-surface:hover {
+  background-color: #b6b9be;
+}
+
+[data-theme="light"] .hidden-book-surface h1,
+[data-theme="light"] .hidden-book-surface p {
+  color: #374151;
+}
+
+[data-theme="light"] .hidden-book-badge {
+  border-color: #6b7280;
+  background-color: #e5e7eb;
+  color: #374151;
+}

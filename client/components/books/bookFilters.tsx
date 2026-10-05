@@ -9,6 +9,7 @@ export type BookFilterValues = {
     custody: string;
     status: string;
     includeMyBooks: boolean;
+    hiddenOnly: boolean;
 };
 
 type BookFiltersProps = {
@@ -17,9 +18,10 @@ type BookFiltersProps = {
     values: BookFilterValues;
     onChange: (values: BookFilterValues) => void;
     userId?: string | null;
+    isAdmin?: boolean;
 };
 
-export default function BookFilters({ books, users, values, onChange, userId }: BookFiltersProps) {
+export default function BookFilters({ books, users, values, onChange, userId, isAdmin = false }: BookFiltersProps) {
     const languages = Array.from(new Set(books.map((book) => book.Language).filter(Boolean))).sort();
     const hasActiveFilters = Object.values(values).some(Boolean);
     const updateFilter = (key: keyof BookFilterValues, value: string | boolean) => {
@@ -33,7 +35,7 @@ export default function BookFilters({ books, users, values, onChange, userId }: 
                 {hasActiveFilters && (
                     <button
                         type="button"
-                        onClick={() => onChange({ searchQuery: "", language: "", owner: "", custody: "", status: "", includeMyBooks: false })}
+                        onClick={() => onChange({ searchQuery: "", language: "", owner: "", custody: "", status: "", includeMyBooks: false, hiddenOnly: false })}
                         className="text-sm font-medium text-slate-400 underline decoration-slate-600 underline-offset-4 transition hover:text-white"
                     >
                         Rensa filter
@@ -54,6 +56,17 @@ export default function BookFilters({ books, users, values, onChange, userId }: 
                         className="h-4 w-4 appearance-none rounded border border-slate-600 bg-transparent checked:appearance-auto checked:accent-slate-600"
                         />
                     Inkludera mina böcker
+                </label>
+            )}
+            {isAdmin && (
+                <label className="mb-4 flex cursor-pointer items-center gap-2 text-sm font-medium">
+                    <input
+                        type="checkbox"
+                        checked={values.hiddenOnly}
+                        onChange={(event) => updateFilter("hiddenOnly", event.target.checked)}
+                        className="h-4 w-4 appearance-none rounded border border-slate-600 bg-transparent checked:appearance-auto checked:accent-slate-600"
+                    />
+                    Visa endast dolda böcker
                 </label>
             )}
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">

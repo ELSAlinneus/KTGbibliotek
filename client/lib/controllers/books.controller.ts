@@ -1,4 +1,4 @@
-import { db } from "@/lib/firebase/firebase";
+import { auth, db } from "@/lib/firebase/firebase";
 import { arrayRemove, arrayUnion, collection, getDocs, onSnapshot, addDoc, doc, deleteDoc, updateDoc } from "firebase/firestore";
 import { Book } from "../../lib/types/Book";
 import { User } from "firebase/auth";
@@ -116,9 +116,43 @@ async function deleteBook(bookId: string): Promise<boolean> {
     return false;
 }
 
-async function getAllBooks(): Promise<Book[]> { 
+async function setBookHidden(bookId: string, hidden: boolean): Promise<boolean> {
+    if (!window.confirm(hidden
+        ? "Är du säker på att du vill dölja denna bok? Den blir bara synlig för ägaren och administratörer."
+        : "Är du säker på att du vill visa denna bok igen?")) {
+        return false;
+    }
+
+    try {
+        await updateDoc(doc(db, "Books", bookId), { Hidden: hidden });
+        return true;
+    } catch (error) {
+        console.error("Kunde inte ändra bokens synlighet:", error);
+        return false;
+    }
+}
+
+async function canViewHiddenBooks(): Promise<boolean> {
+    const currentUser = auth?.currentUser;
+    if (!currentUser) return false;
+
+    try {
+        const tokenResult = await currentUser.getIdTokenResult();
+        return tokenResult.claims.admin === true;
+    } catch (error) {
+        console.error("Kunde inte kontrollera adminbehörighet för dolda böcker:", error);
+        return false;
+    }
+}
+
+async function getAllBooks(): Promise<Book[]> {
     const snapshot = await getDocs(collection(db, "Books"));
-    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Book));
+    const currentUserId = auth?.currentUser?.uid;
+    const canSeeAllHiddenBooks = await canViewHiddenBooks();
+
+    return snapshot.docs
+        .map((doc) => ({ id: doc.id, ...doc.data() } as Book))
+        .filter((book) => !book.Hidden || canSeeAllHiddenBooks || book.Owner === currentUserId);
 }
 
 function subscribeBooks(onUpdate: (books: Book[]) => void) {
@@ -227,4 +261,4 @@ async function updateBookReadStatus(bookId: string, userId: string, hasRead: boo
     }
 }
 
-export { addBook, deleteBook, getAllBooks, subscribeBooks, getInformationFromISBN, manageBookLoan, updateBookImage, updateBookBackCoverImage, updateBookReadStatus };
+export { addBook, deleteBook, getAllBooks, subscribeBooks, getInformationFromISBN, manageBookLoan, setBookHidden, updateBookImage, updateBookBackCoverImage, updateBookReadStatus };

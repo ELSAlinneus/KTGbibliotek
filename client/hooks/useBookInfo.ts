@@ -12,6 +12,7 @@ type CoverType = "front" | "back";
 
 export function useBookInfo(book: Book, onBookUpdated?: (book: Book) => void) {
     const [userId, setUserId] = useState<string | null>(null);
+    const [isAdmin, setIsAdmin] = useState(false);
     const [userProfile, setUserProfile] = useState<PublicUserProfile | null>(null);
     const [ownerProfile, setOwnerProfile] = useState<PublicUserProfile | null>(null);
     const [loanedToProfile, setLoanedToProfile] = useState<PublicUserProfile | null>(null);
@@ -84,8 +85,21 @@ export function useBookInfo(book: Book, onBookUpdated?: (book: Book) => void) {
     };
 
     useEffect(() => {
-        const unsubscribe = auth.onAuthStateChanged((currentUser) => {
+        const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
             setUserId(currentUser?.uid || null);
+
+            if (!currentUser) {
+                setIsAdmin(false);
+                return;
+            }
+
+            try {
+                const tokenResult = await currentUser.getIdTokenResult(true);
+                setIsAdmin(tokenResult.claims.admin === true);
+            } catch (error) {
+                console.error("Kunde inte kontrollera adminbehörighet:", error);
+                setIsAdmin(false);
+            }
         });
         return unsubscribe;
     }, []);
@@ -144,6 +158,7 @@ export function useBookInfo(book: Book, onBookUpdated?: (book: Book) => void) {
 
     return {
         userId,
+        isAdmin,
         userProfile,
         setUserProfile,
         ownerProfile,

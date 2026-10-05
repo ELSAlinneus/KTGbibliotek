@@ -4,10 +4,12 @@ import BookInfoCard from "./bookinfo/bookInfoCard";
 import BookInfoDetails from "./bookinfo/bookInfoDetails";
 import BookInfoImages from "./bookinfo/bookInfoImages";
 import { useBookInfo } from "@/hooks/useBookInfo";
+import { setBookHidden } from "@/lib/controllers/books.controller";
 
 export default function BookInfo({ book, onClose, onDelete, onGetBookBack, onLendBook, onBookUpdated }: { book: Book, onClose: () => void, onDelete: (bookId: string) => void, onGetBookBack: (book: Book) => void, onLendBook: (book: Book) => void, onBookUpdated?: (book: Book) => void }) {
     const {
         userId,
+        isAdmin,
         userProfile,
         setUserProfile,
         ownerProfile,
@@ -29,7 +31,18 @@ export default function BookInfo({ book, onClose, onDelete, onGetBookBack, onLen
     const isOwner = userId === book.Owner;
 
     return (
-        <BookInfoCard title={book.Title} onClose={onClose}>
+        <BookInfoCard
+            title={book.Title}
+            onClose={onClose}
+            isAdmin={isAdmin}
+            isHidden={book.Hidden}
+            onDeleteBook={() => onDelete(book.id)}
+            onToggleHidden={async () => {
+                if (await setBookHidden(book.id, !book.Hidden)) {
+                    onBookUpdated?.({ ...book, Hidden: !book.Hidden });
+                }
+            }}
+        >
             <div className="relative flex w-full flex-wrap items-start gap-6 rounded-xl border border-slate-700 bg-slate-900 p-6 shadow-sm">
                 {userId && (
                     <label className="absolute right-5 top-4 flex max-w-[45%] items-center gap-2 text-right text-sm font-medium text-slate-200">
