@@ -15,7 +15,7 @@ export default function BookAdminActions({
                 <button
                     type="button"
                     onClick={onDelete}
-                    className="rounded bg-red-800 px-3 py-2 text-sm font-medium text-white transition hover:bg-red-700"
+                    className="rounded red-badge px-3 py-2 text-sm font-medium text-white transition hover:bg-slate-500"
                 >
                     Radera bok
                 </button>

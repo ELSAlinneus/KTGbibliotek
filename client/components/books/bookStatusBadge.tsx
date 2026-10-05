@@ -11,10 +11,10 @@ type BookStatusBadgeProps = {
 const statusStyles = {
     "available-listItem": "bg-green-600",
     available: "bg-green-600",
-    borrowed: "bg-red-600",
+    borrowed: "red-badge",
     "borrowed-by-me": "bg-yellow-500",
-    "i-have-lent-to": "bg-red-600",
-    "borrowed-by-other": "bg-red-600",
+    "i-have-lent-to": "red-badge",
+    "borrowed-by-other": "red-badge",
     "my-book": "bg-blue-600"
 };
 
